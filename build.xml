@@ -37,11 +37,11 @@
 <project name="Sun Games Initiative Client Technologies" basedir="." default="all">
 
     <target name="init">
+      <property environment="env"/>       
+      <property name="jdk.home" value="${env.JAVA_HOME}"/> 	    
   	  <!-- YOU MUST EDIT & UNCOMMENT THESE PROPERTIES BEFORE BUILDING. SEE README.TXT FOR INSTRUCTIONS
-      <property name="jdk.home" value="c:/j2sdk1.4.2"/> 	    
       <property name="openal.home" value="C:/Program Files/Creative Labs/OpenAL 1.0 SDK"/>
       -->
-	  <fail message="jdk.home not set. Please see README.txt for instructions" unless="jdk.home"/>	  
 	  <fail message="openal.home not set. Please see README.txt for instructions" unless="openal.home"/>	  
       <property name="optimize" value="on"/> <!-- Edit this to taste --> 
       <property name="debug" value="on"/> <!-- Edit this to taste --> 	
