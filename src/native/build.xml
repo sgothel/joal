@@ -33,7 +33,6 @@
 * design, construction, operation or maintenance of any nuclear facility.
 -->
 
-
 <project name="Sun Games Initiative Client Technologies" basedir="." default="all">
 
     <target name="init">
@@ -41,6 +40,12 @@
     <property name="no_cygwin" value="-mno-cygwin"/>
     <property name="sources" value="common_tools.c extal.c eaxfactory.c eaxbind.c alfactory.c alcbind.c albind.c"/>
     <property name="specs" value="-specs='./specs.new'"/>
+	<condition property="isOSX">
+		<and>
+			<os family="mac"/>
+			<os family="unix"/>
+		</and>
+	</condition>
     <condition property="isUnix">
   	    <os family="unix" />
     </condition>
@@ -66,7 +71,16 @@
             <param name="output" value="../../lib/libjoal.so"/>
         </antcall>
     </target>
-
+    
+	<target name="compile-jnilib" depends="init" if="isOSX">
+		<echo message="Compiling shared library for OSX"/>
+		<antcall target="compile-native-lib">
+			<param name="include" value="-I${jdk.home}/include -I${openal.home}/Headers"/>
+			<param name="compilerflags" value="-O3 -D_AGL -bundle "/>
+			<param name="output" value="../../lib/libjoal.jnilib"/>
+		</antcall>
+	</target>
+	
     <target name="compile-native-lib">
 	<echo message="${cc} ${include} ${compilerflags} -o ${output} ${sources}" />
         <exec executable="${cc}">
@@ -74,7 +88,7 @@
         </exec>
     </target>
 
-    <target name="compile" depends="compile-so, compile-dll">
+    <target name="compile" depends="compile-so, compile-dll, compile-jnilib">
      </target>
 
     <target name="javadoc" depends="init">
@@ -89,5 +103,6 @@
     <target name="clean" description="Clean all build products.">
         <delete file="../../lib/joal.dll" />
         <delete file="../../lib/libjoal.so" />
+        <delete file="../../lib/libjoal.jnilib"/>
     </target>
 </project>

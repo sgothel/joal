@@ -50,14 +50,9 @@ final class ALCImpl implements ALC {
     }
 	
 	public Device alcOpenDevice(String deviceName) {
-		System.out.println("Entering alcOpenDevice2()");
-		Device result = openDeviceNative(deviceName);
-		System.out.println("Exiting alcOpenDevice2()");
-		return result;
+		return openDeviceNative(deviceName);
 	}
-	/*
-    private native int openDeviceNative(String deviceName);
-*/
+
 	private native Device openDeviceNative(String deviceName);
 
     public void alcCloseDevice(Device device) {
@@ -67,22 +62,7 @@ final class ALCImpl implements ALC {
     }
 
     private native void closeDeviceNative(int pointer);
-/*
-    public Context alcCreateContext(Device device, int[] attrs) {
-        Context result = null;
-        if(device != null) {
-            int pointer = createContextNative(device.pointer, attrs);
-            if (pointer != 0) {
-                result = new Context(this, pointer);
-                contextMap.put(new Integer(pointer), result);
-            }
-        }
-        return result;
-    }
-*/
-/*
-    private native int createContextNative(int pointer, int[] attrs);
-*/
+
 	public Context alcCreateContext(Device device, int[] attrs) {
 		Context result = null;
 		if(device != null) {
