@@ -155,13 +155,12 @@ final class ALCImpl implements ALC {
 
     public Device alcGetContextsDevice(Context context) {
         Device result = null;
-        int devicePtr = getContextDeviceNative(context.pointer);
-        Device device = new ALC.Device(devicePtr);
-
+        int devicePtr = getContextsDeviceNative(context.pointer);
+        result = new ALC.Device(devicePtr);
         return result;
     }
 
-    private native int getContextDeviceNative(int context);
+    private native int getContextsDeviceNative(int context);
 
     private void exit() {
 
@@ -169,6 +168,7 @@ final class ALCImpl implements ALC {
 
         if (alcContext != null) {
             Device alcDevice = alcGetContextsDevice(alcContext);
+            System.out.println("alcDevice = " + alcDevice);
             alcMakeContextCurrent(null);
             alcDestroyContext(alcContext);
             alcCloseDevice(alcDevice);
