@@ -39,8 +39,8 @@
     <target name="init">
       <property environment="env"/>       
       <property name="jdk.home" value="${env.JAVA_HOME}"/> 	    
-  	  <!-- YOU MUST EDIT & UNCOMMENT THESE PROPERTIES BEFORE BUILDING. SEE README.TXT FOR INSTRUCTIONS
-      <property name="openal.home" value="C:/Program Files/Creative Labs/OpenAL 1.0 SDK"/>
+  	  <!-- YOU MUST EDIT & UNCOMMENT THESE PROPERTIES BEFORE BUILDING. SEE README.TXT FOR INSTRUCTIONS 
+      <property name="openal.home" value="/Program Files/Creative Labs/OpenAL 1.0 SDK"/>
       -->
 	  <fail message="openal.home not set. Please see README.txt for instructions" unless="openal.home"/>	  
       <property name="optimize" value="on"/> <!-- Edit this to taste --> 
