@@ -261,7 +261,7 @@
         <property name="c.compiler.flags" value="${c.compiler.optflags} /nologo /TC /c" />
         <property name="c.compiler.obj.suffix" value="obj" />
 	<property name="c.compiler.joal.outputfile.expr" value="/Fo${rootrel.obj.joal}/*.${c.compiler.obj.suffix}" />
-	<property name="c.compiler.includes" value="/I&quot;make/stub_includes/openal&quot; /I&quot;${c.compiler.include.root}/PlatformSDK/Include&quot; /I&quot;${c.compiler.include.root}/include&quot; /I&quot;${java.includes.dir}&quot; /I&quot;${java.includes.dir.platform}&quot;" />
+	<property name="c.compiler.includes" value="/I&quot;make/stub_includes/openal&quot; /I&quot;${rootrel.src.c}&quot; /I&quot;${c.compiler.include.root}/PlatformSDK/Include&quot; /I&quot;${c.compiler.include.root}/include&quot; /I&quot;${java.includes.dir}&quot; /I&quot;${java.includes.dir.platform}&quot;" />
         <property name="c.linker" value="link.exe" />
         <property name="c.linker.flags" value="/DLL /LIBPATH:&quot;${c.linker.lib.root}/PlatformSDK/lib&quot; /LIBPATH:&quot;${c.linker.lib.root}/lib&quot; /LIBPATH:&quot;${java.lib.dir.platform}&quot; /LIBPATH:&quot;${joal.lib.dir}&quot; /INCREMENTAL:NO /NOLOGO /MACHINE:IX86 /OPT:REF /OPT:ICF /SUBSYSTEM:WINDOWS" />
         <property name="c.linker.joal.libs" value="openal32.lib" />
@@ -306,7 +306,7 @@
         <property name="c.compiler.flags" value="${c.compiler.optflags} -c -DBUILD_DLL -D_WINGDI_ -D_STRICT_ANSI -D_JNI_IMPLEMENTATION_ -o" />
         <property name="c.compiler.obj.suffix" value="o" />
 	<property name="c.compiler.joal.outputfile.expr" value="${rootrel.obj.joal}/*.${c.compiler.obj.suffix}" />
-	<property name="c.compiler.includes" value="-I&quot;make/stub_includes/openal&quot; -I&quot;${java.includes.dir}&quot; -I&quot;${java.includes.dir.platform}&quot;" />
+	<property name="c.compiler.includes" value="-I&quot;make/stub_includes/openal&quot; -I&quot;${rootrel.src.c}&quot; -I&quot;${java.includes.dir}&quot; -I&quot;${java.includes.dir.platform}&quot;" />
         <property name="c.linker" value="gcc.exe" />
         <property name="c.linker.flags" value="-shared" />
         <property name="c.linker.joal.libs" value="-Wl,--kill-at -L&quot;${java.lib.dir.platform}&quot; -L&quot;${joal.lib.dir}&quot; -lopenal32" />
@@ -336,7 +336,7 @@
         <property name="c.compiler.flags" value="${c.compiler.optflags} -c -o" />
         <property name="c.compiler.obj.suffix" value="o" />
 	<property name="c.compiler.joal.outputfile.expr" value="${rootrel.obj.joal}/*.${c.compiler.obj.suffix}" />
-	<property name="c.compiler.includes" value="-I&quot;make/stub_includes/openal&quot; -I&quot;${java.includes.dir}&quot; -I&quot;${java.includes.dir.platform}&quot;" />
+	<property name="c.compiler.includes" value="-I&quot;make/stub_includes/openal&quot; -I&quot;${rootrel.src.c}&quot; -I&quot;${java.includes.dir}&quot; -I&quot;${java.includes.dir.platform}&quot;" />
         <property name="c.linker" value="gcc" />
         <property name="c.linker.flags" value="-shared" />
         <property name="c.linker.joal.libs" value="-L&quot;${java.lib.dir.platform}&quot; -L&quot;${joal.lib.dir}&quot; -lopenal" />
@@ -355,7 +355,7 @@
         <property name="c.compiler.flags" value="${c.compiler.optflags} -c -o" />
         <property name="c.compiler.obj.suffix" value="o" />
 	<property name="c.compiler.joal.outputfile.expr" value="${rootrel.obj.joal}/*.${c.compiler.obj.suffix}" />
-	<property name="c.compiler.includes" value="-I&quot;make/stub_includes/openal&quot; -I&quot;${java.includes.dir}&quot; -I&quot;${java.includes.dir.platform}&quot;" />
+	<property name="c.compiler.includes" value="-I&quot;make/stub_includes/openal&quot; -I&quot;${rootrel.src.c}&quot; -I&quot;${java.includes.dir}&quot; -I&quot;${java.includes.dir.platform}&quot;" />
         <property name="c.linker" value="cc" />
         <property name="c.linker.flags" value="-G" />
         <property name="c.linker.joal.libs" value="-L&quot;${java.lib.dir.platform}&quot; -L&quot;${joal.lib.dir}&quot; -lopenal" />
@@ -383,7 +383,7 @@
         <property name="c.compiler.flags" value="${c.compiler.optflags} -fno-common -fpascal-strings  -Wmost -ObjC -c -o" />
         <property name="c.compiler.obj.suffix" value="o" />
 	<property name="c.compiler.joal.outputfile.expr" value="${rootrel.obj.joal}/*.${c.compiler.obj.suffix}" />
-	<property name="c.compiler.includes" value="-I&quot;make/stub_includes/openal&quot; -I&quot;${java.includes.dir}&quot; -I&quot;${java.includes.dir.platform}&quot;" />
+	<property name="c.compiler.includes" value="-I&quot;make/stub_includes/openal&quot; -I&quot;${rootrel.src.c}&quot; -I&quot;${java.includes.dir}&quot; -I&quot;${java.includes.dir.platform}&quot;" />
         <property name="c.linker" value="gcc" />
         <property name="c.linker.flags" value="-arch ppc -prebind -Wl,-single_module -dynamiclib -compatibility_version 1 -current_version 1 -prebind_all_twolevel_modules" />
         <property name="c.linker.joal.libs" value="-framework OpenAL" />
@@ -593,6 +593,18 @@
             <srcfile />
             <mapper type="glob" from="${rootrel.generated.c.joal}${sep}*.c" to="${c.compiler.joal.outputfile.expr}" />
         </apply>
+
+        <apply executable="${c.compiler}" dest="${rootrel.obj.joal}" dir="${project.root}" relative="true" failonerror="true">
+	    <arg line="${c.compiler.includes}" />
+	    <arg line="${c.compiler.flags}" />
+	    <fileset dir="${project.root}">
+                <include name="${rootrel.src.c}/*.c"/>
+            </fileset>
+            <targetfile />
+            <srcfile />
+            <mapper type="glob" from="${rootrel.src.c}${sep}*.c" to="${c.compiler.joal.outputfile.expr}" />
+        </apply>
+
         <antcall target="c.compile.joal.macosx.objs" inheritRefs="true" />
     </target>
 
