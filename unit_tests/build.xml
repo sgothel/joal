@@ -40,7 +40,7 @@
     </target>
 
     <target name="compile" depends="init">
-    	<javac srcdir="./src" classpath="../classes" destdir="classes"/>
+    	<javac debug="true" srcdir="./src" classpath="../classes" destdir="classes"/>
     </target>
     
     <target name="clean">
@@ -55,6 +55,18 @@
             <pathelement location="classes"/>
 	</classpath>
     	<jvmarg value="-Djava.library.path=${basedir}/../lib"/>
+    </java>
+    </target>
+
+    <target name="runALTest" depends="compile">
+    <java classname="junit.textui.TestRunner" fork="true">
+	<classpath>
+            <pathelement location="../lib/joal.jar"/>
+            <pathelement location="lib/junit.jar"/>
+            <pathelement location="classes"/>
+	</classpath>
+    	<jvmarg value="-Djava.library.path=${basedir}/../lib"/>
+		<arg value="net.java.games.joal.ALTest" />
     </java>
     </target>
     
