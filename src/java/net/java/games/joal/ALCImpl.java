@@ -41,12 +41,11 @@ final class ALCImpl implements ALC {
 
     ALCImpl() {
         System.loadLibrary("joal");
-        Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
-            public void run() {
-                exit();
-            }
-        }));
-        
+	//
+	// Fix to issue 6: Unable to terminate JOAL program with CRTL-C or kill Pid
+	// Shouldn't  attempt to cleanup before exit, we will let the native driver 
+	// do it.
+	//        
     }
 	
 	public Device alcOpenDevice(String deviceName) {
