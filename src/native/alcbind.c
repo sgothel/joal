@@ -43,15 +43,29 @@ JNIEXPORT jint JNICALL Java_net_java_games_joal_ALCImpl_alcGetErrorNative
 
 JNIEXPORT jint JNICALL Java_net_java_games_joal_ALCImpl_openDeviceNative
   (JNIEnv *env, jobject obj, jstring deviceName) {
+	printf("Entering openDeviceNative()\n");
+  	printf("In openDeviceNative() test 1\n");
   	jint result;
-  	ALubyte *str = NULL;
+  	ALubyte *str;
+  	ALCdevice *device;
   	if(deviceName != NULL) {
 	  	str = (ALubyte*)(*env)->GetStringUTFChars(env,deviceName,NULL);
+	  	device = alcOpenDevice(str);
+	  	printf("In openDeviceNative() test 2a -- %s - %i\n", str, (jint)device);
+	} else {
+	  	device = alcOpenDevice(NULL);	
+	  	printf("In openDeviceNative() test 2b -- NULL - %i\n", (jint)device);
 	}
-  	ALCdevice *device;
-  	device = alcOpenDevice(str);
-  	(*env)->ReleaseStringUTFChars(env,deviceName,str);
+  	printf("In openDeviceNative() test 3\n");
+  	if(deviceName != NULL) {
+	  	(*env)->ReleaseStringUTFChars(env,deviceName,str);
+	  	printf("In openDeviceNative() test 4a\n");
+	} else {
+	  	printf("In openDeviceNative() test 4b\n");
+	}
   	result = (jint)device;
+  	printf("In openDeviceNative() test 5\n");
+	printf("Exiting openDeviceNative()\n");
   	return result;
 }
 

@@ -55,6 +55,7 @@ public final class ALut {
     private ALut() { }
 
     public static void alutInit() {
+    	System.out.println("Entering alutInit()");
         ALFactory.initialize();
         alc = ALFactory.getALC();
         String deviceName = null;
@@ -67,8 +68,9 @@ public final class ALut {
         */
             ALC.Context context;
             ALC.Device device;
-
+			System.out.println("In alutInit(): Device Name = " + deviceName);
             device = alc.alcOpenDevice(deviceName);
+			System.out.println("In alutInit(): Device = " + device);
             context = alc.alcCreateContext(device, null);
             alc.alcMakeContextCurrent(context);
 	    /*
@@ -82,6 +84,7 @@ public final class ALut {
                     + "for the inconvenience.");
         }
         */
+        System.out.println("Exiting alutInit()");
     }
 
     public static void alutLoadWAVFile(

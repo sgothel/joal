@@ -53,7 +53,8 @@ final class ALCImpl implements ALC {
         Device result = null;
         int pointer = openDeviceNative(deviceName);
         if(pointer != 0) {
-            result = new Device(openDeviceNative(deviceName));
+        	System.out.println("Device Pointer = " + pointer);
+            result = new Device(pointer);
         }
         return result;
     }
