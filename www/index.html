@@ -1,177 +1,228 @@
-<html>
-  <body bgcolor="#f5f5f5">
-<div Align=center> 
-  <img ID="NavBar" WIDTH=800 HEIGHT=64 SRC="http://games.dev.java.net/images/navbar2p.gif" VSPACE=0 HSPACE=0 ALIGN="TOP" BORDER=0 USEMAP="#NavBar_MAP" NOFINSIDE="~!   ~!" > </div>
-  
-<MAP NAME="NavBar_Map">
-  <AREA SHAPE="rect" ALT="Projects" COORDS="356,14,440,46" HREF="http://games.dev.java.net" TARGET="_self">
-  <AREA SHAPE="rect" ALT="Wiki" COORDS="643,14,695,46" HREF="http://wiki.java.net/bin/view/Games">
-  <AREA SHAPE="rect" ALT="Weblogs" COORDS="562,15,624,46" HREF="http://weblogs.java.net/weblogs/project/games">
-  <AREA SHAPE="rect" COORDS="463,16,541,45" HREF="http://www.javagaming.org/cgi-bin/JGNetForums/YaBB.cgi" target="_top" ALT="Forums">
-  <AREA SHAPE="rect" ALT="JavaGames Home" COORDS="147,16,334,48" HREF="http://community.java.net/games">
-  <AREA SHAPE="rect" ALT="Java.net" COORDS="21,15,128,46" HREF="http://www.java.net" TARGET="_self">
-</MAP>
-  <p align="center"><img src="openal_c.gif" width="123" height="67"></p>
-
-<div align="center"><font color="#005177" size="+2">Welcome to the Java Bindings 
-  for OpenAL / Sound3D Toolkit Project! </font> </div>
-<table width="100%" border="0" cellspacing="1" cellpadding="0">
-  <tr> 
-    <td width="66%" valign="top"> <table width="100%" height="358" border="0" cellpadding="5" cellspacing="1">
-        <tr> 
-          <td valign="top"><table width="100%" border="0" cellpadding="5" cellspacing="1" bgcolor="#6E94B7">
-              <tr> 
-                <td width="589" valign="top" bgcolor="#6E94B7"><div align="left"><font color="#FFFFFF"><strong>Overview</strong></font></div></td>
-              </tr>
-              <tr> 
-                <td valign="top" bgcolor="#F8F8F8"><div align="justify"> 
-                    <p>The JOAL Project hosts a reference implementation of the 
-                      Java bindings for OpenAL API, and is designed to provide 
-                      hardware-supported 3D spatialized audio for games written 
-                      in Java. It is part of a suite of open-source technologies 
-                      initiated by the Game Technology Group at Sun Microsystems, 
-                      with intention of making the development of high performance 
-                      games in Java a reality.</p>
-                    <p>This project also hosts the Sound3D Toolkit, a high level 
-                      API for spatialized audio built on top of the OpenAL bindings. 
-                      This toolkit is designed to provide access to all the features 
-                      of OpenAL through an intuitive, easy to use, object-oriented 
-                      interface. </p>
-                  </div></td>
-              </tr>
-            </table></td>
-        </tr>
-        <tr> 
-          <td><table width="100%" border="0" cellpadding="5" cellspacing="1" bgcolor="#6E94B7">
-              <tr> 
-                <td width="589" bgcolor="#6E94B7"><div align="left"><font color="#FFFFFF"><strong>Project 
-                    Status</strong></font></div></td>
-              </tr>
-              <tr> 
-                <td bgcolor="#F8F8F8"><div align="justify">The initial implementation 
-                    of the Java Bindings for OpenAL / Sound3D Toolkit is available 
-                    for download from <a href="http://joal.dev.java.net/source/browse/joal/">CVS</a>. 
-                    At the moment, this release only contains instructions for 
-                    building on Win32 machines. We will be adding Linux &amp; 
-                    OSX instructions shortly. </div></td>
-              </tr>
-            </table></td>
-        </tr>
-        <tr> 
-          <td><table width="100%" border="0" cellpadding="5" cellspacing="1" bgcolor="#6E94B7">
-              <tr> 
-                <td width="589" bgcolor="#6E94B7"><div align="left"><font color="#FFFFFF"><strong>Getting 
-                    Started </strong></font></div></td>
-              </tr>
-              <tr> 
-                <td valign="top" bgcolor="#F8F8F8"><p>This project has been built 
-                    under Win32, Linux and OSX. The following packages and tools 
-                    have been used:</p>
-                  <ul>
-                    <li>All Systems: 
-                      <ul>
-                        <li>Sun J2SDK 1.4.2 (available at <a href="http://java.sun.com">java.sun.com</a>)</li>
-                        <li>ANT 1.5.3 (available at <a href="http://www.apache.org">apache.org</a>)</li>
-                        <li>JUnit 3.8.1 (available at <a href="http://www.junit.org">junit.org</a>) 
-                          copy junit.jar to the apache-ant lib directory<br>
-                        </li>
-                      </ul>
-                    </li>
-                    <li>Windows: 
-                      <ul>
-                        <li> Win32 (Win XP in the case of our machine)</li>
-                        <li> OpenAL1.0 SDK (available at <a href="http://developer.creative.com">http://developer.creative.com</a> 
-                          under &quot;Gaming -&gt; Development Kits -&gt; OpenAL&quot;)</li>
-                        <li> MinGW 2.0.0 plus the following updates: (all available 
-                          at <a href="http://www.mingw.org">www.mingw.org</a>) 
-                          <ul>
-                            <li>binutils 2.13.90</li>
-                            <li> w32api-2.2</li>
-                            <li> mingw-runtime-2.4</li>
-                          </ul>
-                        </li>
-                      </ul>
-                    </li>
-                    <li> Linux: 
-                      <ul>
-                        <li>Linux i386 (Redhat 9.0)</li>
-                        <li>gcc 3.2.2, binutils 2.13.90</li>
-                        <li>OpenAL CVS version from <a href="http://opensource.creative.com">opensource.creative.com</a> 
-                          (see CVS instructions at <a href="http://www.openal.org">www.openal.org</a>)<br>
-                        </li>
-                      </ul>
-                    </li>
-                    <li>OSX 
-                      <ul>
-                        <li> OSX 10.2 or later</li>
-                        <li>OSX Developer Tools</li>
-                        <li>OpenAL1.0 SDK (available at <a href="http://developer.creative.com">http://developer.creative.com</a> 
-                          under &quot;Gaming -&gt; Development Kits -&gt; OpenAL&quot;)<br>
-                        </li>
-                      </ul>
-                      Please refer to <a href="README.txt">README.txt</a> for 
-                      additional build information.</li>
-                  </ul>
-				   </td>
-              </tr>
-            </table></td>
-        </tr>
-      </table>
-      <p>&nbsp;</p></td>
-    <td valign="top"> 
-      <table width="100%" height="242" border="0" cellpadding="5" cellspacing="1">
-        <tr> 
-          <td><table width="100%" border="0" cellpadding="5" cellspacing="1" bgcolor="#6E94B7">
-              <tr> 
-                <td valign="top" bgcolor="#6E94B7"><div align="left"><font color="#FFFFFF"><strong>Useful 
-                    Links</strong></font></div></td>
-              </tr>
-              <tr> 
-                <td valign="top" bgcolor="#F8F8F8"><ul>
-                    <li><a href="http://www.openal.org" target="_blank">OpenAL</a> 
-                      Home</li>
-                    <li><a href="ftp://opensource.creative.com/pub/sdk/OpenAL_PGuide_A4.pdf" target="_blank">OpenAL 
-                      Programmer's Reference</a></li>
-                    <li><a href="http://joal-demos.dev.java.net">JOAL 
-                      Tutorials and Demos</a></li>
-                  </ul></td>
-              </tr>
-            </table></td>
-        </tr>
-        <tr> 
-          <td><table width="100%" border="0" cellpadding="5" cellspacing="1" bgcolor="#6E94B7">
-              <tr> 
-                <td valign="top" bgcolor="#6E94B7"><div align="left"><font color="#FFFFFF"><strong>Documentation</strong></font></div></td>
-              </tr>
-              <tr> 
-                <td valign="top" bgcolor="#F8F8F8"><ul>
-                    <li><a href="http://games-core.dev.java.net/nonav/docs/joal/api/index.html" target="_blank">JOAL 
-                      / Sound3D Toolkit API</a></li>
-                  </ul></td>
-              </tr>
-            </table></td>
-        </tr>
-        <tr> 
-          <td><table width="100%" border="0" cellpadding="5" cellspacing="1" bgcolor="#6E94B7">
-              <tr> 
-                <td valign="top" bgcolor="#6E94B7"><div align="left"><font color="#FFFFFF"><strong>Downloads</strong></font></div></td>
-              </tr>
-              <tr> 
-                <td valign="top" bgcolor="#F8F8F8"><ul>
-                    <li> Recent Builds 
-                      <ul>
-                        <li><a href="https://games-binaries.dev.java.net/build/index.html" target="_blank">Windows</a></li>
-                        <li><a href="https://games-binaries.dev.java.net/build/index.html" target="_blank">Linux</a></li>
-                        <li><a href="https://games-binaries.dev.java.net/build/index.html">OSX</a></li>
-                      </ul>
-                    </li>
-                  </ul></td>
-              </tr>
-            </table></td>
-        </tr>
-      </table></td>
-  </tr>
-</table>
-
-</body>
-</html>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+	<META HTTP-EQUIV="CONTENT-TYPE" CONTENT="text/html; charset=windows-1252">
+	<TITLE></TITLE>
+	<META NAME="GENERATOR" CONTENT="StarOffice 7  (Win32)">
+	<META NAME="CREATED" CONTENT="20040218;22152768">
+	<META NAME="CHANGEDBY" CONTENT="Athomas Goldberg">
+	<META NAME="CHANGED" CONTENT="20040218;22215701">
+</HEAD>
+<BODY LANG="en-US" BGCOLOR="#f5f5f5" DIR="LTR">
+<P ALIGN=CENTER><A NAME="NavBar"></A><MAP NAME="NavBar_Map"><AREA SHAPE=RECT COORDS="356,14,440,46" HREF="http://games.dev.java.net/" TARGET="_self" ALT="Projects"><AREA SHAPE=RECT COORDS="643,14,695,46" HREF="http://wiki.java.net/bin/view/Games" ALT="Wiki"><AREA SHAPE=RECT COORDS="562,15,624,46" HREF="http://weblogs.java.net/weblogs/project/games" ALT="Weblogs"><AREA SHAPE=RECT COORDS="463,16,541,45" HREF="http://www.javagaming.org/cgi-bin/JGNetForums/YaBB.cgi" TARGET="_top" ALT="Forums"><AREA SHAPE=RECT COORDS="147,16,334,48" HREF="http://community.java.net/games" ALT="JavaGames Home"><AREA SHAPE=RECT COORDS="21,15,128,46" HREF="http://www.java.net/" TARGET="_self" ALT="Java.net"></MAP><IMG SRC="http://games.dev.java.net/images/navbar2p.gif" NAME="Graphic1" ALIGN=TOP WIDTH=800 HEIGHT=64 BORDER=0 USEMAP="#NavBar_Map">
+</P>
+<P ALIGN=CENTER><IMG SRC="openal_c.gif" NAME="Graphic2" ALIGN=BOTTOM WIDTH=123 HEIGHT=67 BORDER=0></P>
+<P ALIGN=CENTER STYLE="margin-bottom: 0in"><FONT COLOR="#005177"><FONT SIZE=5>Welcome
+to the Java Bindings for OpenAL / Sound3D Toolkit Project! </FONT></FONT>
+</P>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=5 CELLSPACING=0>
+	<COL WIDTH=1*>
+	<COL WIDTH=166*>
+	<COL WIDTH=1*>
+	<COL WIDTH=1*>
+	<COL WIDTH=84*>
+	<COL WIDTH=1*>
+	<TR VALIGN=TOP>
+		<TD ROWSPAN=7 WIDTH=1%></TD>
+		<TD WIDTH=65% BGCOLOR="#6e94b7">
+			<P ALIGN=LEFT><STRONG><FONT COLOR="#ffffff">Overview</FONT></STRONG></P>
+		</TD>
+		<TD ROWSPAN=7 WIDTH=1%></TD>
+		<TD ROWSPAN=2 WIDTH=1%></TD>
+		<TD WIDTH=33% BGCOLOR="#6e94b7">
+			<P ALIGN=LEFT><STRONG><FONT COLOR="#ffffff">Useful Links</FONT></STRONG></P>
+		</TD>
+		<TD ROWSPAN=2 WIDTH=1%></TD>
+	</TR>
+	<TR VALIGN=TOP>
+		<TD ROWSPAN=6 WIDTH=65% BGCOLOR="#f8f8f8">
+			<P ALIGN=JUSTIFY>The JOAL Project hosts a reference implementation
+			of the Java bindings for OpenAL API, and is designed to provide
+			hardware-supported 3D spatialized audio for games written in Java.
+			It is part of a suite of open-source technologies initiated by the
+			Game Technology Group at Sun Microsystems, with intention of
+			making the development of high performance games in Java a
+			reality.</P>
+			<P ALIGN=JUSTIFY>This project also hosts the Sound3D Toolkit, a
+			high level API for spatialized audio built on top of the OpenAL
+			bindings. This toolkit is designed to provide access to all the
+			features of OpenAL through an intuitive, easy to use,
+			object-oriented interface. 
+			</P>
+		</TD>
+		<TD WIDTH=33% BGCOLOR="#f8f8f8">
+			<UL>
+				<LI><P STYLE="margin-bottom: 0in"><A HREF="http://www.openal.org/" TARGET="_blank">OpenAL</A>
+				Home 
+				</P>
+				<LI><P STYLE="margin-bottom: 0in"><A HREF="ftp://opensource.creative.com/pub/sdk/OpenAL_PGuide_A4.pdf" TARGET="_blank">OpenAL
+				Programmer's Reference</A> 
+				</P>
+				<LI><P><A HREF="http://joal-demos.dev.java.net/">JOAL Tutorials
+				and Demos</A> 
+				</P>
+			</UL>
+		</TD>
+	</TR>
+	<TR>
+		<TD COLSPAN=3 WIDTH=34%></TD>
+	</TR>
+	<TR VALIGN=TOP>
+		<TD ROWSPAN=2 WIDTH=1%></TD>
+		<TD WIDTH=33% BGCOLOR="#6e94b7">
+			<P ALIGN=LEFT><STRONG><FONT COLOR="#ffffff">Documentation</FONT></STRONG></P>
+		</TD>
+		<TD ROWSPAN=2 WIDTH=1%></TD>
+	</TR>
+	<TR>
+		<TD WIDTH=33% VALIGN=TOP BGCOLOR="#f8f8f8">
+			<UL>
+				<LI><P><A HREF="http://games-core.dev.java.net/nonav/docs/joal/api/index.html" TARGET="_blank">JOAL
+				/ Sound3D Toolkit API</A> 
+				</P>
+			</UL>
+		</TD>
+	</TR>
+	<TR>
+		<TD COLSPAN=3 WIDTH=34%></TD>
+	</TR>
+	<TR VALIGN=TOP>
+		<TD ROWSPAN=5 WIDTH=1%></TD>
+		<TD ROWSPAN=3 WIDTH=33% BGCOLOR="#6e94b7">
+			<P ALIGN=LEFT><STRONG><FONT COLOR="#ffffff">Downloads</FONT></STRONG></P>
+		</TD>
+		<TD ROWSPAN=5 WIDTH=1%></TD>
+	</TR>
+	<TR>
+		<TD COLSPAN=3 WIDTH=66% VALIGN=TOP></TD>
+	</TR>
+	<TR>
+		<TD ROWSPAN=4 WIDTH=1% VALIGN=TOP></TD>
+		<TD ROWSPAN=2 WIDTH=65% BGCOLOR="#6e94b7">
+			<P ALIGN=LEFT><STRONG><FONT COLOR="#ffffff">Project Status</FONT></STRONG></P>
+		</TD>
+		<TD ROWSPAN=4 WIDTH=1% VALIGN=TOP></TD>
+	</TR>
+	<TR>
+		<TD ROWSPAN=2 WIDTH=33% VALIGN=TOP BGCOLOR="#f8f8f8">
+			<UL>
+				<LI><P STYLE="margin-bottom: 0in">Recent Builds 
+				</P>
+				<UL>
+					<LI><P STYLE="margin-bottom: 0in"><A HREF="https://games-binaries.dev.java.net/build/index.html" TARGET="_blank">Windows</A>
+										</P>
+					<LI><P STYLE="margin-bottom: 0in"><A HREF="https://games-binaries.dev.java.net/build/index.html" TARGET="_blank">Linux</A>
+										</P>
+					<LI><P><A HREF="https://games-binaries.dev.java.net/build/index.html">OSX</A>
+										</P>
+				</UL>
+			</UL>
+		</TD>
+	</TR>
+	<TR>
+		<TD ROWSPAN=2 WIDTH=65% BGCOLOR="#f8f8f8">
+			<P ALIGN=JUSTIFY>The initial implementation of the Java Bindings
+			for OpenAL / Sound3D Toolkit is available for download from <A HREF="http://joal.dev.java.net/source/browse/joal/">CVS</A>.
+			At the moment, this release only contains instructions for
+			building on Win32 machines. We will be adding Linux &amp; OSX
+			instructions shortly. 
+			</P>
+		</TD>
+	</TR>
+	<TR>
+		<TD ROWSPAN=2 COLSPAN=3 WIDTH=34%></TD>
+	</TR>
+	<TR>
+		<TD ROWSPAN=2 COLSPAN=3 WIDTH=66%></TD>
+	</TR>
+	<TR>
+		<TD ROWSPAN=5 COLSPAN=3 WIDTH=34% VALIGN=TOP></TD>
+	</TR>
+	<TR>
+		<TD ROWSPAN=2 WIDTH=1% VALIGN=TOP></TD>
+		<TD WIDTH=65% BGCOLOR="#6e94b7">
+			<P ALIGN=LEFT><STRONG><FONT COLOR="#ffffff">Getting Started </FONT></STRONG>
+			</P>
+		</TD>
+		<TD ROWSPAN=2 WIDTH=1% VALIGN=TOP></TD>
+	</TR>
+	<TR>
+		<TD WIDTH=65% VALIGN=TOP BGCOLOR="#f8f8f8">
+			<P>This project has been built under Win32, Linux and OSX. The
+			following packages and tools have been used:</P>
+			<UL>
+				<LI><P STYLE="margin-bottom: 0in">All Systems: 
+				</P>
+				<UL>
+					<LI><P STYLE="margin-bottom: 0in">Sun J2SDK 1.4.2 (available at
+					<A HREF="http://java.sun.com/">java.sun.com</A>) 
+					</P>
+					<LI><P STYLE="margin-bottom: 0in">ANT 1.5.3 (available at
+					<A HREF="http://www.apache.org/">apache.org</A>) 
+					</P>
+					<LI><P STYLE="margin-bottom: 0in">JUnit 3.8.1 (available at
+					<A HREF="http://www.junit.org/">junit.org</A>) copy junit.jar to
+					the apache-ant lib directory</P>
+				</UL>
+				<LI><P STYLE="margin-bottom: 0in">Windows: 
+				</P>
+				<UL>
+					<LI><P STYLE="margin-bottom: 0in">Win32 (Win XP in the case of
+					our machine) 
+					</P>
+					<LI><P STYLE="margin-bottom: 0in">OpenAL1.0 SDK (available at
+					<A HREF="ftp://@opensource.creative.com/pub/sdk/OpenALSDK.exe">ftp://opensource.creative.com/pub/sdk/OpenALSDK.exe</A>)
+										</P>
+					<LI><P STYLE="margin-bottom: 0in">MinGW 2.0.0 plus the following
+					updates: (all available at <A HREF="http://www.mingw.org/">www.mingw.org</A>)
+										</P>
+					<UL>
+						<LI><P STYLE="margin-bottom: 0in">binutils 2.13.90 
+						</P>
+						<LI><P STYLE="margin-bottom: 0in">w32api-2.2 
+						</P>
+						<LI><P STYLE="margin-bottom: 0in">mingw-runtime-2.4 
+						</P>
+					</UL>
+				</UL>
+				<LI><P STYLE="margin-bottom: 0in">Linux: 
+				</P>
+				<UL>
+					<LI><P STYLE="margin-bottom: 0in">Linux i386 (Redhat 9.0) 
+					</P>
+					<LI><P STYLE="margin-bottom: 0in">gcc 3.2.2, binutils 2.13.90 
+					</P>
+					<LI><P STYLE="margin-bottom: 0in">OpenAL CVS version from
+					<A HREF="http://opensource.creative.com/">opensource.creative.com</A>
+					(see CVS instructions at <A HREF="http://www.openal.org/">www.openal.org</A>)</P>
+				</UL>
+				<LI><P STYLE="margin-bottom: 0in">OSX 
+				</P>
+				<UL>
+					<LI><P STYLE="margin-bottom: 0in">OSX 10.2 or later 
+					</P>
+					<LI><P STYLE="margin-bottom: 0in">OSX Developer Tools 
+					</P>
+					<LI><P STYLE="margin-bottom: 0in">OpenAL1.0 SDK (available at
+					<A HREF="http://developer.creative.com/">http://developer.creative.com</A>
+					under &quot;Gaming -&gt; Development Kits -&gt; OpenAL&quot;)</P>
+				</UL>
+				<P>Please refer to <A HREF="README.txt">README.txt</A> for
+				additional build information. 
+				</P>
+			</UL>
+		</TD>
+	</TR>
+	<TR>
+		<TD COLSPAN=3 WIDTH=66%></TD>
+	</TR>
+	<TR>
+		<TD COLSPAN=3 WIDTH=66% VALIGN=TOP>
+			<P>&nbsp;</P>
+		</TD>
+	</TR>
+</TABLE>
+<P><BR><BR>
+</P>
+</BODY>
+</HTML>
