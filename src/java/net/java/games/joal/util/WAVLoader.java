@@ -49,7 +49,8 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 
 
 /**
- * DOCUMENT ME!
+ * A Loader utility for (.wav) files. Creates a WAVData object containing the
+ * data used by the AL.alBufferData method.
  *
  * @author Athomas Goldberg
  */
@@ -57,14 +58,16 @@ public class WAVLoader implements ALConstants {
     private static final int BUFFER_SIZE = 128000;
 
     /**
-     * DOCUMENT ME!
+     * This method loads a (.wav) file into a WAVData object.
      *
-     * @param filename DOCUMENT ME!
+     * @param filename The name of the (.wav) file
      *
-     * @return DOCUMENT ME!
+     * @return a WAVData object containing the audio data 
      *
-     * @throws UnsupportedAudioFileException DOCUMENT ME!
-     * @throws IOException DOCUMENT ME!
+     * @throws UnsupportedAudioFileException if the format of the audio if not
+     *                                       supported. 
+     * @throws IOException If the file can no be found or some other IO error 
+     *                     occurs
      */
     public static WAVData loadFromFile(String filename)
         throws UnsupportedAudioFileException, IOException {

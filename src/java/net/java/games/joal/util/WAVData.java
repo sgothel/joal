@@ -37,24 +37,32 @@ import java.nio.ByteBuffer;
 
 
 /**
- * DOCUMENT ME!
+ * This class is a holder for WAV (.wav )file Data returned from the WavLoader
  *
  * @author Athomas Goldberg
  */
 public final class WAVData {
-    //DOCUMENT ME!
+    /** The audio data */
     public final ByteBuffer data;
 
-    //DOCUMENT ME!
+    /** the format of the Data. One of:
+     * <pre>
+     * AL.AL_FORMAT_MONO8
+     * AL.AL_FORMAT_MONO16
+     * AL.AL_FORMAT_STEREO8
+     * AL.AL_FORMAT_STEREO16
+     * </pre>
+     *
+     */
     public final int format;
 
-    //DOCUMENT ME!
+    /** Size (in bytes) of the data */
     public final int size;
 
-    //DOCUMENT ME!
+    /** The frequency of the data */
     public final int freq;
 
-    //DOCUMENT ME!
+    /** flag indicating whether or not the sound in the data should loop */
     public final boolean loop;
 
     WAVData(ByteBuffer data, int format, int size, int freq, boolean loop) {
