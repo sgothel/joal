@@ -55,7 +55,7 @@ public class ALFactory {
      * @return true is OpenAL was able to initialize,
      *         false if OpenAL was not able to intialize
      */
-    public static boolean initialize() {
+    public static boolean initialize() throws OpenALException {
         String osProperty = System.getProperty("os.name");
         if(osProperty.startsWith("Win")) {
             isInitialized = init(new String[] { "OpenAL32.dll" });
@@ -67,7 +67,7 @@ public class ALFactory {
         return isInitialized;
     }
 
-    private static native boolean init(String[] oalPaths);
+    private static native boolean init(String[] oalPaths) throws OpenALException;
 
     /**
      * Deinitialize the OpenAL environment
@@ -83,7 +83,7 @@ public class ALFactory {
      *
      * @return the AL object
      */
-    public static AL getAL() {
+    public static AL getAL() throws OpenALException {
         if(!isInitialized) {
             initialize();
         }
@@ -99,7 +99,7 @@ public class ALFactory {
      *
      * @return the ALC object
      */
-    public static ALC getALC() {
+    public static ALC getALC() throws OpenALException{
         if(!isInitialized) {
             initialize();
         }

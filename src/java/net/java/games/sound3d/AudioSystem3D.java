@@ -36,6 +36,7 @@ package net.java.games.sound3d;
 import net.java.games.joal.AL;
 import net.java.games.joal.ALC;
 import net.java.games.joal.ALFactory;
+import net.java.games.joal.OpenALException;
 import net.java.games.joal.util.WAVData;
 import net.java.games.joal.util.WAVLoader;
 
@@ -59,10 +60,14 @@ public class AudioSystem3D {
      * Iniitalize the Sound3D environment. This must be called before
      * other methods in the class can be used.
      */
-    public static void init() {
-        ALFactory.initialize();
-        al = ALFactory.getAL();
-        alc = ALFactory.getALC();
+    public static void init() throws Sound3DException {
+    	try {
+			ALFactory.initialize();
+			al = ALFactory.getAL();
+			alc = ALFactory.getALC();
+    	} catch (OpenALException e) {
+    		throw new Sound3DException("Could not initialize AudioSystem3D: ",e);
+    	}
     }
 
     /**

@@ -43,7 +43,16 @@ extern "C" {
  * Method:    openDeviceNative
  * Signature: (Ljava/lang/String;)I
  */
+ /*
 JNIEXPORT jint JNICALL Java_net_java_games_joal_ALCImpl_openDeviceNative
+  (JNIEnv *, jobject, jstring);
+*/
+/*
+ * Class:     net_java_games_joal_ALCImpl
+ * Method:    openDeviceNative
+ * Signature: (Ljava/lang/String;)I
+ */
+JNIEXPORT jobject JNICALL Java_net_java_games_joal_ALCImpl_openDeviceNative
   (JNIEnv *, jobject, jstring);
 
 /*
@@ -59,9 +68,12 @@ JNIEXPORT void JNICALL Java_net_java_games_joal_ALCImpl_closeDeviceNative
  * Method:    createContextNative
  * Signature: (I[I)I
  */
+/* 
 JNIEXPORT jint JNICALL Java_net_java_games_joal_ALCImpl_createContextNative
   (JNIEnv *, jobject, jint, jintArray);
-
+*/
+JNIEXPORT jobject JNICALL Java_net_java_games_joal_ALCImpl_createContextNative
+  (JNIEnv *, jobject, jint, jintArray);
 /*
  * Class:     net_java_games_joal_ALCImpl
  * Method:    makeContextCurrentNative

@@ -39,7 +39,7 @@
     <target name="init">
     <property name="cc" value ="gcc"/>
     <property name="no_cygwin" value="-mno-cygwin"/>
-    <property name="sources" value="extal.c eaxfactory.c eaxbind.c alfactory.c alcbind.c albind.c"/>
+    <property name="sources" value="common_tools.c extal.c eaxfactory.c eaxbind.c alfactory.c alcbind.c albind.c"/>
     <property name="specs" value="-specs='./specs.new'"/>
     <condition property="isUnix">
   	    <os family="unix" />

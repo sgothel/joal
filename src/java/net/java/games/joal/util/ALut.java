@@ -43,6 +43,7 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 import net.java.games.joal.AL;
 import net.java.games.joal.ALC;
 import net.java.games.joal.ALFactory;
+import net.java.games.joal.OpenALException;
 
 /**
  * @author Athomas Goldberg
@@ -54,13 +55,13 @@ public final class ALut {
     
     private ALut() { }
 
-    public static void alutInit() {
+    public static void alutInit() throws OpenALException {
     	System.out.println("Go TEAM!");
     	System.out.println("Entering alutInit()");
         ALFactory.initialize();
         alc = ALFactory.getALC();
 		//String deviceName = null;
-		String deviceName = "MMSYSTEM";
+		String deviceName = null;
         /*
         String os = System.getProperty("os.name");
         if (os.startsWith("Windows")) {

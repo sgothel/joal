@@ -39,7 +39,8 @@
     <target name="init">
     <property name="jdk.home" value="c:/j2sdk1.4.2"/> <!-- Edit this to taste -->
     <property name="openal.home" value="C:/Program Files/Creative Labs/OpenAL 1.0 SDK"/> <!-- Edit this to taste -->    
-    <property name="optimize" value="on"/> <!-- Edit this to taste --> 
+    <property name="optimize" value="off"/> <!-- Edit this to taste --> 
+    <property name="debug" value="on"/> <!-- Edit this to taste --> 
     <mkdir dir="classes"/>   
     <mkdir dir="apidocs"/>   
     <mkdir dir="lib"/>   

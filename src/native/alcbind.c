@@ -40,7 +40,7 @@ JNIEXPORT jint JNICALL Java_net_java_games_joal_ALCImpl_alcGetErrorNative
   	return alcGetError((ALCdevice*)pointer);
 }
 
-
+/*
 JNIEXPORT jint JNICALL Java_net_java_games_joal_ALCImpl_openDeviceNative
   (JNIEnv *env, jobject obj, jstring deviceName) {
 	printf("Entering openDeviceNative()\n");
@@ -65,13 +65,54 @@ JNIEXPORT jint JNICALL Java_net_java_games_joal_ALCImpl_openDeviceNative
 	printf("Exiting openDeviceNative()\n");
   	return result;
 }
+*/
+JNIEXPORT jobject JNICALL Java_net_java_games_joal_ALCImpl_openDeviceNative
+  (JNIEnv *env, jobject obj, jstring deviceName) {
+	const char * tokenstring;
+
+	jboolean isCopy = JNI_FALSE;
+	if(deviceName != NULL) {
+		tokenstring = ((*env)->GetStringUTFChars(env, deviceName, &isCopy));
+	} else {
+		tokenstring = NULL;
+	}
+
+	/* get device */
+	ALCdevice* device = alcOpenDevice((ALubyte *) tokenstring);
+
+	/* if error - cleanup and get out */
+	if(device == NULL) {
+		if(tokenstring != NULL) {
+			(*env)->ReleaseStringUTFChars(env, deviceName, tokenstring);
+		}
+		return NULL;
+	}
+
+	/* get ready to create ALCdevice instance */
+	jobject alcDevice_object	= NULL;
+	jclass alcDevice_class		= NULL;
+	jmethodID alcDevice_method	= NULL;
+
+	/* find class and constructor */
+	alcDevice_class		= (*env)->FindClass(env, "net/java/games/joal/ALC$Device");
+	alcDevice_method	= (*env)->GetMethodID(env, alcDevice_class, "<init>", "(I)V");
+
+	/* create instance */
+	alcDevice_object = (*env)->NewObject(env, alcDevice_class, alcDevice_method, (int) device);
+
+	/* clean up */
+	if (tokenstring != NULL)
+		(*env)->ReleaseStringUTFChars(env, deviceName, tokenstring);
+
+	return alcDevice_object;
+}
 
 JNIEXPORT void JNICALL Java_net_java_games_joal_ALCImpl_closeDeviceNative
   (JNIEnv *env, jobject obj, jint pointer) {
 	ALCdevice* device = (ALCdevice*)pointer;
 	alcCloseDevice(device);
 }
-
+/*
 JNIEXPORT jint JNICALL Java_net_java_games_joal_ALCImpl_createContextNative
   (JNIEnv *env, jobject obj, jint pointer, jintArray attrs) {
   	ALCdevice* device = (ALCdevice*)pointer;
@@ -86,6 +127,39 @@ JNIEXPORT jint JNICALL Java_net_java_games_joal_ALCImpl_createContextNative
 		return ctxPtr;
   	}
 }
+*/
+
+JNIEXPORT jobject JNICALL Java_net_java_games_joal_ALCImpl_createContextNative
+  (JNIEnv *env, jobject obj, jint deviceAddress, jintArray attrs) {
+   ALint* address = NULL;
+
+  	if(attrs != NULL) {
+	  	address = (ALint*)(*env)->GetPrimitiveArrayCritical(env,attrs,0);
+	}
+    ALCcontext* context = alcCreateContext((ALCdevice*)deviceAddress, address);
+    if(address != NULL) {
+	  	(*env)->ReleasePrimitiveArrayCritical(env,attrs,address,0);    
+    }
+	/* if error - get out */
+	if(context == NULL) {
+		return NULL;
+	}	
+
+	/* get ready to create ALCcontext instance */
+	jobject alcContext_object	= NULL;
+	jclass alcContext_class		= NULL;
+	jmethodID alcContext_method	= NULL;
+
+	/* find class and constructor */
+	alcContext_class	= (*env)->FindClass(env, "net/java/games/joal/ALC$Context");
+	alcContext_method	= (*env)->GetMethodID(env, alcContext_class, "<init>", "(Lnet/java/games/joal/ALC;I)V");
+
+	/* create instance */
+	alcContext_object = (*env)->NewObject(env, alcContext_class, alcContext_method, obj, (int) context);
+
+	return alcContext_object;
+}
+
 
 JNIEXPORT jint JNICALL Java_net_java_games_joal_ALCImpl_makeContextCurrentNative
   (JNIEnv *env, jobject obj, jint pointer) {

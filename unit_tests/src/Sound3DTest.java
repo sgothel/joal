@@ -38,6 +38,7 @@ import net.java.games.sound3d.AudioSystem3D;
 import net.java.games.sound3d.Context;
 import net.java.games.sound3d.Device;
 import net.java.games.sound3d.Listener;
+import net.java.games.sound3d.Sound3DException;
 import net.java.games.sound3d.Source;
 
 /**
@@ -53,7 +54,12 @@ public class Sound3DTest {
 	}
 
 	public static void main(String[] args) {
-		AudioSystem3D.init();
+		try {
+			AudioSystem3D.init();
+		} catch (Sound3DException e) {
+            e.printStackTrace();
+            return;
+		}
 		
 		// create the initial context - this can be collapsed into the init.
 		Device device = AudioSystem3D.openDevice("DirectSound3D");

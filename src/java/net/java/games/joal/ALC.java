@@ -254,6 +254,8 @@ public interface ALC extends ALCConstants {
         final int pointer;
 
         Context(ALC impl, int pointer) {
+			System.out.println("Pointer = " + pointer);
+			System.out.println("ALC = " + impl);
             this.pointer = pointer;
             this.alcContext = impl;
         }

@@ -30,14 +30,26 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _EXTAL_H
-#define _EXTAL_H
+#ifndef _AL_TEST_H
+#define _AL_TEST_H
 
 #ifdef _WIN32
-#include <windows.h>
+#include "windows.h"
 #endif
-#include <altypes.h>
-#include <alctypes.h>
+
+#ifdef _X11
+#include "AL/altypes.h"
+#include "AL/alctypes.h"
+#endif
+#ifdef _WIN32
+#include "altypes.h"
+#include "alctypes.h"
+#endif
+#ifdef _AGL
+#include "OpenAL/alctypes.h"
+#include "OpenAL/altypes.h"
+#endif
+
 #include <jni.h>
 
 #ifdef __cplusplus
@@ -56,10 +68,11 @@ extern "C" {
 
  #define ALCAPIENTRY __cdecl
 #else
- #ifdef TARGET_OS_MAC
-  #if TARGET_OS_MAC
+ #ifdef _AGL
+  #if _AGL
+ typedef struct ALCdevice_struct ALCdevice;
+ typedef struct ALCcontext_struct ALCcontext;
  
-   #pragma export on
   #endif
  #endif
  #define ALCAPI
@@ -109,31 +122,12 @@ typedef void ALCvoid;
  #define ALAPIENTRY __cdecl
  #define AL_CALLBACK
 #else
- #ifdef TARGET_OS_MAC
-  #if TARGET_OS_MAC
-   #pragma export on
-  #endif
- #endif
  #define ALAPI
  #define ALAPIENTRY
  #define AL_CALLBACK
 #endif
-#define INITGUID
-#define OPENAL
 
 #ifdef _WIN32
-/*
-* EAX 2.0 listener property set {0306A6A8-B224-11d2-99E5-0000E8D8C722}
-*/
-/*
-const GUID DSPROPSETID_EAX20_ListenerProperties
-				= { 0x306a6a8, 0xb224, 0x11d2, { 0x99, 0xe5, 0x0, 0x0, 0xe8, 0xd8, 0xc7, 0x22 } };
-
-const GUID DSPROPSETID_EAX20_BufferProperties
-				= { 0x306a6a7, 0xb224, 0x11d2, {0x99, 0xe5, 0x0, 0x0, 0xe8, 0xd8, 0xc7, 0x22 } };
-*/
-#endif
-/*
 DEFINE_GUID(DSPROPSETID_EAX20_ListenerProperties, 
     0x306a6a8, 
     0xb224, 
@@ -144,11 +138,14 @@ DEFINE_GUID(DSPROPSETID_EAX20_BufferProperties,
     0x306a6a7, 
     0xb224, 
     0x11d2, 
-    0x99, 0xe5, 0x0, 0x0, 0xe8, 0xd8, 0xc7, 0x22);    
-*/
-void DeInitializeOpenAL();
+    0x99, 0xe5, 0x0, 0x0, 0xe8, 0xd8, 0xc7, 0x22);
+#endif
 
-int InitializeOpenAL(JNIEnv *env, jobjectArray oalPaths);
+#define INITGUID
+#define OPENAL
+
+void InitializeOpenAL(JNIEnv *env, jobjectArray oalPaths);
+void DeInitializeOpenAL();
 
 //alc
 typedef ALCubyte*   (ALCAPIENTRY *alcGetStringPROC)(ALCdevice *device,ALCenum param);
@@ -313,3 +310,4 @@ extern EAXGet  eaxGet;
 #endif
 
 #endif
+

@@ -36,12 +36,16 @@ public class ALTest extends TestCase {
     }
 
     public void setUp() {
-        ALFactory.initialize();
-        al = ALFactory.getAL();
-        alc = ALFactory.getALC();
-        device = alc.alcOpenDevice("DirectSound3D");
-        context = alc.alcCreateContext(device, null);
-        alc.alcMakeContextCurrent(context);
+    	try {
+			ALFactory.initialize();
+			al = ALFactory.getAL();
+			alc = ALFactory.getALC();
+			device = alc.alcOpenDevice("DirectSound3D");
+			context = alc.alcCreateContext(device, null);
+			alc.alcMakeContextCurrent(context);
+        } catch (OpenALException e) {
+            e.printStackTrace();
+        }
     }
 
     public void tearDown() {

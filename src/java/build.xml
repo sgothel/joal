@@ -40,7 +40,7 @@
     </target>
 
     <target name="compile" depends="init">
-    	<javac srcdir="." destdir="../../classes" optimize="${optimize}"/>
+    	<javac srcdir="." destdir="../../classes" debug="${debug}" optimize="${optimize}"/>
     </target>
     
     <target name="all" depends="init,compile">
