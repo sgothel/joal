@@ -52,19 +52,13 @@ JNIEXPORT jint JNICALL Java_net_java_games_joal_ALCImpl_openDeviceNative
 	  	str = (ALubyte*)(*env)->GetStringUTFChars(env,deviceName,NULL);
 	  	device = alcOpenDevice(str);
 	  	printf("In openDeviceNative() test 2a -- %s - %i\n", str, (jint)device);
+	  	(*env)->ReleaseStringUTFChars(env,deviceName,str);
 	} else {
 	  	device = alcOpenDevice(NULL);	
 	  	printf("In openDeviceNative() test 2b -- NULL - %i\n", (jint)device);
 	}
-  	printf("In openDeviceNative() test 3\n");
-  	if(deviceName != NULL) {
-	  	(*env)->ReleaseStringUTFChars(env,deviceName,str);
-	  	printf("In openDeviceNative() test 4a\n");
-	} else {
-	  	printf("In openDeviceNative() test 4b\n");
-	}
   	result = (jint)device;
-  	printf("In openDeviceNative() test 5\n");
+  	printf("In openDeviceNative() test 3\n");
 	printf("Exiting openDeviceNative()\n");
   	return result;
 }
@@ -81,10 +75,13 @@ JNIEXPORT jint JNICALL Java_net_java_games_joal_ALCImpl_createContextNative
   	ALint* attrList = NULL;
   	if(attrs != NULL) {
 	  	attrList = (ALint*)(*env)->GetPrimitiveArrayCritical(env,attrs,0);
+	  	jint ctxPtr = (jint)alcCreateContext(device,attrList);
+	  	(*env)->ReleasePrimitiveArrayCritical(env,attrs,attrList,0);
+	  	return ctxPtr;
+  	} else {
+  		jint ctxPtr = (jint)alcCreateContext(device,NULL);
+		return ctxPtr;
   	}
-  	jint ctxPtr = (jint)alcCreateContext(device,attrList);
-  	(*env)->ReleasePrimitiveArrayCritical(env,attrs,attrList,0);
-	return ctxPtr;
 }
 
 JNIEXPORT jint JNICALL Java_net_java_games_joal_ALCImpl_makeContextCurrentNative
