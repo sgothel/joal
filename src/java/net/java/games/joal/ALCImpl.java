@@ -201,7 +201,7 @@ final class ALCImpl implements ALC {
         Thread owner = null;
         public synchronized void acquire() {
             boolean interrupted = false;
-            while(owner !=  null) {
+            while(owner !=  null && owner != Thread.currentThread()) {
                 try {
                     wait(); 
                 } catch (InterruptedException e) {
