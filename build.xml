@@ -1,4 +1,4 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="iso-8859-1"?>
 
 <!--
 * Copyright (c) 2003 Sun Microsystems, Inc. All  Rights Reserved.
@@ -45,8 +45,11 @@
     <mkdir dir="lib"/>   
     </target>
 
-    <target name="compile" depends="init">
+	<target name="native-compile" depends="init">
         <ant dir="src/native" target="compile"/>
+	</target>
+
+    <target name="compile" depends="native-compile">
         <ant dir="src/java" target="compile"/>
         <ant dir="unit_tests" target="compile"/>
     </target>

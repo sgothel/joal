@@ -99,8 +99,8 @@ JNIEXPORT void JNICALL Java_net_java_games_joal_ALCImpl_destroyContextNative
  * Method:    alcGetError
  * Signature: ()I
  */
-JNIEXPORT jint JNICALL Java_net_java_games_joal_ALCImpl_alcGetError
-  (JNIEnv *, jobject);
+JNIEXPORT jint JNICALL Java_net_java_games_joal_ALCImpl_alcGetErrorNative
+  (JNIEnv *, jobject, jint pointer);
 
 /*
  * Class:     net_java_games_joal_ALCImpl

@@ -130,7 +130,7 @@ public interface ALC extends ALCConstants {
      * <pre>ALCEnum alcGetError(ALvoid);</pre>
      * @return the current context error state
      */
-    public int alcGetError();
+    public int alcGetError(Device device);
 
     /**
      * This method retrieves the current context. <br>

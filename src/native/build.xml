@@ -1,4 +1,4 @@
-<?xml version="1.0"?>
+<?xml version="1.0"  encoding="iso-8859-1"?>
 
 <!--
 * Copyright (c) 2003 Sun Microsystems, Inc. All  Rights Reserved.
@@ -39,22 +39,43 @@
     <target name="init">
     <property name="cc" value ="gcc"/>
     <property name="no_cygwin" value="-mno-cygwin"/>
-    <property name="include" value="-I${jdk.home}/include -I${jdk.home}/include/win32 -I'${openal.home}'/include" />
-    <property name="compilerflags" value ="-O3 -Wl,--add-stdcall-alias -shared"/>
-    <property name="output" value="../../lib/joal.dll"/>
     <property name="sources" value="extal.c eaxfactory.c eaxbind.c alfactory.c alcbind.c albind.c"/>
     <property name="specs" value="-specs='./specs.new'"/>
+    <condition property="isUnix">
+  	    <os family="unix" />
+    </condition>
+    <condition property="isWindows">
+  	    <os family="windows" />
+    </condition>
     </target>
 
-    <target name="compile" depends="init">
-		<exec executable="${cc}" os="Windows 2000, Windows XP">
-			<arg line=" ${no_cygwin}"/>
-			<arg line=" ${include}"/>
-			<arg line=" ${compilerflags}"/>
-			<arg line=" -o ${output}"/>
-			<arg line=" ${sources}"/>
-		</exec>
+    <target name="compile-dll" depends="init" if="isWindows">
+        <echo message="Compiling DLL for Windows." />
+        <antcall target="compile-native-lib">
+            <param name="include" value="-I${jdk.home}/include -I${jdk.home}/include/win32 -I'${openal.home}'/include" />
+            <param name="compilerflags" value ="${no_cygwin} -O3 -Wl,--add-stdcall-alias -shared"/>
+            <param name="output" value="../../lib/joal.dll"/>
+        </antcall>
     </target>
+  
+    <target name="compile-so" depends="init" if="isUnix">
+        <echo message="Compiling shared library for Unix." />
+        <antcall target="compile-native-lib">
+            <param name="include" value="-I${jdk.home}/include -I${jdk.home}/include/linux -I'${openal.home}'/include -I'${openal.home}'/include/AL" />
+            <param name="compilerflags" value ="-O3 -D_X11 -shared -Wl,-soname -Wl,libjoal.so -Wl,-export-dynamic "/>
+            <param name="output" value="../../lib/libjoal.so"/>
+        </antcall>
+    </target>
+
+    <target name="compile-native-lib">
+	<echo message="${cc} ${include} ${compilerflags} -o ${output} ${sources}" />
+        <exec executable="${cc}">
+            <arg line=" ${include} ${compilerflags} -o ${output} ${sources}"/>
+        </exec>
+    </target>
+
+    <target name="compile" depends="compile-so, compile-dll">
+     </target>
 
     <target name="javadoc" depends="init">
         <ant dir="src/java" target="javadoc"/>
@@ -66,6 +87,7 @@
     </target>
     
     <target name="clean" description="Clean all build products.">
-    	<delete file="../../bin/joal.dll" />
+        <delete file="../../lib/joal.dll" />
+        <delete file="../../lib/libjoal.so" />
     </target>
 </project>

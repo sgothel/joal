@@ -124,7 +124,16 @@ final class ALCImpl implements ALC {
 
     private native void destroyContextNative(int pointer);
 
-    public native int alcGetError();
+    public int alcGetError(Device device) {
+        int result = 0;
+        int pointer = 0;
+        if(device != null) {
+            pointer = device.pointer;
+        }
+        result = alcGetErrorNative(pointer);
+        return result;
+    }
+    private native int alcGetErrorNative(int pointer);
 
     public Context alcGetCurrentContext() {
         Context result = null;

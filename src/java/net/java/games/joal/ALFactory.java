@@ -59,8 +59,10 @@ public class ALFactory {
         String osProperty = System.getProperty("os.name");
         if(osProperty.startsWith("Win")) {
             isInitialized = init(new String[] { "OpenAL32.dll" });
+        } else if(osProperty.startsWith("Linux")) {
+            isInitialized = init(new String[] { "libopenal.so" });
         } else {
-            // Linux & OSX
+            // OSX            
         }
         return isInitialized;
     }

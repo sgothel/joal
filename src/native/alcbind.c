@@ -35,6 +35,11 @@
 #include "alcbind.h"
 #include "extal.h"
 
+JNIEXPORT jint JNICALL Java_net_java_games_joal_ALCImpl_alcGetErrorNative
+  (JNIEnv *env, jobject obj, jint pointer) {
+  	return alcGetError((ALCdevice*)pointer);
+}
+
 
 JNIEXPORT jint JNICALL Java_net_java_games_joal_ALCImpl_openDeviceNative
   (JNIEnv *env, jobject obj, jstring deviceName) {

@@ -1,4 +1,4 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="iso-8859-1"?>
 
 <!--
 * Copyright (c) 2003 Sun Microsystems, Inc. All  Rights Reserved.
@@ -73,7 +73,7 @@
     <target name="clean">
     	<delete dir="../../apidocs"/>
     	<delete dir="../../classes/net"/>
-    	<delete file="../../bin/joal.jar"/>
+    	<delete file="../../lib/joal.jar"/>
     </target>
     
 </project>
