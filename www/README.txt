@@ -62,8 +62,7 @@ packages and tools have been used:
 
 * Windows:
   -- Win32 (Win XP in the case of our machine)
-  -- OpenAL1.0 SDK from Creative Labs (available at http://developer.creative.com
-     under "Gaming -> Development Kits -> Open AL")
+  -- OpenAL1.0 SDK from Creative Labs (available at ftp://opensource.creative.com/pub/sdk/OpenALSDK.exe)
   -- MinGW 2.0.0  plus the following updates: (all available at www.mingw.org) 
      -- binutils 2.13.90
      -- w32api-2.2
