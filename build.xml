@@ -34,21 +34,91 @@
 -->
 
 
-<project name="Sun Games Initiative Client Technologies" basedir="." default="all">
+<project name="Games @ Java.Net Open Source Client Technologies" basedir="." default="all">
 
-    <target name="init">
-      <property environment="env"/>       
-      <property name="jdk.home" value="${env.JAVA_HOME}"/> 	    
-  	  <!-- YOU MUST EDIT & UNCOMMENT THESE PROPERTIES BEFORE BUILDING. SEE README.TXT FOR INSTRUCTIONS 
-      <property name="openal.home" value="/Program Files/Creative Labs/OpenAL 1.0 SDK"/>
-      -->
-	  <fail message="openal.home not set. Please see README.txt for instructions" unless="openal.home"/>	  
-      <property name="optimize" value="on"/> <!-- Edit this to taste --> 
-      <property name="debug" value="on"/> <!-- Edit this to taste --> 	
-      <mkdir dir="classes"/>   
-      <mkdir dir="apidocs"/>   
+	<!-- if JAVA_HOME does not point to your JDK installation then -->
+	<!-- edit the jdk.home property accordingly -->
+	
+	<target name="set-jdk.home">
+      <property environment="env"/>
+      <property name="jdk.home" value="${env.JAVA_HOME}"/> <!-- Edit if necessary -->
+
+	  <echo message="checking for JDK Installation"></echo>
+      <available file="${jdk.home}/include" type="dir" property="isValidJavaHome"/>
+ 	  <fail message="jdk.home in build.xml does not point to valid JDK install. Please see README.txt for instructions" unless="isValidJavaHome"/>
+	</target>
+
+	<!-- If OpenAL is typically installed in the default location specified below -->
+	<!-- If this is not the case in your environment, please edit the openal.home --> 
+	<!-- property accordingly --> 
+	
+	<!-- On Windows -->
+	<target name="set-openal.home-win32" if="isWindows">
+      <!-- Edit the following property if necessary -->
+      <property name="openal.home" value="/Program Files/Creative Labs/OpenAL 1.0 SDK"/> 
+      
+	  <echo message="checking for OpenAL Installation"></echo>
+      <available file="${openal.home}" type="dir" property="isValidOpenALHome"/>
+ 	  <fail message="openal.home in build.xml does not point to valid OpenAL install. Please see README.txt for instructions" unless="isValidOpenALHome"/>
+	</target>
+
+	<!-- On OSX -->
+	<target name="set-openal.home-osx" if="isOSX">
+      <!-- Warning! The current version of JOAL requires that OpenAL -->
+      <!--          installed in this location!  -->
+      <property name="openal.home" value="/Library/Frameworks/OpenAL.framework"/>
+
+	  <echo message="checking for OpenAL Installation"></echo>
+      <available file="${openal.home}" type="dir" property="isValidOpenALHome"/>
+ 	  <fail message="openal.home in build.xml does not point to valid OpenAL install. Please see README.txt for instructions" unless="isValidOpenALHome"/>
+	</target>
+
+	<!-- On Unix -->
+	<target name="set-openal.home-unix" if="isUnix">
+      <!-- Edit the following property if necessary -->
+      <property name="openal.home" value="/usr"/>
+
+	  <echo message="checking for OpenAL Installation"></echo>
+      <available file="${openal.home}/include/AL" type="dir" property="isValidOpenALHome"/>
+ 	  <fail message="openal.home in build.xml does not point to valid OpenAL install. Please see README.txt for instructions" unless="isValidOpenALHome"/>
+	</target>
+
+	<!-- Set your compiler options here -->
+	
+	<target name="set-compiler-options">
+      <property name="optimize" value="on"/>
+      <property name="debug" value="on"/>	
+	</target>
+
+	<!-- You shouldn't need to set anything below this line. Edit at your own risk! -->
+	<!-- ========================================================================== -->
+
+	<target name="check-platform">
+		<condition property="isOSX">
+			<and>
+				<os family="mac"/>
+				<os family="unix"/>
+			</and>
+		</condition>
+	    <condition property="isUnix">
+	    	<and>
+				<os family="unix" />
+				<not>
+					<os family="mac" />
+				</not>
+	  	    </and>
+	    </condition>
+	    <condition property="isWindows">
+	  	    <os family="windows" />
+	    </condition>
+	</target>
+
+    <target name="init" depends="set-jdk.home, check-platform, set-openal.home-unix, set-openal.home-win32, set-openal.home-osx, set-compiler-options">
+      <mkdir dir="classes"/>
+      <mkdir dir="apidocs"/>
       <mkdir dir="lib"/>   
     </target>
+
 
 	<target name="native-compile" depends="init">
         <ant dir="src/native" target="compile"/>	

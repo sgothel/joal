@@ -123,11 +123,15 @@ Edit the value of the jdk.home property in the root build.xml file to point
 to your Java 2 SDK installation (ex: c:/j2sdk1.4.2 ,/opt/j2sdk1.4.2, or /Library/Java/Home)
 
 Edit the value of the openal.home property in the root build.xml file to point
-to your OpenAL SDK installation. For Windows this might be 
-"c:/program files/creative labs/openal 1.0 sdk". 
+to your OpenAL SDK installation.
+
+For Windows this might be "c:/program files/creative labs/openal 1.0 sdk". 
+
 Under Linux set the property to the toplevel directory of your OpenAL CVS version.
 If OpenAl came with your distribution and the header files are in /usr/include/AL,
-set the property to '/usr'. Under OSX the default distribution will install to "/Library/Frameworks/OpenAL.framework ".
+set the property to '/usr'.
+
+Under OSX the default distribution will install to "/Library/Frameworks/OpenAL.framework ".
 
 To clean: ant clean
 To build: ant all (or just ant)
