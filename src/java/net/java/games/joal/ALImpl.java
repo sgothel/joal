@@ -300,7 +300,11 @@ final class ALImpl implements AL {
 
     public native void alSourcef(int sourcename, int pname, float value);
 
-    public native void alSourcefv(int sourcename, int pname, float[] value);
+    public void alSourcefv(int sourcename, int pname, float[] value) {
+        alSourcefvNative(sourcename,pname,value);
+    }
+
+    private native void alSourcefvNative(int sourcename, int pname, float[] value);
 
     public void alSourcefv(int sourcename, int pname, FloatBuffer value) {
         if ((value != null) && !value.isDirect()) {
@@ -669,9 +673,21 @@ final class ALImpl implements AL {
 
     public native void alListener3f(int pname, float v1, float v2, float v3);
 
-    public native void alListenerfv(int pname, float[] values);
+    public void alListenerfv(int pname, float[] values) {
+        alListenerfvNative(pname,values);
+    }
 
-    public native void alListenerfv(int pname, FloatBuffer values);
+    private native void alListenerfvNative(int pname, float[] value);
+
+    public void alListenerfv(int pname, FloatBuffer value) {
+        if ((value != null) && !value.isDirect()) {
+            throw new IllegalArgumentException("buffer must be direct");
+        } else {
+            alListenerfvNative(pname, value);
+        }
+    }
+
+    private native void alListenerfvNative(int pname, FloatBuffer value);
 
     public native void alListeneri(int pname, int value);
 
