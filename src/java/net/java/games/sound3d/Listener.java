@@ -37,7 +37,9 @@ import net.java.games.joal.AL;
 
 
 /**
- * DOCUMENT ME!
+ * This class represents the human listener in the Sound3D environment. It 
+ * provides methods for controlling the position, orientation as well as other
+ * properties associated with the listener.
  *
  * @author Athomas Goldberg
  */
@@ -49,18 +51,20 @@ public class Listener {
     }
 
     /**
-     * DOCUMENT ME!
+     * Sets the Gain, or volume of the audio in the environment relative to the
+     * listener
      *
-     * @param gain DOCUMENT ME!
+     * @param gain the gain, or volume
      */
     public void setGain(float gain) {
         al.alListenerf(AL.AL_GAIN, gain);
     }
 
     /**
-     * DOCUMENT ME!
+     * Gets the value of the gain, or volume of the audio in the environment
+     * relative to the listener.
      *
-     * @return DOCUMENT ME!
+     * @return the gain value.
      */
     public float getGain() {
         float[] f = new float[1];
@@ -70,29 +74,37 @@ public class Listener {
     }
 
     /**
-     * DOCUMENT ME!
+     * Sets the position in (x-y-z coordinates) of the Listener in the Sound3D
+     * environment.
      *
-     * @param x DOCUMENT ME!
-     * @param y DOCUMENT ME!
-     * @param z DOCUMENT ME!
+     * @param x The position of the listener along the X-axis in the Sound3D
+     * environment
+     * @param y The position of the listener along the Y-axis in the Sound3D
+     * environment
+     * @param z The position of the listener along the Z-axis in the Sound3D
+     * environment
      */
     public void setPosition(float x, float y, float z) {
         al.alListener3f(AL.AL_POSITION, x, y, z);
     }
 
     /**
-     * DOCUMENT ME!
+     * Sets the position in (x-y-z coordinates) of the Listener in the Sound3D
+     * environment.
      *
-     * @param position DOCUMENT ME!
+     * @param position a Vec3f object containing the x,y and z coordinates of 
+     * Listener.
      */
     public void setPosition(Vec3f position) {
         al.alListener3f(AL.AL_POSITION, position.v1, position.v2, position.v3);
     }
 
     /**
-     * DOCUMENT ME!
+     * Gets the position in (x-y-z coordinates) of the Listener in the Sound3D
+     * environment.
      *
-     * @return DOCUMENT ME!
+     * @return a Vec3f object containing the x,y and z coordinates of 
+     * Listener.
      */
     public Vec3f getPosition() {
         Vec3f result = null;
@@ -104,18 +116,22 @@ public class Listener {
     }
 
     /**
-     * DOCUMENT ME!
+     * Sets the velocity in (x-y-z coordinates) of the Listener in the Sound3D
+     * environment. Used in determining doppler shift.
      *
-     * @param velocity DOCUMENT ME!
+     * @param velocity a Vec3f object containing the velicity in
+     * x,y and z coordinates of Listener.
      */
     public void setVelocity(Vec3f velocity) {
         al.alListener3f(AL.AL_VELOCITY, velocity.v1, velocity.v2, velocity.v3);
     }
 
     /**
-     * DOCUMENT ME!
+     * Gets the velocity in (x-y-z coordinates) of the Listener in the Sound3D
+     * environment. Used in determining doppler shift.
      *
-     * @return DOCUMENT ME!
+     * @return a Vec3f object containing the velicity in
+     * x,y and z coordinates of Listener.
      */
     public Vec3f getVelocity() {
         Vec3f result = null;
@@ -127,23 +143,29 @@ public class Listener {
     }
 
     /**
-     * DOCUMENT ME!
+     * Sets the orientation of the Listener in the Sound3D environment. 
+     * Orientation is expressed as "up" and "at" vectors. 
      *
-     * @param orientation DOCUMENT ME!
+     * @param orientation The first 3 elements of the array should contain
+     * the x,y,z up-vector, the second 3 elements should contain the x,z,z
+     * look-at vector.
      */
     public void setOrientation(float[] orientation) {
         al.alListenerfv(AL.AL_ORIENTATION, orientation);
     }
 
     /**
-     * DOCUMENT ME!
+     * Gets the orientation of the Listener in the Sound3D environment. 
+     * Orientation is expressed as "up" and "at" vectors. 
      *
-     * @return DOCUMENT ME!
+     * @return an array containing the orientation of the listener.
+     * The first 3 elements of the array contain
+     * the x,y,z up-vector, the second 3 elements contain the x,z,z
+     * look-at vector.
      */
     public float[] getOrientation() {
         float[] tmp = new float[6];
         al.alGetListenerfv(AL.AL_ORIENTATION, tmp);
-
         return tmp;
     }
 }

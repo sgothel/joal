@@ -34,26 +34,26 @@
 package net.java.games.sound3d;
 
 /**
- * DOCUMENT ME!
+ * A onvenience class representing a 3-element float vector
  *
  * @author Athomas Goldberg
  */
 public final class Vec3f {
-    //DOCUMENT ME!
+    /** the first element in the vector */
     public final float v1;
 
-    //DOCUMENT ME!
+    /** the first element in the vector */
     public final float v2;
 
-    //DOCUMENT ME!
+    /** the first element in the vector */
     public final float v3;
 
     /**
      * Creates a new Vec3f object.
      *
-     * @param v1 DOCUMENT ME!
-     * @param v2 DOCUMENT ME!
-     * @param v3 DOCUMENT ME!
+     * @param v1 the first element in the vector
+     * @param v2 the second element in the vector
+     * @param v3 the third element in the vector
      */
     public Vec3f(float v1, float v2, float v3) {
         this.v1 = v1;

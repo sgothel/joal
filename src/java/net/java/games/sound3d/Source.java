@@ -436,7 +436,7 @@ public final class Source {
      * @param buffer DOCUMENT ME!
      */
     public void setBuffer(Buffer buffer) {
-        al.alSourcei(sourceName, AL.AL_BUFFER, buffer.bufferName);
+        al.alSourcei(sourceName, AL.AL_BUFFER, buffer.bufferID);
         this.buffer = buffer;
     }
 
@@ -459,7 +459,7 @@ public final class Source {
         int[] arr = new int[numBuffers];
 
         for (int i = 0; i < numBuffers; i++) {
-            arr[i] = buffers[i].bufferName;
+            arr[i] = buffers[i].bufferID;
         }
 
         al.alSourceQueueBuffers(sourceName, numBuffers, arr);
@@ -475,7 +475,7 @@ public final class Source {
         int[] arr = new int[numBuffers];
 
         for (int i = 0; i < numBuffers; i++) {
-            arr[i] = buffers[i].bufferName;
+            arr[i] = buffers[i].bufferID;
         }
 
         al.alSourceUnqueueBuffers(sourceName, numBuffers, arr);

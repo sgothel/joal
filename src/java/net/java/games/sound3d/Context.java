@@ -35,29 +35,42 @@ package net.java.games.sound3d;
 
 import net.java.games.joal.ALC;
 
+
 /**
- * @author Athomas Goldberg
+ * This class provides a Sound3D Context associated with a specified device.
  *
+ * @author Athomas Goldberg
  */
 public class Context {
-	private final ALC alc;
-	final ALC.Context realContext;
+    private final ALC alc;
+    final ALC.Context realContext;
     final Device device;
-	
-	Context(ALC alc, ALC.Context realContext, Device device) {
-		this.alc = alc;
-		this.realContext = realContext;
+
+    Context(ALC alc, ALC.Context realContext, Device device) {
+        this.alc = alc;
+        this.realContext = realContext;
         this.device = device;
-	}
-	
-	public void suspend() {
-		alc.alcSuspendContext(realContext);		
-	}
-	
-	public void destroy() {
-		alc.alcDestroyContext(realContext);
-	}
-    
+    }
+
+    /**
+     * Suspend this context
+     */
+    public void suspend() {
+        alc.alcSuspendContext(realContext);
+    }
+
+    /**
+     * destroys this conteext freeing its resources.
+     */
+    public void destroy() {
+        alc.alcDestroyContext(realContext);
+    }
+
+    /**
+     * Gets the device associated with this context.
+     *
+     * @return the device associated with this context. 
+     */
     public Device getDevice() {
         return device;
     }

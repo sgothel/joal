@@ -45,7 +45,8 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 
 
 /**
- * DOCUMENT ME!
+ * The AudioSystem3D class provides a set of methods for creating and
+ * manipulating a 3D audio environment.
  *
  * @author Athomas Goldberg
  */
@@ -55,7 +56,8 @@ public class AudioSystem3D {
     private static Listener listener;
 
     /**
-     * DOCUMENT ME!
+     * Iniitalize the Sound3D environment. This must be called before
+     * other methods in the class can be used.
      */
     public static void init() {
         ALFactory.initialize();
@@ -64,24 +66,23 @@ public class AudioSystem3D {
     }
 
     /**
-     * DOCUMENT ME!
+     * Creates a new Sound3D Context for a specified device.
      *
-     * @param device DOCUMENT ME!
+     * @param device The device the Context is being created for.
      *
-     * @return DOCUMENT ME!
+     * @return The new Sound3D context.
      */
     public static Context createContext(Device device) {
         Context result = null;
         ALC.Context realContext = alc.alcCreateContext(device.realDevice, null);
         result = new Context(alc, realContext, device);
-
         return result;
     }
 
     /**
-     * DOCUMENT ME!
+     * Makes the specified context the current context.
      *
-     * @param context DOCUMENT ME!
+     * @param context the context to make current.
      */
     public static void makeContextCurrent(Context context) {
         ALC.Context realContext = null;
@@ -94,11 +95,13 @@ public class AudioSystem3D {
     }
 
     /**
-     * DOCUMENT ME!
+     * Opens the specifified audio device. 
      *
-     * @param deviceName DOCUMENT ME!
+     * @param deviceName The specified device name, On windows this will be 
+     * DirectSound3D. We will be automating device discovery in upcoming versions
+     * of this class.
      *
-     * @return DOCUMENT ME!
+     * @return The device described by the specifed name.
      */
     public static Device openDevice(String deviceName) {
         Device result = null;
@@ -109,11 +112,11 @@ public class AudioSystem3D {
     }
 
     /**
-     * DOCUMENT ME!
+     * Generate an array of Sound3D buffers.
      *
-     * @param numBuffers DOCUMENT ME!
+     * @param numBuffers The number of Sound3D buffers to generate.
      *
-     * @return DOCUMENT ME!
+     * @return an array of (initially enpty) Sound3D buffers.
      */
     public static Buffer[] generateBuffers(int numBuffers) {
         Buffer[] result = new Buffer[numBuffers];
@@ -128,14 +131,17 @@ public class AudioSystem3D {
     }
 
     /**
-     * DOCUMENT ME!
+     * Loads a Sound3D buffer with the specified audio file.
      *
-     * @param filename DOCUMENT ME!
+     * @param filename the name of the file to load.
      *
-     * @return DOCUMENT ME!
+     * @return a new Sound3D buffer containing the audio data from the
+     * specified file.
      *
-     * @throws IOException DOCUMENT ME!
-     * @throws UnsupportedAudioFileException DOCUMENT ME!
+     * @throws IOException If the file cannot be found or some other IO error
+     * occurs. 
+     * @throws UnsupportedAudioFileException If the format of the sudio data is
+     * not supported
      */
     public static Buffer loadBuffer(String filename)
         throws IOException, UnsupportedAudioFileException {
@@ -150,14 +156,18 @@ public class AudioSystem3D {
     }
 
     /**
-     * DOCUMENT ME!
+     * Loads a Sound3D Source with the specified audio file. This is
+     * functionally equivelant to generateSource(loadBuffer(fileName));
      *
-     * @param filename DOCUMENT ME!
+     * @param filename the name of the file to load.
      *
-     * @return DOCUMENT ME!
+     * @return a new Sound3D Source containing the audio data from the
+     * specified file.
      *
-     * @throws IOException DOCUMENT ME!
-     * @throws UnsupportedAudioFileException DOCUMENT ME!
+     * @throws IOException If the file cannot be found or some other IO error
+     * occurs. 
+     * @throws UnsupportedAudioFileException If the format of the sudio data is
+     * not supported
      */
     public static Source loadSource(String filename)
         throws IOException, UnsupportedAudioFileException {
@@ -167,11 +177,11 @@ public class AudioSystem3D {
     }
 
     /**
-     * DOCUMENT ME!
+     * Generates a set of uninitialized Source3D sources
      *
-     * @param numSources DOCUMENT ME!
+     * @param numSources the number of Sound3D sources to generate.
      *
-     * @return DOCUMENT ME!
+     * @return an array of uninitialized sources.
      */
     public static Source[] generateSources(int numSources) {
         Source[] result = new Source[numSources];
@@ -186,11 +196,11 @@ public class AudioSystem3D {
     }
 
     /**
-     * DOCUMENT ME!
+     * Generate a Sound3D source from an initialized Buffer.
      *
-     * @param buff DOCUMENT ME!
+     * @param buff The buffer to generate the source from.
      *
-     * @return DOCUMENT ME!
+     * @return the newly generated Source.
      */
     public static Source generateSource(Buffer buff) {
         Source result = null;
@@ -202,9 +212,9 @@ public class AudioSystem3D {
     }
 
     /**
-     * DOCUMENT ME!
+     * Get the listener object associated with this Sound3D environment.
      *
-     * @return DOCUMENT ME!
+     * @return The listener object.
      */
     public static Listener getListener() {
         if (listener == null) {
