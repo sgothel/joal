@@ -44,8 +44,10 @@ JNIEXPORT jint JNICALL Java_net_java_games_joal_ALCImpl_alcGetErrorNative
 JNIEXPORT jint JNICALL Java_net_java_games_joal_ALCImpl_openDeviceNative
   (JNIEnv *env, jobject obj, jstring deviceName) {
   	jint result;
-  	ALubyte *str;
-  	str = (ALubyte*)(*env)->GetStringUTFChars(env,deviceName,NULL);
+  	ALubyte *str = NULL;
+  	if(deviceName == NULL) {
+	  	str = (ALubyte*)(*env)->GetStringUTFChars(env,deviceName,NULL);
+	}
   	ALCdevice *device;
   	device = alcOpenDevice(str);
   	(*env)->ReleaseStringUTFChars(env,deviceName,str);
