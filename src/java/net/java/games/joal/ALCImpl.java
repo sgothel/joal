@@ -168,7 +168,6 @@ final class ALCImpl implements ALC {
 
         if (alcContext != null) {
             Device alcDevice = alcGetContextsDevice(alcContext);
-            System.out.println("alcDevice = " + alcDevice);
             alcMakeContextCurrent(null);
             alcDestroyContext(alcContext);
             alcCloseDevice(alcDevice);
