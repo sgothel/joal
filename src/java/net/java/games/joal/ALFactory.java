@@ -82,10 +82,12 @@ public class ALFactory {
      * @return the AL object
      */
     public static AL getAL() {
-        if (al == null) {
+        if(!isInitialized) {
+            initialize();
+        }
+        if (isInitialized && al == null) {
             al = new ALImpl();
         }
-
         return al;
     }
 
@@ -96,10 +98,12 @@ public class ALFactory {
      * @return the ALC object
      */
     public static ALC getALC() {
-        if (alc == null) {
+        if(!isInitialized) {
+            initialize();
+        }
+        if (isInitialized && alc == null) {
             alc = new ALCImpl();
         }
-
         return alc;
     }
 }

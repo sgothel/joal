@@ -40,34 +40,42 @@ final class ALCImpl implements ALC {
 
     ALCImpl() {
         System.loadLibrary("joal");
+        /*
         Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
             public void run() {
                 exit();
             }
         }));
+        */
     }
 
     public Device alcOpenDevice(String deviceName) {
         Device result = null;
-        result = new Device(openDeviceNative(deviceName));
-
+        int pointer = openDeviceNative(deviceName);
+        if(pointer != 0) {
+            result = new Device(openDeviceNative(deviceName));
+        }
         return result;
     }
 
     private native int openDeviceNative(String deviceName);
 
     public void alcCloseDevice(Device device) {
-        closeDeviceNative(device.pointer);
+        if(device != null) {
+            closeDeviceNative(device.pointer);
+        }
     }
 
     private native void closeDeviceNative(int pointer);
 
     public Context alcCreateContext(Device device, int[] attrs) {
         Context result = null;
-        int pointer = createContextNative(device.pointer, attrs);
-        if (pointer != 0) {
-            result = new Context(this, pointer);
-            contextMap.put(new Integer(pointer), result);
+        if(device != null) {
+            int pointer = createContextNative(device.pointer, attrs);
+            if (pointer != 0) {
+                result = new Context(this, pointer);
+                contextMap.put(new Integer(pointer), result);
+            }
         }
         return result;
     }
@@ -90,19 +98,25 @@ final class ALCImpl implements ALC {
     private native int makeContextCurrentNative(int pointer);
 
     public void alcProcessContext(Context context) {
-        processContextNative(context.pointer);
+        if(context != null) {
+            processContextNative(context.pointer);
+        }
     }
 
     private native void processContextNative(int pointer);
 
     public void alcSuspendContext(Context context) {
-        suspendContextNative(context.pointer);
+        if(context != null) {
+            suspendContextNative(context.pointer);
+        }
     }
 
     private native void suspendContextNative(int pointer);
 
     public void alcDestroyContext(Context context) {
-        destroyContextNative(context.pointer);
+        if(context != null) {
+            destroyContextNative(context.pointer);
+        }
     }
 
     private native void destroyContextNative(int pointer);
@@ -112,7 +126,9 @@ final class ALCImpl implements ALC {
     public Context alcGetCurrentContext() {
         Context result = null;
         int pointer = getCurrentContextNative();
-        result = (Context) contextMap.get(new Integer(pointer));
+        if(pointer != 0) {
+            result = (Context) contextMap.get(new Integer(pointer));
+        }
         return result;
     }
 
@@ -155,8 +171,12 @@ final class ALCImpl implements ALC {
 
     public Device alcGetContextsDevice(Context context) {
         Device result = null;
-        int devicePtr = getContextsDeviceNative(context.pointer);
-        result = new ALC.Device(devicePtr);
+        if(context != null) {
+            int devicePtr = getContextsDeviceNative(context.pointer);
+            if(devicePtr != 0) {
+                result = new ALC.Device(devicePtr);
+            }
+        }
         return result;
     }
 
