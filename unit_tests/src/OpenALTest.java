@@ -52,7 +52,7 @@ public class OpenALTest {
 			ALFactory.initialize();
 
 			ALC alc = ALFactory.getALC();
-			ALC.Device device = alc.alcOpenDevice("DirectSound3D");
+			ALC.Device device = alc.alcOpenDevice(null);
 			ALC.Context context = alc.alcCreateContext(device, null);
 			alc.alcMakeContextCurrent(context);
 			AL al = ALFactory.getAL();

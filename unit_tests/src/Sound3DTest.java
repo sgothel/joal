@@ -62,7 +62,7 @@ public class Sound3DTest {
 		}
 		
 		// create the initial context - this can be collapsed into the init.
-		Device device = AudioSystem3D.openDevice("DirectSound3D");
+		Device device = AudioSystem3D.openDevice(null);
 		Context context = AudioSystem3D.createContext(device);
 		AudioSystem3D.makeContextCurrent(context);
 		

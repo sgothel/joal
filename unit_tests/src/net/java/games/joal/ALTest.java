@@ -40,7 +40,7 @@ public class ALTest extends TestCase {
 			ALFactory.initialize();
 			al = ALFactory.getAL();
 			alc = ALFactory.getALC();
-			device = alc.alcOpenDevice("DirectSound3D");
+			device = alc.alcOpenDevice(null);
 			context = alc.alcCreateContext(device, null);
 			alc.alcMakeContextCurrent(context);
         } catch (OpenALException e) {
