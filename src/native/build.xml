@@ -1,0 +1,71 @@
+<?xml version="1.0"?>
+
+<!--
+* Copyright (c) 2003 Sun Microsystems, Inc. All  Rights Reserved.
+*
+* Redistribution and use in source and binary forms, with or without
+* modification, are permitted provided that the following conditions are met:
+*
+* -Redistribution of source code must retain the above copyright notice, 
+* this list of conditions and the following disclaimer.
+*
+* -Redistribution in binary form must reproduce the above copyright notice, 
+* this list of conditions and the following disclaimer in the documentation
+* and/or other materials provided with the distribution.
+*
+* Neither the name of Sun Microsystems, Inc. or the names of contributors may 
+* be used to endorse or promote products derived from this software without 
+* specific prior written permission.
+* 
+* This software is provided "AS IS," without a warranty of any kind.
+* ALL EXPRESS OR IMPLIED CONDITIONS, REPRESENTATIONS AND WARRANTIES, INCLUDING
+* ANY IMPLIED WARRANTY OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE OR
+* NON-INFRINGEMENT, ARE HEREBY EXCLUDED. SUN MIDROSYSTEMS, INC. ("SUN") AND ITS
+* LICENSORS SHALL NOT BE LIABLE FOR ANY DAMAGES SUFFERED BY LICENSEE AS A
+* RESULT OF USING, MODIFYING OR DISTRIBUTING THIS SOFTWARE OR ITS DERIVATIVES.
+* IN NO EVENT WILL SUN OR ITS LICENSORS BE LIABLE FOR ANY LOST REVENUE, PROFIT
+* OR DATA, OR FOR DIRECT, INDIRECT, SPECIAL, CONSEQUENTIAL, INCIDENTAL OR
+* PUNITIVE DAMAGES, HOWEVER CAUSED AND REGARDLESS OF THE THEORY OF LIABILITY,
+* ARISING OUT OF THE USE OF OR INABILITY TO USE THIS SOFTWARE, EVEN IF SUN HAS
+* BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
+*
+* You acknowledge that this software is not designed or intended for use in the
+* design, construction, operation or maintenance of any nuclear facility.
+-->
+
+
+<project name="Sun Games Initiative Client Technologies" basedir="." default="all">
+
+    <target name="init">
+    <property name="cc" value ="gcc"/>
+    <property name="no_cygwin" value="-mno-cygwin"/>
+    <property name="include" value="-I${jdk.home}/include -I${jdk.home}/include/win32 -I'${openal.home}'/include" />
+    <property name="compilerflags" value ="-O3 -Wl,--add-stdcall-alias -shared"/>
+    <property name="output" value="../../lib/joal.dll"/>
+    <property name="sources" value="extal.c eaxfactory.c eaxbind.c alfactory.c alcbind.c albind.c"/>
+    <property name="specs" value="-specs='./specs.new'"/>
+    </target>
+
+    <target name="compile" depends="init">
+		<exec executable="${cc}" os="Windows 2000, Windows XP">
+			<arg line=" ${no_cygwin}"/>
+			<arg line=" ${include}"/>
+			<arg line=" ${compilerflags}"/>
+			<arg line=" -o ${output}"/>
+			<arg line=" ${sources}"/>
+		</exec>
+    </target>
+
+    <target name="javadoc" depends="init">
+        <ant dir="src/java" target="javadoc"/>
+    </target>
+    
+    
+    <target name="all" depends="init,compile" description="Build everything.">
+        <echo message="Application built."/>
+    </target>
+    
+    <target name="clean" description="Clean all build products.">
+    	<delete file="../../bin/joal.dll" />
+    </target>
+</project>

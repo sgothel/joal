@@ -1,0 +1,79 @@
+<?xml version="1.0"?>
+
+<!--
+* Copyright (c) 2003 Sun Microsystems, Inc. All  Rights Reserved.
+*
+* Redistribution and use in source and binary forms, with or without
+* modification, are permitted provided that the following conditions are met:
+*
+* -Redistribution of source code must retain the above copyright notice, 
+* this list of conditions and the following disclaimer.
+*
+* -Redistribution in binary form must reproduce the above copyright notice, 
+* this list of conditions and the following disclaimer in the documentation
+* and/or other materials provided with the distribution.
+*
+* Neither the name of Sun Microsystems, Inc. or the names of contributors may 
+* be used to endorse or promote products derived from this software without 
+* specific prior written permission.
+* 
+* This software is provided "AS IS," without a warranty of any kind.
+* ALL EXPRESS OR IMPLIED CONDITIONS, REPRESENTATIONS AND WARRANTIES, INCLUDING
+* ANY IMPLIED WARRANTY OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE OR
+* NON-INFRINGEMENT, ARE HEREBY EXCLUDED. SUN MIDROSYSTEMS, INC. ("SUN") AND ITS
+* LICENSORS SHALL NOT BE LIABLE FOR ANY DAMAGES SUFFERED BY LICENSEE AS A
+* RESULT OF USING, MODIFYING OR DISTRIBUTING THIS SOFTWARE OR ITS DERIVATIVES.
+* IN NO EVENT WILL SUN OR ITS LICENSORS BE LIABLE FOR ANY LOST REVENUE, PROFIT
+* OR DATA, OR FOR DIRECT, INDIRECT, SPECIAL, CONSEQUENTIAL, INCIDENTAL OR
+* PUNITIVE DAMAGES, HOWEVER CAUSED AND REGARDLESS OF THE THEORY OF LIABILITY,
+* ARISING OUT OF THE USE OF OR INABILITY TO USE THIS SOFTWARE, EVEN IF SUN HAS
+* BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
+*
+* You acknowledge that this software is not designed or intended for use in the
+* design, construction, operation or maintenance of any nuclear facility.
+-->
+
+
+<project name="Sun Games Initiative Client Technologies" basedir="." default="all">
+
+    <target name="init">
+    <property name="jdk.home" value="c:/j2sdk1.4.2"/> <!-- Edit this to taste -->
+    <property name="openal.home" value="C:/Program Files/Creative Labs/OpenAL 1.0 SDK"/> <!-- Edit this to taste -->    
+    <property name="optimize" value="on"/> <!-- Edit this to taste --> 
+    <mkdir dir="classes"/>   
+    <mkdir dir="apidocs"/>   
+    <mkdir dir="lib"/>   
+    </target>
+
+    <target name="compile" depends="init">
+        <ant dir="src/native" target="compile"/>
+        <ant dir="src/java" target="compile"/>
+        <ant dir="unit_tests" target="compile"/>
+    </target>
+
+    <target name="jar" depends="compile">
+        <ant dir="src/java" target="jar"/>
+    </target>
+
+    <target name="javadoc" depends="init">
+        <ant dir="src/java" target="javadoc"/>
+    </target>
+    
+    <target name="all" depends="jar,javadoc" description="Build everything.">
+        <echo message="Application built."/>
+    </target>
+    
+    <target name="clean" description="Clean all build products.">
+	<delete dir="classes"/>
+	<delete dir="apidocs"/>
+	<delete dir="bin"/>
+        <ant dir="src/native" target="clean"/>
+        <ant dir="src/java" target="clean"/>
+        <ant dir="unit_tests" target="clean"/>   
+    </target>
+    <target name="runtests" depends="jar">
+    	<ant dir="unit_tests" target="runOpenALTest"/>
+    	<ant dir="unit_tests" target="runSound3DTest"/>
+    </target>
+    
+</project>
