@@ -47,7 +47,12 @@
 		</and>
 	</condition>
     <condition property="isUnix">
-  	    <os family="unix" />
+    	<and>
+			<os family="unix" />
+			<not>
+				<os family="mac" />
+			</not>
+  	    </and>
     </condition>
     <condition property="isWindows">
   	    <os family="windows" />
