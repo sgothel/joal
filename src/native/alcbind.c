@@ -83,7 +83,7 @@ JNIEXPORT jobject JNICALL Java_net_java_games_joal_ALCImpl_openDeviceNative
 	/* if error - cleanup and get out */
 	if(device == NULL) {
 		if(tokenstring != NULL) {
-			(*env)->ReleaseStringUTFChars(env, deviceName, tokenstring);
+			// (*env)->ReleaseStringUTFChars(env, deviceName, tokenstring);
 		}
 		return NULL;
 	}
@@ -102,7 +102,7 @@ JNIEXPORT jobject JNICALL Java_net_java_games_joal_ALCImpl_openDeviceNative
 
 	/* clean up */
 	if (tokenstring != NULL)
-		(*env)->ReleaseStringUTFChars(env, deviceName, tokenstring);
+		// (*env)->ReleaseStringUTFChars(env, deviceName, tokenstring);
 
 	return alcDevice_object;
 }
