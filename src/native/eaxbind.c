@@ -53,7 +53,7 @@ JNIEXPORT void JNICALL Java_net_java_games_joal_eax_EAX_EAXSet
 #ifdef _WIN32   	
    	ALvoid* p = (ALvoid*)(*env)->GetDirectBufferAddress(env,buff);
    	
-   	const GUID* guid = (gflag == 0 ? &DSPROPSETID_EAX20_ListenerProperties :
+   	const GUID* guid = (gflag == 1 ? &DSPROPSETID_EAX20_ListenerProperties :
    	                                 &DSPROPSETID_EAX20_BufferProperties);
 	eaxSet(guid,
 	       (ALuint) pname,
@@ -73,7 +73,7 @@ JNIEXPORT void JNICALL Java_net_java_games_joal_eax_EAX_EAXGet
    jint size) {
 #ifdef _WIN32
    	ALvoid* p = (ALvoid*)(*env)->GetDirectBufferAddress(env,buff);
-   	const GUID* guid = (gflag == 0 ? &DSPROPSETID_EAX20_ListenerProperties :
+   	const GUID* guid = (gflag == 1 ? &DSPROPSETID_EAX20_ListenerProperties :
    	                                 &DSPROPSETID_EAX20_BufferProperties);
 	eaxGet(guid,
 	        (ALuint) pname,
