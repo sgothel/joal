@@ -91,6 +91,8 @@ public interface ALC extends ALCConstants {
      */
     public int alcMakeContextCurrent(Context context);
 
+    public void alcFreeCurrentContext();
+
     /**
      * This method tells a context to begin processing. <br>
      * <br>

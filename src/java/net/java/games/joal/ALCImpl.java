@@ -37,16 +37,16 @@ import java.util.HashMap;
 
 final class ALCImpl implements ALC {
     private final HashMap contextMap = new HashMap();
-    private static Object lock = new Object();
+    private static Mutex lock = new Mutex();
 
     ALCImpl() {
         System.loadLibrary("joal");
-        
         Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
             public void run() {
                 exit();
             }
         }));
+        
     }
 
     public Device alcOpenDevice(String deviceName) {
@@ -84,26 +84,18 @@ final class ALCImpl implements ALC {
 
     public int alcMakeContextCurrent(Context context) {
         int result = 0;
-        synchronized(lock) {
-            int pointer = 0;
-            if (context != null) {
-                pointer = context.pointer;
-            }
-            result = makeContextCurrentNative(pointer);
-            try {
-                lock.wait();
-            } catch (InterruptedException e) {
-                result = 0;
-            }
+        int pointer = 0;
+        if (context != null) {
+            pointer = context.pointer;
         }
+        lock.acquire();
+        result = makeContextCurrentNative(pointer);
         return result;
     }
 
     public void alcFreeCurrentContext() {
-        synchronized(lock) {
-            makeContextCurrentNative(0);
-            lock.notifyAll();
-        }
+        makeContextCurrentNative(0);
+        lock.release();
     }
 
     private native int makeContextCurrentNative(int pointer);
@@ -202,6 +194,32 @@ final class ALCImpl implements ALC {
             alcMakeContextCurrent(null);
             alcDestroyContext(alcContext);
             alcCloseDevice(alcDevice);
+        }
+    }
+    
+    private static class Mutex {
+        Thread owner = null;
+        public synchronized void acquire() {
+            boolean interrupted = false;
+            while(owner !=  null) {
+                try {
+                    wait(); 
+                } catch (InterruptedException e) {
+                    interrupted = true;
+                }
+            }
+            owner = Thread.currentThread();
+            if(interrupted) {
+                owner.interrupt();
+            }
+        }
+                
+        public synchronized void release() {
+            if(!owner.equals(Thread.currentThread())) {
+                throw new IllegalMonitorStateException("Not Owner");
+            }
+            owner = null;
+            notify();
         }
     }
 }
