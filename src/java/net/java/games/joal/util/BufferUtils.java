@@ -44,10 +44,10 @@ import java.nio.ShortBuffer;
 
 
 /**
- * DOCUMENT ME!
+ * Provides a collection of methods for generating direct Buffers of various
+ * types.
  *
- * @author Administrator To change the template for this generated type comment
- *         go to Window>Preferences>Java>Code Generation>Code and Comments
+ * @author Athomas Goldberg
  */
 public class BufferUtils {
     private static final int CHAR = 2;
@@ -75,11 +75,11 @@ public class BufferUtils {
     }
 
     /**
-     * DOCUMENT ME!
+     * Create a new direct CharBuffer of the specified size.
      *
-     * @param size DOCUMENT ME!
+     * @param size (in chars) of the returned CharBuffer
      *
-     * @return DOCUMENT ME!
+     * @return a new direct CharBuffer of the specified size
      */
     public static CharBuffer newCharBuffer(int size) {
         CharBuffer result = null;
@@ -90,11 +90,11 @@ public class BufferUtils {
     }
 
     /**
-     * DOCUMENT ME!
+     * Create a new direct ShortBuffer of the specified size.
      *
-     * @param size DOCUMENT ME!
+     * @param size (in shorts) of the returned ShortBuffer
      *
-     * @return DOCUMENT ME!
+     * @return a new direct ShortBuffer of the specified size
      */
     public static ShortBuffer newShortBuffer(int size) {
         ShortBuffer result = null;
@@ -105,11 +105,11 @@ public class BufferUtils {
     }
 
     /**
-     * DOCUMENT ME!
+     * Create a new direct IntBuffer of the specified size.
      *
-     * @param size DOCUMENT ME!
+     * @param size (in ints) of the returned IntBuffer
      *
-     * @return DOCUMENT ME!
+     * @return a new direct IntBuffer of the specified size
      */
     public static IntBuffer newIntBuffer(int size) {
         IntBuffer result = null;
@@ -120,11 +120,11 @@ public class BufferUtils {
     }
 
     /**
-     * DOCUMENT ME!
+     * Create a new direct LongBuffer of the specified size.
      *
-     * @param size DOCUMENT ME!
+     * @param size (in longs) of the returned LongBuffer
      *
-     * @return DOCUMENT ME!
+     * @return a new direct LongsBuffer of the specified size
      */
     public static LongBuffer newLongBuffer(int size) {
         LongBuffer result = null;
@@ -135,11 +135,11 @@ public class BufferUtils {
     }
 
     /**
-     * DOCUMENT ME!
+     * Create a new direct FloatBuffer of the specified size.
      *
-     * @param size DOCUMENT ME!
+     * @param size (in floats) of the returned FloatBuffer
      *
-     * @return DOCUMENT ME!
+     * @return a new direct FloatBuffer of the specified size
      */
     public static FloatBuffer newFloatBuffer(int size) {
         FloatBuffer result = null;
@@ -150,17 +150,16 @@ public class BufferUtils {
     }
 
     /**
-     * DOCUMENT ME!
+     * Create a new direct DoubleBuffer of the specified size.
      *
-     * @param size DOCUMENT ME!
+     * @param size (in doubles) of the returned DoubleBuffer
      *
-     * @return DOCUMENT ME!
+     * @return a new direct DoubleBuffer of the specified size
      */
     public static DoubleBuffer newDoubleBuffer(int size) {
         DoubleBuffer result = null;
         ByteBuffer temp = newByteBuffer(size * DOUBLE);
         result = temp.asDoubleBuffer();
-
         return result;
     }
 }
