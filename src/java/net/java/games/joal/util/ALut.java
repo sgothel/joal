@@ -40,10 +40,7 @@ import java.nio.ByteBuffer;
 
 import javax.sound.sampled.UnsupportedAudioFileException;
 
-import net.java.games.joal.AL;
-import net.java.games.joal.ALC;
-import net.java.games.joal.ALFactory;
-import net.java.games.joal.OpenALException;
+import net.java.games.joal.*;
 
 /**
  * @author Athomas Goldberg
@@ -69,8 +66,8 @@ public final class ALut {
         }
         if (deviceName != null) {
         */
-            ALC.Context context;
-            ALC.Device device;
+            ALCcontext context;
+            ALCdevice device;
 			System.out.println("In alutInit(): Device Name = " + deviceName);
             device = alc.alcOpenDevice(deviceName);
 			System.out.println("In alutInit(): Device = " + device);
@@ -121,8 +118,8 @@ public final class ALut {
 
     public static void alutExit() {
         
-        ALC.Context context = alc.alcGetCurrentContext();
-        ALC.Device device = alc.alcGetContextsDevice(context);
+        ALCcontext context = alc.alcGetCurrentContext();
+        ALCdevice device = alc.alcGetContextsDevice(context);
         alc.alcFreeCurrentContext();
         alc.alcDestroyContext(context);
         alc.alcCloseDevice(device);

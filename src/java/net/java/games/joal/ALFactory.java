@@ -33,6 +33,8 @@
 
 package net.java.games.joal;
 
+import net.java.games.joal.impl.*;
+
 /**
  * This class provides factory methods for generating AL and ALC objects. The
  * class must be initialized before use, and should be deinitialized when OpenAL
@@ -45,7 +47,8 @@ public class ALFactory {
         System.loadLibrary("joal");
     }
 
-    private static boolean isInitialized = false;
+    private static boolean triedToInitialize = false;
+    private static boolean initializedSuccessfully = false;
     private static ALImpl al;
     private static ALC alc;
 
@@ -55,19 +58,18 @@ public class ALFactory {
      * @return true is OpenAL was able to initialize,
      *         false if OpenAL was not able to intialize
      */
-    public static boolean initialize() throws OpenALException {
-        String osProperty = System.getProperty("os.name");
-        if(osProperty.startsWith("Win")) {
-            isInitialized = init(new String[] { "OpenAL32.dll" });
-        } else if(osProperty.startsWith("Linux")) {
-            isInitialized = init(new String[] { "libopenal.so" });
-        } else {
-            isInitialized = init(new String[] { "/Library/Frameworks/OpenAL.framework/Versions/Current/OpenAL"});
+    public static synchronized boolean initialize() throws OpenALException {
+        try {
+            if (!triedToInitialize) {
+                triedToInitialize = true;
+                NativeLibLoader.load();
+                initializedSuccessfully = true;
+            }
+        } catch (UnsatisfiedLinkError e) {
+            throw new OpenALException(e);
         }
-        return isInitialized;
+        return initializedSuccessfully;
     }
-
-    private static native boolean init(String[] oalPaths) throws OpenALException;
 
     /**
      * Deinitialize the OpenAL environment
@@ -84,10 +86,8 @@ public class ALFactory {
      * @return the AL object
      */
     public static AL getAL() throws OpenALException {
-        if(!isInitialized) {
-            initialize();
-        }
-        if (isInitialized && al == null) {
+        initialize();
+        if (initializedSuccessfully && al == null) {
             al = new ALImpl();
         }
         return al;
@@ -100,10 +100,8 @@ public class ALFactory {
      * @return the ALC object
      */
     public static ALC getALC() throws OpenALException{
-        if(!isInitialized) {
-            initialize();
-        }
-        if (isInitialized && alc == null) {
+        initialize();
+        if (initializedSuccessfully && alc == null) {
             alc = new ALCImpl();
         }
         return alc;

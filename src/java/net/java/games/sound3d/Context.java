@@ -33,7 +33,7 @@
 
 package net.java.games.sound3d;
 
-import net.java.games.joal.ALC;
+import net.java.games.joal.*;
 
 
 /**
@@ -43,10 +43,10 @@ import net.java.games.joal.ALC;
  */
 public class Context {
     private final ALC alc;
-    final ALC.Context realContext;
+    final ALCcontext realContext;
     final Device device;
 
-    Context(ALC alc, ALC.Context realContext, Device device) {
+    Context(ALC alc, ALCcontext realContext, Device device) {
         this.alc = alc;
         this.realContext = realContext;
         this.device = device;

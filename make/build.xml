@@ -1,0 +1,833 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+   - Ant build for JOAL.  This build has been tested with ANT 1.5.3.  The
+   - optional.jar that contains the optional ANT tasks must be in the ANT
+   - classpath (typically the ant/lib directory).
+   -
+   - A clean download of JOAL is required for this build.
+   -
+   - This build has no dependence on environment variables; the needed
+   - ones (e.g. java.home, ANT_HOME) are all set by the Ant wrapper shell
+   - script, by the virtual machine, or elsewhere. However, on all platforms,
+   - the C compiler and linker should be in the path. All other paths that
+   - need to be set are in host.properties.
+   -
+   - NOTE:  because the GlueGen config files have their own relative paths
+   -        which cannot be overridden by GlueGen, GlueGen MUST be run from
+   -        the "make" directory. This also means that this build.xml MUST
+   -        be run from the "make" directory.
+   -
+   - All targets do the following:
+   -   Build the ancillary Ant tasks.
+   -   Generate the Java and C files.
+   -   Compile all sources.
+   -   Create the joal.jar and platform library.
+   - Public targets:
+   -   linux
+   -   macosx
+   -   solaris
+   -   win32.vc6
+   -   win32.vc7
+   -   win32.mingw:  build everything (jar, DSOs) for the current platform
+   -   clean:        clean all built
+   -   javadoc:      create the standard developer Javadoc
+   -   javadoc.dev.win32:
+   -   javadoc.dev.x11:
+   -   javadoc.dev.macosx: create the internal developer Javadoc.  This includes the
+   -                       Java and C file generators. Note that it is only supported
+   -                       to create the Javadoc for the platform on which you are
+   -                       currently running.
+   -
+   - Optional properties:
+   -   -Djoal.cg=1 when combined with the build or javadoc targets will cause
+   -   the experimental binding to NVidia's Cg language to be built.
+   -
+   - Thanks to Rob Grzywinski and Artur Biesiadowski for the bulk of the
+   - ANT build, including the GlueGen and StaticGLInfo tasks, the building of
+   - the Java generated sources, the first and second phase Java compiles, and
+   - the building of the jar file.
+   -->
+<project name="JOAL" basedir="." default="all">
+    
+    <!-- ================================================================== -->
+    <!-- 
+       - Base initialization and detection of operating system.
+      -->
+    <target name="base.init">
+        <!-- Set the project root directory to be up one directory. -->
+        <property name="project.root" value=".." />
+    
+        <!-- Set the configuration and build files to this directory. -->
+        <property name="make" value="." />
+
+        <!-- Detection of operating system. -->
+        <condition property="isOSX">
+	    <and>
+	        <os family="mac"/>
+		<os family="unix"/>
+	    </and>
+	</condition>
+	<condition property="isUnix">
+	    <and>
+	        <os family="unix" />
+		<not>
+		    <os family="mac" />
+		</not>
+  	    </and>
+	</condition>
+	<condition property="isLinux">
+	    <os name="Linux" />
+        </condition>
+	<condition property="isSolaris">
+	    <os name="SunOS" />
+        </condition>
+	<condition property="isWindows">
+	    <os family="windows" />
+	</condition>
+    </target>
+
+    <!-- ================================================================== -->
+    <!-- 
+       - Load user properties which override build defaults.
+      -->
+    <target name="load.user.properties.nonmacosx" depends="base.init" unless="isOSX">
+        <!-- Load the user specified properties file that defines various host
+           - specific paths.  The user will be notified if this is does not
+           - exist. -->
+        <property name="user.properties.file" value="${user.home}/joal.properties" />
+        <property file="${user.properties.file}" />
+        <echo message="Loaded ${user.properties.file}." />
+        <echo message="antlr.jar=${antlr.jar}" />
+    </target>
+    <target name="load.user.properties.macosx" depends="base.init" if="isOSX">
+        <!-- Load the user specified properties file that defines various host
+           - specific paths.  The user will be notified if this is does not
+           - exist. -->
+        <property name="user.properties.file" value="${user.home}/joal.properties" />
+        <property file="${user.properties.file}" />
+        <echo message="Loaded ${user.properties.file}." />
+        <echo message="antlr.jar=${antlr.jar}" />
+    </target>
+    <target name="load.user.properties" depends="load.user.properties.nonmacosx,load.user.properties.macosx">
+      <fail message="antlr.jar was not specified in joal.properties. Please see README.txt for instructions" unless="antlr.jar"/>
+      <fail message="joal.lib.dir was not specified in joal.properties. Please see README.txt for instructions" unless="joal.lib.dir"/>
+    </target>
+
+    <!-- ================================================================== -->
+    <!-- 
+       - Set up java.home.dir appropriately on all platforms.
+      -->
+    <target name="set.java.home.dir" unless="java.home.dir">
+      <property environment="env"/>
+      <property name="java.home.dir" value="${env.JAVA_HOME}"/> <!-- Edit in joal.properties if necessary to override -->
+    </target>
+
+    <target name="setup.java.home.dir" depends="load.user.properties,set.java.home.dir">
+      <available file="${java.home.dir}/include" type="dir" property="isValidJavaHome"/>
+      <fail message="java.home.dir in joal.properties does not point to a valid JDK install. Please see README.txt for instructions" unless="isValidJavaHome"/>
+    </target>
+
+    <!-- ================================================================== -->
+    <!-- 
+       - Declare all paths and user defined variables.
+      -->
+    <target name="declare.common" description="Declare properties" depends="base.init">
+        <!-- Shorthand for file.separator -->
+        <property name="sep" value="${file.separator}" />
+
+        <!-- The location and name of the configuration ANT file that will 
+           - validate to ensure that all user-define variables are set. -->
+        <property name="validate.user.properties" value="${make}/validate-properties.xml" />
+           
+        <!-- Properties pointing to root of the workspace containing GlueGen.
+             This build.xml expects that GlueGen has already been built and that its
+             classes are in the build/classes subdirectory of this other workspace.
+             Currently we expect that it is contained in the JOGL project. -->
+        <property name="gluegen.root" value="../../jogl" />
+        <property name="gluegen.classes" value="${gluegen.root}/build/classes" />
+
+        <!-- Names of directories relative to the project root.
+             Some of these are used in FileMappers later for dependence information
+             and need exact string matching, which is why they use file.separator
+             instead of "/". -->
+        <property name="rootrel.src" value="src" />
+        <property name="rootrel.src.c" value="${rootrel.src}${sep}native" />
+        <property name="rootrel.build" value="build" />
+        <property name="rootrel.src.generated" value="${rootrel.build}${sep}gensrc" />
+        <property name="rootrel.generated.java" value="${rootrel.src.generated}${sep}classes" />
+        <property name="rootrel.generated.c.joal" value="${rootrel.src.generated}${sep}native${sep}joal" />
+        <property name="rootrel.obj" value="${rootrel.build}${sep}obj" />
+        <property name="rootrel.obj.joal" value="${rootrel.obj}${sep}joal" />
+
+        <!-- The source directories. -->
+        <property name="src"   value="${project.root}/${rootrel.src}" />
+        <property name="src.c" value="${project.root}/${rootrel.src.c}" />
+        <property name="build" value="${project.root}/${rootrel.build}" />
+        
+        <!-- The generated source directories. -->
+        <property name="src.generated" value="${build}/gensrc" />
+        <property name="src.generated.java" value="${src.generated}/classes" />
+        <property name="src.generated.c" value="${src.generated}/native/joal" />
+        
+        <!-- The compiler output directories. -->
+        <property name="classes" value="${build}/classes" />
+        <property name="obj"      value="${project.root}/${rootrel.obj}" />
+        <property name="obj.joal" value="${project.root}/${rootrel.obj.joal}" />
+
+        <!-- The headers from which Java files are generated -->
+        <property name="config" value="${project.root}/make" />
+        <property name="stub.includes" value="${config}/stub_includes" />
+        <property name="stub.includes.dir" value="stub_includes" /> <!-- NOTE:  this MUST be relative for FileSet -->
+        <property name="stub.includes.openal" value="${stub.includes}/openal" />
+        <dirset id="stub.includes.fileset.all" dir=".">
+            <include name="${stub.includes.dir}/openal/**" />
+        </dirset>
+        <fileset id="stub.includes.dependencies.fileset" dir=".">
+            <include name="${stub.includes.dir}/openal/**" />
+            <include name="*.cfg" />
+            <include name="*.java" />
+            <include name="*.c" />
+        </fileset>
+
+        <property name="java.includes.dir" value="${java.home.dir}/include" /> <!-- NOTE:  this MUST be relative for FileSet -->
+        <property name="java.includes.dir.win32" value="${java.includes.dir}/win32" />
+        <property name="java.includes.dir.linux" value="${java.includes.dir}/linux" />
+        <property name="java.includes.dir.solaris" value="${java.includes.dir}/solaris" />
+        <property name="java.includes.dir.macosx" value="/System/Library/Frameworks/JavaVM.framework/Versions/CurrentJDK/Headers" />
+
+        <!-- Java files to exclude based on platform (relative to "src") -->
+        <property name="java.excludes.win32" value="net/java/games/joal/impl/x11/**, net/java/games/joal/impl/macosx/**" />
+        <property name="java.excludes.x11" value="net/java/games/joal/impl/windows/**, net/java/games/joal/impl/macosx/**" />
+        <property name="java.excludes.macosx" value="net/java/games/joal/impl/x11/**, net/java/games/joal/impl/windows/**" />
+
+        <!-- Create the classpath that includes ANTLR and any already 
+           - compiled classes.  This requires the user-defined "antlr.jar" 
+           - property. -->
+        <path id="antlr.classpath">
+            <pathelement path="${classpath}" />
+            <pathelement location="${gluegen.classes}" />
+            <pathelement location="${classes}" />
+            <pathelement location="${antlr.jar}" />
+        </path>
+
+        <!-- The resulting joal.jar. -->
+        <property name="joal.jar" value="${build}/joal.jar" />
+
+        <!-- The javadoc dirs. -->
+        <property name="javadoc" value="${project.root}/javadoc_public" />
+        <property name="javadoc.dev" value="${project.root}/javadoc_joal_dev" />
+        <property name="javadoc.link" value="http://java.sun.com/j2se/1.4.2/docs/api/" />
+        <property name="javadoc.packagenames" value="net.java.games.joal,net.java.games.joal.util" />
+        <property name="javadoc.dev.packagenames.win32"  value="net.java.games.joal.impl.windows" />
+        <property name="javadoc.dev.packagenames.x11"    value="net.java.games.joal.impl.x11" />
+        <property name="javadoc.dev.packagenames.macosx" value="net.java.games.joal.impl.macosx" />
+        <property name="javadoc.dev.packagenames" value="net.java.games.joal,net.java.games.joal.impl,net.java.games.joal.util" />
+
+	<!-- Names of configuration files used during glue code generation. -->
+        <property name="joal.cfg" value="${config}/joal.cfg" />
+        <property name="joal.constants.cfg" value="${config}/joal-constants.cfg" />
+        <property name="joal.alc.cfg" value="${config}/joal-alc.cfg" />
+        <property name="joal.alc.constants.cfg" value="${config}/joal-alc-constants.cfg" />
+    </target>
+    
+    <!-- ================================================================== -->
+    <!--
+       - Platform specific declares.
+      -->
+    <target name="declare.win32.pre" depends="init" if="isWindows">
+        <!-- Set platform directories. -->
+        <property name="stub.includes.platform" value="${stub.includes}/win32" />
+        <property name="java.includes.dir.platform" value="${java.includes.dir.win32}" />
+        <property name="java.lib.dir.platform" value="${java.lib.dir.win32}" />
+        <property name="java.excludes.platform" value="${java.excludes.win32}" />
+
+        <!-- Set Javadoc properties. -->
+        <property name="javadoc.dev.packagenames.platform" value="${javadoc.dev.packagenames.win32}" />
+
+	<!-- Choose the C compiler being used. -->
+        <condition property="isMingw">
+            <equals arg1="${win32.c.compiler}" arg2="mingw" />
+        </condition>
+        <condition property="isVC6">
+            <equals arg1="${win32.c.compiler}" arg2="vc6" />
+        </condition>
+        <condition property="isVC7">
+            <equals arg1="${win32.c.compiler}" arg2="vc7" />
+        </condition>
+    </target>
+
+    <target name="declare.win32.vc.common">
+        <property name="c.compiler" value="cl.exe" />
+        <property name="c.compiler.flags" value="${c.compiler.optflags} /nologo /TC /c" />
+        <property name="c.compiler.obj.suffix" value="obj" />
+	<property name="c.compiler.joal.outputfile.expr" value="/Fo${rootrel.obj.joal}/*.${c.compiler.obj.suffix}" />
+	<property name="c.compiler.includes" value="/I&quot;make/stub_includes/openal&quot; /I&quot;${c.compiler.include.root}/PlatformSDK/Include&quot; /I&quot;${c.compiler.include.root}/include&quot; /I&quot;${java.includes.dir}&quot; /I&quot;${java.includes.dir.platform}&quot;" />
+        <property name="c.linker" value="link.exe" />
+        <property name="c.linker.flags" value="/DLL /LIBPATH:&quot;${c.linker.lib.root}/PlatformSDK/lib&quot; /LIBPATH:&quot;${c.linker.lib.root}/lib&quot; /LIBPATH:&quot;${java.lib.dir.platform}&quot; /LIBPATH:&quot;${joal.lib.dir}&quot; /INCREMENTAL:NO /NOLOGO /MACHINE:IX86 /OPT:REF /OPT:ICF /SUBSYSTEM:WINDOWS" />
+        <property name="c.linker.joal.libs" value="openal32.lib" />
+        <property name="rootrel.c.linker.joal.dso" value="${rootrel.obj}/joal.dll" />
+        <property name="c.linker.joal.dso" value="${project.root}/${rootrel.c.linker.joal.dso}" />
+        <property name="c.linker.joal.flags" value="/OUT:&quot;${c.linker.joal.dso}&quot;" />
+
+    </target>
+
+    <target name="declare.win32.vc6.debug" if="debug">
+	<!-- FIXME: put in debug flags -->
+        <property name="c.compiler.optflags"   value="/MD /W3 /O2 /Ob1 /GF /Gy" />
+    </target>
+    <target name="declare.win32.vc6.optimized" unless="debug">
+        <property name="c.compiler.optflags"   value="/MD /W3 /O2 /Ob1 /GF /Gy" />
+    </target>
+
+    <target name="declare.win32.vc6.pre" depends="declare.win32.pre,declare.win32.vc6.debug,declare.win32.vc6.optimized">
+	<property name="c.compiler.include.root" value="${vc6.root}" />
+	<property name="c.linker.lib.root" value="${vc6.root}" />
+    </target>
+
+    <target name="declare.win32.vc6" depends="declare.win32.vc6.pre, declare.win32.vc.common" if="isVC6" />
+    
+    <target name="declare.win32.vc7.debug" if="debug">
+        <property name="c.compiler.optflags" value="/MDd /Yd /GS /RTCs /RTCu /RTCc /W3 /Od /GF /EHsc /Zi /GS /Gy /Wp64 /Zi /D &quot;_DEBUG&quot;" />
+    </target>
+    <target name="declare.win32.vc7.optimized" unless="debug">
+        <property name="c.compiler.optflags"   value="/MD /W3 /O2 /Ob1 /GF /EHsc /GS /Gy /Wp64 /D &quot;NDEBUG&quot;" />
+    </target>
+
+    <target name="declare.win32.vc7.pre" depends="declare.win32.pre,declare.win32.vc7.debug,declare.win32.vc7.optimized">
+	<property name="c.compiler.include.root" value="${vc7.root}" />
+	<property name="c.linker.lib.root" value="${vc7.root}" />
+    </target>
+
+    <target name="declare.win32.vc7" depends="declare.win32.vc7.pre, declare.win32.vc.common" if="isVC7" />
+
+    <target name="declare.win32.mingw" depends="declare.win32.pre" if="isMingw" >
+        <property name="c.compiler" value="gcc.exe" />
+        <property name="c.compiler.optflags" value="-O3" />
+        <property name="c.compiler.flags" value="${c.compiler.optflags} -c -DBUILD_DLL -D_WINGDI_ -D_STRICT_ANSI -D_JNI_IMPLEMENTATION_ -o" />
+        <property name="c.compiler.obj.suffix" value="o" />
+	<property name="c.compiler.joal.outputfile.expr" value="${rootrel.obj.joal}/*.${c.compiler.obj.suffix}" />
+	<property name="c.compiler.includes" value="-I&quot;make/stub_includes/openal&quot; -I&quot;${java.includes.dir}&quot; -I&quot;${java.includes.dir.platform}&quot;" />
+        <property name="c.linker" value="gcc.exe" />
+        <property name="c.linker.flags" value="-shared" />
+        <property name="c.linker.joal.libs" value="-Wl,--kill-at -L&quot;${java.lib.dir.platform}&quot; -L&quot;${joal.lib.dir}&quot; -lopenal32" />
+        <property name="rootrel.c.linker.joal.dso" value="${rootrel.obj}/joal.dll" />
+        <property name="c.linker.joal.dso" value="${project.root}/${rootrel.c.linker.joal.dso}" />
+        <property name="c.linker.joal.flags" value="-o ${c.linker.joal.dso}" />
+    </target>
+
+    <target name="declare.win32" depends="declare.win32.pre,declare.win32.vc6,declare.win32.vc7,declare.win32.mingw" />
+
+    <target name="declare.x11" depends="init">
+        <!-- Set platform directories. -->
+        <property name="stub.includes.platform" value="${stub.includes.x11}" />
+        <property name="java.excludes.platform" value="${java.excludes.x11}" />
+
+        <!-- Set Javadoc properties. -->
+        <property name="javadoc.dev.packagenames.platform" value="${javadoc.dev.packagenames.x11}" />
+    </target>
+
+    <target name="declare.linux" depends="declare.x11" if="isLinux">
+        <property name="java.includes.dir.platform" value="${java.includes.dir.linux}" />
+        <property name="java.lib.dir.platform" value="${java.lib.dir.linux}" />
+
+        <!-- Set up gcc -->
+        <property name="c.compiler" value="gcc" />
+        <property name="c.compiler.optflags" value="-O2" />
+        <property name="c.compiler.flags" value="${c.compiler.optflags} -c -o" />
+        <property name="c.compiler.obj.suffix" value="o" />
+	<property name="c.compiler.joal.outputfile.expr" value="${rootrel.obj.joal}/*.${c.compiler.obj.suffix}" />
+	<property name="c.compiler.includes" value="-I&quot;make/stub_includes/openal&quot; -I&quot;${java.includes.dir}&quot; -I&quot;${java.includes.dir.platform}&quot;" />
+        <property name="c.linker" value="gcc" />
+        <property name="c.linker.flags" value="-shared" />
+        <property name="c.linker.joal.libs" value="-L&quot;${java.lib.dir.platform}&quot; -L&quot;${joal.lib.dir}&quot; -lopenal" />
+        <property name="rootrel.c.linker.joal.dso" value="${rootrel.obj}/libjoal.so" />
+        <property name="c.linker.joal.dso" value="${project.root}/${rootrel.c.linker.joal.dso}" />
+        <property name="c.linker.joal.flags" value="-o ${c.linker.joal.dso}" />
+    </target>
+
+    <target name="declare.solaris" depends="declare.x11" if="isSolaris">
+        <property name="java.includes.dir.platform" value="${java.includes.dir.solaris}" />
+        <property name="java.lib.dir.platform" value="${java.lib.dir.solaris}" />
+
+        <!-- Set up Solaris CC -->
+        <property name="c.compiler" value="cc" />
+        <property name="c.compiler.optflags" value="-xO0 -KPIC" />
+        <property name="c.compiler.flags" value="${c.compiler.optflags} -c -o" />
+        <property name="c.compiler.obj.suffix" value="o" />
+	<property name="c.compiler.joal.outputfile.expr" value="${rootrel.obj.joal}/*.${c.compiler.obj.suffix}" />
+	<property name="c.compiler.includes" value="-I&quot;make/stub_includes/openal&quot; -I&quot;${java.includes.dir}&quot; -I&quot;${java.includes.dir.platform}&quot;" />
+        <property name="c.linker" value="cc" />
+        <property name="c.linker.flags" value="-G" />
+        <property name="c.linker.joal.libs" value="-L&quot;${java.lib.dir.platform}&quot; -L&quot;${joal.lib.dir}&quot; -lopenal" />
+        <property name="rootrel.c.linker.joal.dso" value="${rootrel.obj}/libjoal.so" />
+        <property name="c.linker.joal.dso" value="${project.root}/${rootrel.c.linker.joal.dso}" />
+        <property name="c.linker.joal.flags" value="-o ${c.linker.joal.dso}" />
+    </target>
+
+    <target name="declare.macosx" depends="init" if="isOSX">
+        <!-- Set platform directories. -->
+        <property name="stub.includes.platform" value="${stub.includes}/macosx" />
+        <property name="java.includes.dir.platform" value="${java.includes.dir.macosx}" />
+        <property name="java.lib.dir.platform" value="${java.lib.dir.macosx}" />
+        <property name="java.excludes.platform" value="${java.excludes.macosx}" />
+
+        <!-- Set Javadoc properties. -->
+        <property name="javadoc.dev.packagenames.platform" value="${javadoc.dev.packagenames.macosx}" />
+
+        <!-- Set up gcc -->
+        <property name="c.compiler" value="gcc" />
+        <property name="c.compiler.optflags" value="-Os -arch ppc -Dmacosx" />
+	<!-- Note: specifying -ObjC for all files is sloppy (only needed for      -->
+	<!-- JAWT-related .c files) but this doesn't break anything and is easier -->
+	<!-- than rewriting the whole Makefile                                    -->
+        <property name="c.compiler.flags" value="${c.compiler.optflags} -fno-common -fpascal-strings  -Wmost -ObjC -c -o" />
+        <property name="c.compiler.obj.suffix" value="o" />
+	<property name="c.compiler.joal.outputfile.expr" value="${rootrel.obj.joal}/*.${c.compiler.obj.suffix}" />
+	<property name="c.compiler.includes" value="-I&quot;make/stub_includes/openal&quot; -I&quot;${java.includes.dir}&quot; -I&quot;${java.includes.dir.platform}&quot;" />
+        <property name="c.linker" value="gcc" />
+        <property name="c.linker.flags" value="-arch ppc -prebind -Wl,-single_module -dynamiclib -compatibility_version 1 -current_version 1 -prebind_all_twolevel_modules" />
+        <property name="c.linker.joal.libs" value="-framework OpenAL" />
+        <property name="rootrel.c.linker.joal.dso" value="${rootrel.obj}/libjoal.jnilib" />
+        <property name="c.linker.joal.dso" value="${project.root}/${rootrel.c.linker.joal.dso}" />
+        <property name="c.linker.joal.flags" value="-o ${c.linker.joal.dso}" />
+    </target>
+    
+    <!-- ================================================================== -->
+    <!-- 
+       - Initialize all parameters required for the build and create any
+       - required directories.
+      -->
+    <target name="init" depends="declare.common">
+        <!-- Call the external config validator script to make sure the config is ok and consistent -->
+        <ant antfile="${validate.user.properties}" inheritall="true"/>
+        
+        <!-- Create the required output directories. -->
+        <mkdir dir="${src.generated.java}" />
+        <mkdir dir="${src.generated.c}" />
+        <mkdir dir="${classes}" />
+        <mkdir dir="${obj}" />
+        <mkdir dir="${obj.joal}" />
+    </target>
+
+    <target name="declare" depends="init,declare.win32,declare.linux,declare.solaris,declare.macosx" />
+
+    <!-- ================================================================== -->
+    <!-- Java file generation -->
+    <!--
+       - Check to see whether we need to rebuild the generated sources.
+      -->
+
+    <target name="java.generate.check">
+        <!-- Blow away all target files if any dependencies are violated
+             (the uptodate task doesn't allow arbitrary source and target filesets but should) -->
+        <dependset>
+            <srcfileset refid="stub.includes.dependencies.fileset" />
+            <srcfileset dir=".">
+	        <include name="${classes}/net/java/games/gluegen/**/*.class" />
+            </srcfileset>
+            <targetfileset dir=".">
+                <include name="${src.generated.java}/**/*.java" />
+                <include name="${src.generated.c}/**/*.c" />
+            </targetfileset>
+        </dependset>
+
+        <!-- Now check for the presence of one well-known file -->
+        <uptodate property="java.generate.skip">
+            <srcfiles refid="stub.includes.dependencies.fileset" />
+            <mapper type="merge" to="${src.generated.java}/net/java/games/joal/AL.java" />
+        </uptodate>
+    </target>
+
+    <!--
+       - Setup the generating ANT tasks and use it to generate the Java files 
+       - from the C GL headers.  This involves setting the taskdef and creating
+       - the classpath reference id then running the task on each header.
+      -->
+    <target name="java.generate" depends="java.generate.check" unless="java.generate.skip">
+        <!-- Add the GlueGen task to ANT -->
+        <taskdef name="gluegen" classname="net.java.games.gluegen.ant.GlueGenTask"
+                 classpathref="antlr.classpath" />
+                 
+        <!-- Use the GlueGen task to generate the Java files -->
+
+	<!-- Generate the AL interface class and implementation -->
+        <gluegen src="${stub.includes.openal}/al.h" 
+                 config="${joal.cfg}"
+                 includeRefid="stub.includes.fileset.all"
+                 emitter="net.java.games.gluegen.JavaEmitter">
+            <classpath refid="antlr.classpath" />
+        </gluegen>
+
+	<!-- Generate the ALConstants interface class -->
+        <gluegen src="${stub.includes.openal}/al.h" 
+                 config="${joal.constants.cfg}"
+                 includeRefid="stub.includes.fileset.all"
+                 emitter="net.java.games.gluegen.JavaEmitter">
+            <classpath refid="antlr.classpath" />
+        </gluegen>
+
+	<!-- Generate the ALC interface class and implementation -->
+        <gluegen src="${stub.includes.openal}/alc.h" 
+                 config="${joal.alc.cfg}"
+                 includeRefid="stub.includes.fileset.all"
+                 emitter="net.java.games.gluegen.JavaEmitter">
+            <classpath refid="antlr.classpath" />
+        </gluegen>
+
+	<!-- Generate the ALCConstants interface class -->
+        <gluegen src="${stub.includes.openal}/alc.h" 
+                 config="${joal.alc.constants.cfg}"
+                 includeRefid="stub.includes.fileset.all"
+                 emitter="net.java.games.gluegen.JavaEmitter">
+            <classpath refid="antlr.classpath" />
+        </gluegen>
+
+        <!-- Inform the user that the generators have successfully created 
+           - the necessary Java files -->
+        <echo message="" />
+        <echo message="GlueGen has successfully generated files." />
+    
+    </target>      
+
+    <!-- ================================================================== -->
+    <!-- 
+       - Compile the original and generated source.  The composable pipelines
+       - will be generated.
+      -->
+    <target name="java.compile" depends="java.generate">
+        <!-- Perform the first pass Java compile. -->
+        <javac destdir="${classes}"
+               excludes="${java.excludes.platform}" source="1.4" debug="true" debuglevel="source,lines">
+            <src path="${src}" />
+            <src path="${src.generated.java}" />
+            <classpath refid="antlr.classpath" />
+        </javac>
+    </target>
+
+    <!-- ================================================================== -->
+    <!-- 
+       - Compile the native C code for JOAL.
+      -->
+
+    <!--
+       - Check dependencies to see whether we need to recompile .c or .m files
+      -->
+    <target name="c.compile.joal.check.nonmacosx" unless="isOSX">
+        <condition property="c.compile.joal.skip">
+            <and>
+                <uptodate>
+                    <srcfiles dir="${project.root}" includes="${rootrel.src.c}/*.c" />
+                    <mapper type="glob" from="${rootrel.src.c}${sep}*.c" to="${rootrel.obj.joal}${sep}*.${c.compiler.obj.suffix}" />
+                </uptodate>
+                <uptodate>
+                    <srcfiles dir="${project.root}" includes="${rootrel.generated.c.joal}/*.c" />
+                    <mapper type="glob" from="${rootrel.generated.c.joal}${sep}*.c" to="${rootrel.obj.joal}${sep}*.${c.compiler.obj.suffix}" />
+                </uptodate>
+            </and>
+        </condition>
+    </target>
+
+    <target name="c.compile.joal.check.macosx" if="isOSX">
+        <condition property="c.compile.joal.skip">
+            <and>
+                <uptodate>
+                    <srcfiles dir="${project.root}" includes="${rootrel.src.c}/*.c" />
+                    <mapper type="glob" from="${rootrel.src.c}${sep}*.c" to="${rootrel.obj.joal}${sep}*.${c.compiler.obj.suffix}" />
+                </uptodate>
+                <uptodate>
+                    <srcfiles dir="${project.root}" includes="${rootrel.generated.c.joal}/*.c" />
+                    <mapper type="glob" from="${rootrel.generated.c.joal}${sep}*.c" to="${rootrel.obj.joal}${sep}*.${c.compiler.obj.suffix}" />
+                </uptodate>
+                <uptodate>
+                    <srcfiles dir="${project.root}" includes="${rootrel.src.c}/*.m" />
+                    <mapper type="glob" from="${rootrel.src.c}${sep}*.m" to="${rootrel.obj.joal}${sep}*.${c.compiler.obj.suffix}" />
+                </uptodate>
+            </and>
+        </condition>
+    </target>
+
+    <target name="c.compile.joal.check" depends="c.compile.joal.check.nonmacosx,c.compile.joal.check.macosx">
+    </target>
+
+    <!--
+       - Compile source files
+      -->
+    <target name="c.compile.joal.macosx.objs" if="isOSX">
+        <apply executable="${c.compiler}" dest="${rootrel.obj.joal}" dir="${project.root}" relative="true" failonerror="true">
+	    <arg line="${c.compiler.includes}" />
+	    <arg line="${c.compiler.flags}" />
+	    <fileset dir="${project.root}">
+                <include name="${rootrel.src.c}/*.m"/>
+            </fileset>
+            <targetfile />
+            <srcfile />
+            <mapper type="glob" from="${rootrel.src.c}${sep}*.m" to="${c.compiler.joal.outputfile.expr}" />
+        </apply>
+    </target>
+
+    <target name="c.compile.joal" depends="c.compile.joal.check" unless="c.compile.joal.skip">
+    
+    <!-- Note: commented out for now since we currently don't have any hand-generated C,
+         but we might later when we add back in EAX and other support -->
+
+    <!--
+- 
+-        <apply executable="${c.compiler}" dest="${rootrel.obj.joal}" dir="${project.root}" relative="true" failonerror="true">
+-	    <arg line="${c.compiler.includes}" />
+-	    <arg line="${c.compiler.flags}" />
+-	    <fileset dir="${project.root}">
+-                <include name="${rootrel.src.c}/*.c"/>
+-            </fileset>
+-            <targetfile />
+-            <srcfile />
+-            <mapper type="glob" from="${rootrel.src.c}${sep}*.c" to="${c.compiler.joal.outputfile.expr}" />
+-        </apply>
+-->
+        <apply executable="${c.compiler}" dest="${rootrel.obj.joal}" dir="${project.root}" relative="true" failonerror="true">
+	    <arg line="${c.compiler.includes}" />
+	    <arg line="${c.compiler.flags}" />
+	    <fileset dir="${project.root}">
+                <include name="${rootrel.generated.c.joal}/*.c"/>
+            </fileset>
+            <targetfile />
+            <srcfile />
+            <mapper type="glob" from="${rootrel.generated.c.joal}${sep}*.c" to="${c.compiler.joal.outputfile.expr}" />
+        </apply>
+        <antcall target="c.compile.joal.macosx.objs" inheritRefs="true" />
+    </target>
+
+    
+    <!--
+       - Link object files
+      -->
+    <target name="c.link.joal.check">
+        <!-- Check object files against resulting DSO/DLL -->
+        <uptodate property="c.link.joal.skip">
+            <srcfiles id="c.link.joal.obj.fileset" dir="${project.root}" includes="${rootrel.obj.joal}/*.${c.compiler.obj.suffix}" />
+            <mapper type="merge" to="${rootrel.c.linker.joal.dso}" />
+        </uptodate>
+    </target>
+
+    <target name="c.link.joal" depends="c.link.joal.check" unless="c.link.joal.skip">
+        <pathconvert pathsep=" " property="c.link.joal.obj.files" refid="c.link.joal.obj.fileset" />
+        <exec dir="." executable="${c.linker}" failonerror="true">
+            <arg line="${c.linker.joal.flags}" />
+            <arg line="${c.linker.flags}" />
+            <arg line="${c.link.joal.obj.files}" />
+            <arg line="${c.linker.joal.libs}" />
+        </exec>        
+    </target>
+
+    <target name="c.compile.joal.win32.vc6" depends="declare.win32.vc6">
+        <antcall target="c.compile.joal" inheritRefs="true" />
+        <antcall target="c.link.joal" inheritRefs="true" />
+    </target>
+
+    <target name="c.compile.joal.win32.vc7" depends="declare.win32.vc7">
+        <antcall target="c.compile.joal" inheritRefs="true" />
+        <antcall target="c.link.joal" inheritRefs="true" />
+    </target>
+
+    <target name="c.compile.joal.win32.mingw" depends="declare.win32.mingw">
+        <antcall target="c.compile.joal" inheritRefs="true" />
+        <antcall target="c.link.joal" inheritRefs="true" />
+    </target>
+
+    <target name="c.compile.joal.linux" depends="declare.linux">
+        <antcall target="c.compile.joal" inheritRefs="true" />
+        <antcall target="c.link.joal" inheritRefs="true" />
+    </target>
+    
+    <target name="c.compile.joal.solaris" depends="declare.solaris">
+        <antcall target="c.compile.joal" inheritRefs="true" />
+        <antcall target="c.link.joal" inheritRefs="true" />
+    </target>
+    
+    <target name="c.compile.joal.macosx" depends="declare.macosx">
+        <antcall target="c.compile.joal" inheritRefs="true" />
+        <antcall target="c.link.joal" inheritRefs="true" />
+    </target>
+    
+    <!-- ================================================================== -->
+    <!--
+       - Build the joal.jar file.
+      -->
+    <target name="jar" depends="java.compile">
+        <!-- Build the jar excluding any build specific classes. -->
+        <jar destfile="${joal.jar}">
+            <fileset dir="${classes}">
+                <include name="net/java/games/joal/**" />
+            </fileset>
+            <fileset dir="${gluegen.classes}">
+                <include name="net/java/games/gluegen/runtime/**" />
+            </fileset>
+        </jar>
+
+    </target>
+
+    <!-- ================================================================== -->
+    <!--
+       - Build the Javadocs for the sources.
+       - NOTE:  these are not entirely correct as the javadocs targets depend 
+       -        on the platform specific build targets.  To circumvent any 
+       -        errors, ensure that the source is built first.
+      -->
+    <target name="javadoc" depends="setup.java.home.dir,init">
+        <javadoc packagenames="${javadoc.packagenames}"
+                 sourcepath="${src};${src.generated.java}"        
+                 destdir="${javadoc}" windowtitle="JOAL API"
+                 source="1.4"
+                 link="${javadoc.link}" />
+    </target>
+
+    <target name="javadoc.dev" depends="init">
+        <!-- Build the internal developer Javadoc -->
+        <javadoc packagenames="${javadoc.dev.packagenames},${javadoc.dev.packagenames.platform}"
+                 sourcepath="${src};${src.generated.java}"        
+                 destdir="${javadoc.dev}" windowtitle="JOAL API"
+                 source="1.4"
+                 link="${javadoc.link}" />
+    </target>
+
+    <target name="javadoc.dev.win32"  depends="setup.java.home.dir,declare.win32,javadoc.dev" if="isWindows" />
+    <target name="javadoc.dev.x11"    depends="setup.java.home.dir,declare.x11,javadoc.dev" if="isUnix" />
+    <target name="javadoc.dev.macosx" depends="setup.java.home.dir,declare.macosx,javadoc.dev" if="isOSX" />
+
+    <!-- ================================================================== -->
+    <!--
+       - Build the platform-independent distribution out of jars built for
+       - Windows, Linux and Mac OS X; the Java sources for Joal can't be
+       - fully cross-compiled at this time. To run this target, you need to
+       - specify the property joal.dist.dir as a System property (i.e.,
+       - "ant -Djoal.dist.dir=../dist dist"); directories named joal-linux,
+       - joal-win32, and joal-macosx need to be inside that directory and each
+       - of those directories needs to contain both the joal.jar for that
+       - platform as well as the native code (libjoal.so, joal.dll, or
+       - libjoal.jnilib). Also builds jars containing the native code for
+       - Windows, Linux, Mac OS X, Solaris/SPARC and Solaris/x86.
+      -->
+    <target name="dist.check" unless="joal.dist.dir">
+        <fail>
+  
+    ******************************************************************
+    ** To build the Joal distribution out of the platform-specific  **
+    ** component jars and native code, the property joal.dist.dir   **
+    ** needs to be specified on the command line. Please read the   **
+    ** comments associated with the "dist" target in the build.xml. **
+    ******************************************************************
+        </fail>
+    </target>
+
+    <target name="dist" depends="dist.check">
+        <delete file="${joal.dist.dir}/joal.jar" />
+        <delete>
+            <fileset dir="${joal.dist.dir}" includes="joal-natives-*.jar" />
+        </delete>
+        <jar destfile="${joal.dist.dir}/joal.jar" duplicate="preserve">
+	    <zipgroupfileset dir="${joal.dist.dir}"
+	                     includes="joal-win32/*.jar, joal-linux/*.jar, joal-macosx/*.jar" />
+        </jar>
+        <jar destfile="${joal.dist.dir}/joal-natives-win32.jar"
+             basedir="${joal.dist.dir}/joal-win32"
+             includes="joal.dll" />
+        <jar destfile="${joal.dist.dir}/joal-natives-linux.jar"
+             basedir="${joal.dist.dir}/joal-linux"
+             includes="libjoal.so" />
+        <jar destfile="${joal.dist.dir}/joal-natives-macosx.jar"
+             basedir="${joal.dist.dir}/joal-macosx"
+             includes="libjoal.jnilib" />
+        <jar destfile="${joal.dist.dir}/joal-natives-solsparc.jar"
+             basedir="${joal.dist.dir}/joal-solsparc"
+             includes="libjoal.so" />
+        <!-- Note: Solaris/x86 elided for now as it requires Mesa to
+             be installed -->
+        <!-- jar destfile="${joal.dist.dir}/joal-natives-solx86.jar"
+             basedir="${joal.dist.dir}/joal-solx86"
+             includes="libjoal.so" -->
+    </target>
+
+    <!-- ================================================================== -->
+    <!--
+       - Clean up all that is built.
+      -->
+    <target name="clean" depends="declare.common">
+        <delete includeEmptyDirs="true" quiet="true">
+            <fileset dir="${build}" />
+            <fileset dir="${javadoc}" />
+            <fileset dir="${javadoc.dev}" />
+        </delete>
+
+    </target>
+
+    <!-- ================================================================== -->
+    <!--
+       - Inform the user that one of the platform targets should be used.
+      -->
+    <target name="all" depends="setup.java.home.dir,init,win32.vc6,win32.vc7,win32.mingw,linux,solaris,macosx" />
+
+    <!--
+       - Win32 with MS VC6
+      -->
+    <target name="win32.vc6" depends="declare.win32.pre" if="isVC6">
+        <!-- Generate, compile, and build the jar for the Java sources. -->
+        <antcall target="jar" inheritRefs="true" />
+        
+        <!-- Compile the native C sources and build the joal.dll. -->
+        <antcall target="c.compile.joal.win32.vc6" />
+    </target>
+
+    <!--
+       - Win32 with MS VC7
+      -->
+    <target name="win32.vc7" depends="declare.win32.pre" if="isVC7">
+        <!-- Generate, compile, and build the jar for the Java sources. -->
+        <antcall target="jar" inheritRefs="true" />
+        
+        <!-- Compile the native C sources and build the joal.dll. -->
+        <antcall target="c.compile.joal.win32.vc7" />
+    </target>
+
+    <!--
+       - Win32 with mingw32
+      -->
+    <target name="win32.mingw" depends="declare.win32.pre" if="isMingw">
+        <!-- Generate, compile, and build the jar for the Java sources. -->
+        <antcall target="jar" inheritRefs="true" />
+        
+        <!-- Compile the native C sources and build the joal.dll. -->
+        <antcall target="c.compile.joal.win32.mingw" />
+    </target>
+
+    <!--
+       - Linux (assuming GCC)
+      -->
+    <target name="linux" depends="declare.linux" if="isLinux">
+        <!-- Generate, compile, and build the jar for the Java sources. -->
+        <antcall target="jar" inheritRefs="true" />
+
+        <!-- Compile the native C sources and build the joal lib. -->
+        <antcall target="c.compile.joal.linux" />
+    </target>
+
+    <!--
+       - Solaris (assuming Solaris CC)
+      -->
+    <target name="solaris" depends="declare.solaris" if="isSolaris">
+        <!-- Generate, compile, and build the jar for the Java sources. -->
+        <antcall target="jar" inheritRefs="true" />
+
+        <!-- Compile the native C sources and build the joal lib. -->
+        <antcall target="c.compile.joal.solaris" />
+    </target>
+
+    <!--
+       - Mac OSX
+      -->
+    <target name="macosx" depends="declare.macosx" if="isOSX">
+        <!-- Generate, compile, and build the jar for the Java sources. -->
+        <antcall target="jar" inheritRefs="true" />
+        
+        <!-- Compile the native C sources and build the joal lib. -->
+        <antcall target="c.compile.joal.macosx" />
+    </target>
+</project>

@@ -33,10 +33,7 @@
 
 package net.java.games.sound3d;
 
-import net.java.games.joal.AL;
-import net.java.games.joal.ALC;
-import net.java.games.joal.ALFactory;
-import net.java.games.joal.OpenALException;
+import net.java.games.joal.*;
 import net.java.games.joal.util.WAVData;
 import net.java.games.joal.util.WAVLoader;
 
@@ -79,7 +76,7 @@ public class AudioSystem3D {
      */
     public static Context createContext(Device device) {
         Context result = null;
-        ALC.Context realContext = alc.alcCreateContext(device.realDevice, null);
+        ALCcontext realContext = alc.alcCreateContext(device.realDevice, null);
         result = new Context(alc, realContext, device);
         return result;
     }
@@ -90,7 +87,7 @@ public class AudioSystem3D {
      * @param context the context to make current.
      */
     public static void makeContextCurrent(Context context) {
-        ALC.Context realContext = null;
+        ALCcontext realContext = null;
 
         if (context != null) {
             realContext = context.realContext;
@@ -110,7 +107,7 @@ public class AudioSystem3D {
      */
     public static Device openDevice(String deviceName) {
         Device result = null;
-        ALC.Device realDevice = alc.alcOpenDevice(deviceName);
+        ALCdevice realDevice = alc.alcOpenDevice(deviceName);
         result = new Device(alc, realDevice);
 
         return result;

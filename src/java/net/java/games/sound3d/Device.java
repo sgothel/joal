@@ -33,7 +33,7 @@
 
 package net.java.games.sound3d;
 
-import net.java.games.joal.ALC;
+import net.java.games.joal.*;
 
 
 /**
@@ -43,9 +43,9 @@ import net.java.games.joal.ALC;
  */
 public class Device {
     private final ALC alc;
-    final ALC.Device realDevice;
+    final ALCdevice realDevice;
 
-    Device(ALC alc, ALC.Device realDevice) {
+    Device(ALC alc, ALCdevice realDevice) {
         this.alc = alc;
         this.realDevice = realDevice;
     }
