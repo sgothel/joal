@@ -60,7 +60,7 @@ public class Context {
     }
 
     /**
-     * destroys this conteext freeing its resources.
+     * destroys this context freeing its resources.
      */
     public void destroy() {
         alc.alcDestroyContext(realContext);
