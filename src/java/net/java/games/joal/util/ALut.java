@@ -58,17 +58,20 @@ public final class ALut {
         ALFactory.initialize();
         alc = ALFactory.getALC();
         String deviceName = null;
+        /*
         String os = System.getProperty("os.name");
         if (os.startsWith("Windows")) {
             deviceName = "DirectSound3D";
         }
         if (deviceName != null) {
+        */
             ALC.Context context;
             ALC.Device device;
 
             device = alc.alcOpenDevice(deviceName);
             context = alc.alcCreateContext(device, null);
             alc.alcMakeContextCurrent(context);
+	    /*
         } else {
             System.out.println(
                 "alutInit does not currently support "
@@ -78,6 +81,7 @@ public final class ALut {
                     + "using the ALC functions for the time being. We apologize "
                     + "for the inconvenience.");
         }
+        */
     }
 
     public static void alutLoadWAVFile(
