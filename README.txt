@@ -41,7 +41,7 @@ Author:
         Software Advanced Technologies Group,
         Sun Microsystems
     -- This file updated 08/19/2003 by Ole Arndt <ole at sugarshark dot com>
-    
+    -- This file updated 11/23/2003 by Gregory Pierce <gpierce@gregorypierce.com>    
 Introduction:
 =============
 
@@ -52,7 +52,7 @@ client game programming APIs for OpenAL and Sound3D.
 Build Requirements:
 ===================
 
-This project has been built under Win32 and Linux. The following
+This project has been built under Win32, Linux, and OSX. The following
 packages and tools have been used:
 
 * All Systems:
@@ -76,7 +76,9 @@ packages and tools have been used:
      www.openal.org)
 
 * OSX
-  -- to be ported
+  -- OSX 10.2 or later
+  -- OSX Developer Tools
+  -- OpenAL1.0 SDK from Creative Labs (avaulable at http://developer.creative.com under "Gaming->Development Kits->Open AL") 
 
 
 Directory Organization:
@@ -111,19 +113,21 @@ Preparations:
     -- as root type make install
     -- add /usr/local/lib to you /etc/ld.so.conf and run ldconfig
 
+* OSX:
+ Grab the OpenAL SDK from Creative Labs and install it.
 
 JOAL Build Instructions:
 ===================
 
 Edit the value of the jdk.home property in the root build.xml file to point
-to your Java 2 SDK installation (ex: c:/j2sdk1.4.2 or /opt/j2sdk1.4.2)
+to your Java 2 SDK installation (ex: c:/j2sdk1.4.2 ,/opt/j2sdk1.4.2, or /Library/Java/Home)
 
 Edit the value of the openal.home property in the root build.xml file to point
 to your OpenAL SDK installation. For Windows this might be 
 "c:/program files/creative labs/openal 1.0 sdk". 
 Under Linux set the property to the toplevel directory of your OpenAL CVS version.
 If OpenAl came with your distribution and the header files are in /usr/include/AL,
-set the property to '/usr'.  
+set the property to '/usr'. Under OSX the default distribution will install to "/Library/Frameworks/OpenAL.framework ".
 
 To clean: ant clean
 To build: ant all (or just ant)
