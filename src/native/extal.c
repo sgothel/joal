@@ -164,17 +164,18 @@ void* GetFunctionPointer(const char* function) {
  * Loads the OpenAL Library
  */
 void LoadOpenAL(JNIEnv *env, jobjectArray oalPaths) {
+  printf("LoadOpenAL: Enter\n");
   jsize pathcount = (*env)->GetArrayLength(env,oalPaths);
-#ifdef _DEBUG
-  printf("Found %d OpenAL paths\n", pathcount);
-#endif  
+//#ifdef _DEBUG
+  printf("LoadOpenAL: test 1 Found %d OpenAL paths\n", pathcount);
+//#endif  
   int i;
   for(i=0;i<pathcount;i++) {
     jstring path = (jstring) (*env)->GetObjectArrayElement(env,oalPaths, i);
     const char *path_str = (*env)->GetStringUTFChars(env,path, NULL);
-#ifdef _DEBUG
-    printf("Testing '%s'\n", path_str);
-#endif  
+//#ifdef _DEBUG
+    printf("LoadOpenAL: Test 2 loading '%s'\n", path_str);
+//#endif  
 #ifdef _WIN32
     handleOAL = LoadLibrary(path_str);
 #endif
@@ -182,9 +183,9 @@ void LoadOpenAL(JNIEnv *env, jobjectArray oalPaths) {
     handleOAL = dlopen(path_str, RTLD_LAZY);
 #endif
     if (handleOAL != NULL) {
-#ifdef _DEBUG
-      printf("Found OpenAL at '%s'\n", path_str);
-#endif  
+//#ifdef _DEBUG
+      printf("loadOpenAL: Test 3 Found OpenAL at '%s'\n", path_str);
+//#endif  
       break;
     }
     (*env)->ReleaseStringUTFChars(env, path, path_str);
@@ -207,33 +208,36 @@ void UnLoadOpenAL() {
  * Initializes OpenAL by loading the library
  */
 int InitializeOpenAL(JNIEnv *env, jobjectArray oalPaths) {
+	printf("InitializeOpenAL: Enter\n");
   if(handleOAL != 0) {
     return JNI_TRUE;
   }
-
+	printf("InitializeOpenAL: test 1\n");	
   //load our library
   LoadOpenAL(env, oalPaths);
-
+	printf("InitializeOpenAL: test 2 handleOAL = %i\n",(int)handleOAL);
   // if we couldn't load the library, get out
   if(handleOAL == 0) {
     return JNI_FALSE;
   }
+  	printf("InitializeOpenAL: test 3\n");
   
   //load basic OpenAL functions
   if(!LoadAL()) {
     return JNI_FALSE;
   }
+  	printf("InitializeOpenAL: test 4\n");
 
   //load OpenAL context functions
   if(!LoadALC()) {
     return JNI_FALSE;
   }
-
+  	printf("InitializeOpenAL: test 5\n");
   //load OpenAL extensions
   if(!LoadALExtensions()) {
     return JNI_FALSE;
   }
-
+	printf("InitializeOpenAL: Exit\n");
   return JNI_TRUE;
 }
 
@@ -251,6 +255,8 @@ void DeInitializeOpenAL() {
  * @return true if all methods were loaded, false if one of the methods could not be loaded
  */
 int LoadAL() {
+  printf("LoadAL: Enter\n");
+  
   alEnable = (alEnablePROC) GetFunctionPointer("alEnable");
   alDisable = (alDisablePROC) GetFunctionPointer("alDisable");
   alIsEnabled = (alIsEnabledPROC) GetFunctionPointer("alIsEnabled");
@@ -307,7 +313,7 @@ int LoadAL() {
   alDopplerFactor = (alDopplerFactorPROC) GetFunctionPointer("alDopplerFactor");
   alDopplerVelocity = (alDopplerVelocityPROC) GetFunctionPointer("alDopplerVelocity");
 
-  return 
+  int result = 
     alEnable != NULL &&
     alDisable != NULL &&
     alIsEnabled != NULL &&
@@ -363,6 +369,9 @@ int LoadAL() {
     alDistanceModel != NULL &&
     alDopplerFactor != NULL &&
     alDopplerVelocity != NULL;
+    printf("LoadAL: test 1 result = %i\n",result);
+    printf("LoadAL: Exit\n");    
+    return result;
 }
 
 /**
@@ -371,6 +380,8 @@ int LoadAL() {
  * @return true if all methods were loaded, false if one of the methods could not be loaded
  */
 int LoadALC() {
+  printf("LoadALC: Enter\n");
+
   alcGetString            = (alcGetStringPROC) GetFunctionPointer("alcGetString");
   alcGetIntegerv          = (alcGetIntegervPROC) GetFunctionPointer("alcGetIntegerv");
   alcOpenDevice           = (alcOpenDevicePROC) GetFunctionPointer("alcOpenDevice");
@@ -387,7 +398,7 @@ int LoadALC() {
   alcGetProcAddress       = (alcGetProcAddressPROC) GetFunctionPointer("alcGetProcAddress");
   alcGetEnumValue         = (alcGetEnumValuePROC) GetFunctionPointer("alcGetEnumValue");
 
-  return  
+  int result = 
     alcGetString != NULL &&
     alcGetIntegerv != NULL &&
     alcOpenDevice != NULL &&
@@ -403,6 +414,10 @@ int LoadALC() {
     alcIsExtensionPresent != NULL &&
     alcGetProcAddress != NULL &&
     alcGetEnumValue != NULL;
+  
+  printf("LoadALC: test1 result = %i\n",result);
+  printf("LoadALC: Exit\n");
+  return result;
 }
 
 /**

@@ -49,13 +49,16 @@ JNIEXPORT jint JNICALL Java_net_java_games_joal_ALCImpl_openDeviceNative
   	ALubyte *str;
   	ALCdevice *device;
   	if(deviceName != NULL) {
+  		printf("In openDeviceNative() test 2a.1\n");
 	  	str = (ALubyte*)(*env)->GetStringUTFChars(env,deviceName,NULL);
+  		printf("In openDeviceNative() test 2a.2 -- %i\n", *alcOpenDevice);
 	  	device = alcOpenDevice(str);
-	  	printf("In openDeviceNative() test 2a -- %s - %i\n", str, (jint)device);
+	  	printf("In openDeviceNative() test 2a.3 -- %s - %i\n", str, (jint)device);
 	  	(*env)->ReleaseStringUTFChars(env,deviceName,str);
 	} else {
-	  	device = alcOpenDevice(NULL);	
-	  	printf("In openDeviceNative() test 2b -- NULL - %i\n", (jint)device);
+	  	printf("In openDeviceNative() test 2b.1\n");
+	  	device = alcOpenDevice(NULL);
+	  	printf("In openDeviceNative() test 2b.2 -- NULL - %i\n", (jint)device);
 	}
   	result = (jint)device;
   	printf("In openDeviceNative() test 3\n");

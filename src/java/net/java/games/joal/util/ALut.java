@@ -55,10 +55,12 @@ public final class ALut {
     private ALut() { }
 
     public static void alutInit() {
+    	System.out.println("Go TEAM!");
     	System.out.println("Entering alutInit()");
         ALFactory.initialize();
         alc = ALFactory.getALC();
-        String deviceName = null;
+		//String deviceName = null;
+		String deviceName = "MMSYSTEM";
         /*
         String os = System.getProperty("os.name");
         if (os.startsWith("Windows")) {

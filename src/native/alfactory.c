@@ -37,7 +37,11 @@
 
 JNIEXPORT jboolean JNICALL Java_net_java_games_joal_ALFactory_init
   (JNIEnv *env , jclass clazz, jobjectArray oalPaths) {
-  	return InitializeOpenAL(env,oalPaths);
+	printf("ALFactory.init - Native: Enter\n");
+	jboolean result = InitializeOpenAL(env,oalPaths);
+	printf("ALFactory.init - Native: Test 1 result = %i\n",result);
+	printf("ALFactory.init - Native: Exit\n");
+  	return result;
 }
 
 JNIEXPORT jboolean JNICALL Java_net_java_games_joal_ALFactory_deinitialize
