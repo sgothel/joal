@@ -40,48 +40,97 @@ Author:
         Java Games Initiative
         Software Advanced Technologies Group,
         Sun Microsystems
-    -- This file updated 06/02/2003
+    -- This file updated 08/19/2003 by Ole Arndt <ole at sugarshark dot com>
     
 Introduction:
+=============
 
 This is the source tree for the Java Game Initiative (JGI) Open Source
 client game programming APIs for OpenAL and Sound3D.
 
-Build Requirements:
 
-This project has been built in the following environment.
- -- Win32 (Win XP in the case of our machine)
- -- Sun J2SDK 1.4.2 (available at java.sun.com)
- -- OpenAL1.0 SDK from Creative Labs (available at http://developer.creative.com
-    under "Gaming -> Development Kits -> Open AL")
- -- MinGW 2.0.0  plus the following updates: (all available at www.mingw.org) 
+Build Requirements:
+===================
+
+This project has been built under Win32 and Linux. The following
+packages and tools have been used:
+
+* All Systems:
+  -- Sun J2SDK 1.4.2 (available at java.sun.com)
+  -- ANT 1.5.3 (available at apache.org)
+  -- JUnit 3.8.1 (available at junit.org) copy junit.jar to the apache-ant lib directory
+
+* Windows:
+  -- Win32 (Win XP in the case of our machine)
+  -- OpenAL1.0 SDK from Creative Labs (available at http://developer.creative.com
+     under "Gaming -> Development Kits -> Open AL")
+  -- MinGW 2.0.0  plus the following updates: (all available at www.mingw.org) 
      -- binutils 2.13.90
      -- w32api-2.2
      -- mingw-runtime-2.4
- -- ANT 1.5.3 (available at apache.org)
- -- JUnit 3.8.1 (available at junit.org) copy junit.jar to the apache-ant lib directory
+
+* Linux:
+  -- Linux i386 (Redhat 9.0)
+  -- gcc 3.2.2, binutils 2.13.90
+  -- OpenAL CVS version from opensource.creative.com (see CVS instructions at 
+     www.openal.org)
+
+* OSX
+  -- to be ported
+
 
 Directory Organization:
+=======================
 
 The root contains a master ANT build.xml and the following sub directories:
- -- apidocs   Where the javadocs get built to
- -- lib    Where the Jar and DLL files get built to
- -- src    The actual source for the JGI APIs.
- -- www    JGI project webpage files
 
-Build instructions:
+  -- apidocs   Where the javadocs get built to
+  -- lib    Where the Jar and DLL files get built to
+  -- src    The actual source for the JGI APIs.
+  -- www    JGI project webpage files
+
+
+Preparations:
+=============
+
+* Windows:
+ Grab the OpenAL SDK from the openal.org downloads and install it.
+
+* Linux:
+  OpenAL comes with various Linux distributions. You might have it already. 
+  If not, try rpmfind, apt-get or emerge. 
+
+  For the newest version you need to compile OpenAL yourself from CVS:
+
+    -- follow the instruction at www.openal.org to check out a fresh copy 
+    -- in the linux subdir type './autogen.sh 
+    -- look at the build options  
+    -- configure it with./configure --enable-sdl --enable-vorbis [-enable-more]
+       (look in openal.spec for a 
+    -- build it with make && make test and run the tests
+    -- as root type make install
+    -- add /usr/local/lib to you /etc/ld.so.conf and run ldconfig
+
+
+JOAL Build Instructions:
+===================
 
 Edit the value of the jdk.home property in the root build.xml file to point
-to your Java 2 SDK installation (ex: c:/j2sdk1.4.2)
+to your Java 2 SDK installation (ex: c:/j2sdk1.4.2 or /opt/j2sdk1.4.2)
 
 Edit the value of the openal.home property in the root build.xml file to point
-to your OpenAL SDK installation (ex: c:/program files/creative labs/openal 1.0 sdk)
+to your OpenAL SDK installation. For Windows this might be 
+"c:/program files/creative labs/openal 1.0 sdk". 
+Under Linux set the property to the toplevel directory of your OpenAL CVS version.
+If OpenAl came with your distribution and the header files are in /usr/include/AL,
+set the property to '/usr'.  
 
 To clean: ant clean
-To build:  ant all (or just ant)
+To build: ant all (or just ant)
 To build docs: ant javadoc
 To test: ant runtests
     
+
 Release Info:
     Initial Release:  This release contains an implementation of the Java
     bindings for OpenAL, as well as the Sound3D Object-Oriented toolkit for games.
