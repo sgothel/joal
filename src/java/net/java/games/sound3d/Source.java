@@ -37,161 +37,294 @@ import net.java.games.joal.AL;
 
 
 /**
- * @author Athomas Goldberg
+ * DOCUMENT ME!
  *
+ * @author Athomas Goldberg
  */
 public final class Source {
     private final AL al;
     private final int sourceName;
     private Buffer buffer;
 
-    Source(
-        AL al,
-        int sourceName) {
+    Source(AL al, int sourceName) {
         this.al = al;
         this.sourceName = sourceName;
     }
 
+    /**
+     * DOCUMENT ME!
+     */
     public void play() {
         al.alSourcePlay(sourceName);
     }
 
+    /**
+     * DOCUMENT ME!
+     */
     public void pause() {
         al.alSourcePause(sourceName);
     }
 
+    /**
+     * DOCUMENT ME!
+     */
     public void stop() {
         al.alSourceStop(sourceName);
     }
 
+    /**
+     * DOCUMENT ME!
+     */
     public void rewind() {
         al.alSourceRewind(sourceName);
     }
 
+    /**
+     * DOCUMENT ME!
+     */
     public void delete() {
         al.alDeleteSources(1, new int[] { sourceName });
     }
 
+    /**
+     * DOCUMENT ME!
+     *
+     * @param pitch DOCUMENT ME!
+     */
     public void setPitch(float pitch) {
         al.alSourcef(sourceName, AL.AL_PITCH, pitch);
     }
 
+    /**
+     * DOCUMENT ME!
+     *
+     * @return DOCUMENT ME!
+     */
     public float getPitch() {
-    	float[] result = new float[1];
-        al.alGetSourcef(sourceName, AL.AL_PITCH,result);
+        float[] result = new float[1];
+        al.alGetSourcef(sourceName, AL.AL_PITCH, result);
+
         return result[0];
     }
 
+    /**
+     * DOCUMENT ME!
+     *
+     * @param gain DOCUMENT ME!
+     */
     public void setGain(float gain) {
         al.alSourcef(sourceName, AL.AL_GAIN, gain);
     }
 
+    /**
+     * DOCUMENT ME!
+     *
+     * @return DOCUMENT ME!
+     */
     public float getGain() {
-    	float[] result = new float[1];
+        float[] result = new float[1];
         al.alGetSourcef(sourceName, AL.AL_GAIN, result);
+
         return result[0];
     }
 
+    /**
+     * DOCUMENT ME!
+     *
+     * @param maxDistance DOCUMENT ME!
+     */
     public void setMaxDistance(float maxDistance) {
         al.alSourcef(sourceName, AL.AL_MAX_DISTANCE, maxDistance);
     }
 
+    /**
+     * DOCUMENT ME!
+     *
+     * @return DOCUMENT ME!
+     */
     public float getMaxDistance() {
-    	float[] result = new float[1];
-        al.alGetSourcef(sourceName, AL.AL_MAX_DISTANCE,result);
+        float[] result = new float[1];
+        al.alGetSourcef(sourceName, AL.AL_MAX_DISTANCE, result);
+
         return result[0];
     }
 
+    /**
+     * DOCUMENT ME!
+     *
+     * @param rolloffFactor DOCUMENT ME!
+     */
     public void setRolloffFactor(float rolloffFactor) {
         al.alSourcef(sourceName, AL.AL_ROLLOFF_FACTOR, rolloffFactor);
     }
 
+    /**
+     * DOCUMENT ME!
+     *
+     * @return DOCUMENT ME!
+     */
     public float getRolloffFactor() {
-    	float[] result = new float[1];
+        float[] result = new float[1];
         al.alGetSourcef(sourceName, AL.AL_ROLLOFF_FACTOR, result);
+
         return result[0];
     }
 
+    /**
+     * DOCUMENT ME!
+     *
+     * @param referenceDistance DOCUMENT ME!
+     */
     public void setReferenceDistance(float referenceDistance) {
         al.alSourcef(sourceName, AL.AL_REFERENCE_DISTANCE, referenceDistance);
     }
 
+    /**
+     * DOCUMENT ME!
+     *
+     * @return DOCUMENT ME!
+     */
     public float getReferenceDistance() {
-    	float[] result = new float[1];
+        float[] result = new float[1];
         al.alGetSourcef(sourceName, AL.AL_REFERENCE_DISTANCE, result);
+
         return result[0];
     }
 
+    /**
+     * DOCUMENT ME!
+     *
+     * @param minGain DOCUMENT ME!
+     */
     public void setMinGain(float minGain) {
         al.alSourcef(sourceName, AL.AL_MIN_GAIN, minGain);
     }
 
+    /**
+     * DOCUMENT ME!
+     *
+     * @return DOCUMENT ME!
+     */
     public float getMinGain() {
-    	float[] result = new float[1];
+        float[] result = new float[1];
         al.alGetSourcef(sourceName, AL.AL_MIN_GAIN, result);
+
         return result[0];
     }
 
+    /**
+     * DOCUMENT ME!
+     *
+     * @param maxGain DOCUMENT ME!
+     */
     public void setMaxGain(float maxGain) {
         al.alSourcef(sourceName, AL.AL_MAX_GAIN, maxGain);
     }
 
+    /**
+     * DOCUMENT ME!
+     *
+     * @return DOCUMENT ME!
+     */
     public float getMaxGain() {
-    	float[] result = new float[1];
+        float[] result = new float[1];
         al.alGetSourcef(sourceName, AL.AL_MAX_GAIN, result);
+
         return result[0];
     }
 
+    /**
+     * DOCUMENT ME!
+     *
+     * @param coneOuterGain DOCUMENT ME!
+     */
     public void setConeOuterGain(float coneOuterGain) {
         al.alSourcef(sourceName, AL.AL_CONE_OUTER_GAIN, coneOuterGain);
     }
 
+    /**
+     * DOCUMENT ME!
+     *
+     * @return DOCUMENT ME!
+     */
     public float getConeOuterGain() {
-    	float[] result = new float[1];
+        float[] result = new float[1];
         al.alGetSourcef(sourceName, AL.AL_CONE_OUTER_GAIN, result);
+
         return result[0];
     }
 
+    /**
+     * DOCUMENT ME!
+     *
+     * @param position DOCUMENT ME!
+     */
     public void setPosition(Vec3f position) {
         al.alSource3f(
             sourceName,
             AL.AL_POSITION,
             position.v1,
             position.v2,
-            position.v3);
+            position.v3
+        );
     }
 
-    public void setPosition(
-        float x,
-        float y,
-        float z) {
+    /**
+     * DOCUMENT ME!
+     *
+     * @param x DOCUMENT ME!
+     * @param y DOCUMENT ME!
+     * @param z DOCUMENT ME!
+     */
+    public void setPosition(float x, float y, float z) {
         al.alSource3f(sourceName, AL.AL_POSITION, x, y, z);
     }
 
+    /**
+     * DOCUMENT ME!
+     *
+     * @return DOCUMENT ME!
+     */
     public Vec3f getPosition() {
         Vec3f result = null;
         float[] pos = new float[3];
         al.alGetSourcefv(sourceName, AL.AL_POSITION, pos);
         result = new Vec3f(pos[0], pos[1], pos[2]);
+
         return result;
     }
 
+    /**
+     * DOCUMENT ME!
+     *
+     * @param velocity DOCUMENT ME!
+     */
     public void setVelocity(Vec3f velocity) {
         al.alSource3f(
             sourceName,
             AL.AL_VELOCITY,
             velocity.v1,
             velocity.v2,
-            velocity.v3);
+            velocity.v3
+        );
     }
 
-    public void setVelocity(
-        float x,
-        float y,
-        float z) {
+    /**
+     * DOCUMENT ME!
+     *
+     * @param x DOCUMENT ME!
+     * @param y DOCUMENT ME!
+     * @param z DOCUMENT ME!
+     */
+    public void setVelocity(float x, float y, float z) {
         al.alSource3f(sourceName, AL.AL_VELOCITY, x, y, z);
     }
 
+    /**
+     * DOCUMENT ME!
+     *
+     * @return DOCUMENT ME!
+     */
     public Vec3f getVelocity() {
         Vec3f result = null;
         float[] vel = new float[3];
@@ -201,22 +334,37 @@ public final class Source {
         return result;
     }
 
+    /**
+     * DOCUMENT ME!
+     *
+     * @param direction DOCUMENT ME!
+     */
     public void setDirection(Vec3f direction) {
         al.alSource3f(
             sourceName,
             AL.AL_DIRECTION,
             direction.v1,
             direction.v2,
-            direction.v3);
+            direction.v3
+        );
     }
 
-    public void setDirection(
-        float x,
-        float y,
-        float z) {
+    /**
+     * DOCUMENT ME!
+     *
+     * @param x DOCUMENT ME!
+     * @param y DOCUMENT ME!
+     * @param z DOCUMENT ME!
+     */
+    public void setDirection(float x, float y, float z) {
         al.alSource3f(sourceName, AL.AL_DIRECTION, x, y, z);
     }
 
+    /**
+     * DOCUMENT ME!
+     *
+     * @return DOCUMENT ME!
+     */
     public Vec3f getDirection() {
         Vec3f result = null;
         float[] dir = new float[3];
@@ -226,43 +374,86 @@ public final class Source {
         return result;
     }
 
+    /**
+     * DOCUMENT ME!
+     *
+     * @param isRelative DOCUMENT ME!
+     */
     public void setSourceRelative(boolean isRelative) {
         int rel = isRelative ? 1 : 0;
         al.alSourcei(sourceName, AL.AL_SOURCE_RELATIVE, rel);
     }
 
+    /**
+     * DOCUMENT ME!
+     *
+     * @return DOCUMENT ME!
+     */
     public boolean isSourceRelative() {
-    	int[] result = new int[1];
+        int[] result = new int[1];
         al.alGetSourcei(sourceName, AL.AL_SOURCE_RELATIVE, result);
+
         return result[0] == 1;
     }
 
+    /**
+     * DOCUMENT ME!
+     *
+     * @param isLooping DOCUMENT ME!
+     */
     public void setLooping(boolean isLooping) {
         int loop = isLooping ? 1 : 0;
         al.alSourcei(sourceName, AL.AL_LOOPING, loop);
     }
 
+    /**
+     * DOCUMENT ME!
+     *
+     * @return DOCUMENT ME!
+     */
     public int getBuffersQueued() {
-    	int[] result = new int[1];
+        int[] result = new int[1];
         al.alGetSourcei(sourceName, AL.AL_BUFFERS_QUEUED, result);
+
         return result[0];
     }
 
+    /**
+     * DOCUMENT ME!
+     *
+     * @return DOCUMENT ME!
+     */
     public int getBuffersProcessed() {
-    	int[] result = new int[1];
+        int[] result = new int[1];
         al.alGetSourcei(sourceName, AL.AL_BUFFERS_PROCESSED, result);
+
         return result[0];
     }
 
+    /**
+     * DOCUMENT ME!
+     *
+     * @param buffer DOCUMENT ME!
+     */
     public void setBuffer(Buffer buffer) {
         al.alSourcei(sourceName, AL.AL_BUFFER, buffer.bufferName);
         this.buffer = buffer;
     }
 
+    /**
+     * DOCUMENT ME!
+     *
+     * @return DOCUMENT ME!
+     */
     public Buffer getBuffer() {
         return buffer;
     }
 
+    /**
+     * DOCUMENT ME!
+     *
+     * @param buffers DOCUMENT ME!
+     */
     public void queueBuffers(Buffer[] buffers) {
         int numBuffers = buffers.length;
         int[] arr = new int[numBuffers];
@@ -274,6 +465,11 @@ public final class Source {
         al.alSourceQueueBuffers(sourceName, numBuffers, arr);
     }
 
+    /**
+     * DOCUMENT ME!
+     *
+     * @param buffers DOCUMENT ME!
+     */
     public void unqueueBuffers(Buffer[] buffers) {
         int numBuffers = buffers.length;
         int[] arr = new int[numBuffers];
@@ -281,6 +477,7 @@ public final class Source {
         for (int i = 0; i < numBuffers; i++) {
             arr[i] = buffers[i].bufferName;
         }
+
         al.alSourceUnqueueBuffers(sourceName, numBuffers, arr);
     }
 }

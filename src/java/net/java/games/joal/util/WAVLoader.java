@@ -33,8 +33,11 @@
 
 package net.java.games.joal.util;
 
+import net.java.games.joal.ALConstants;
+
 import java.io.File;
 import java.io.IOException;
+
 import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
@@ -44,19 +47,27 @@ import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
-import net.java.games.joal.ALConstants;
-
 
 /**
- * @author Athomas Goldberg
+ * DOCUMENT ME!
  *
+ * @author Athomas Goldberg
  */
 public class WAVLoader implements ALConstants {
     private static final int BUFFER_SIZE = 128000;
 
+    /**
+     * DOCUMENT ME!
+     *
+     * @param filename DOCUMENT ME!
+     *
+     * @return DOCUMENT ME!
+     *
+     * @throws UnsupportedAudioFileException DOCUMENT ME!
+     * @throws IOException DOCUMENT ME!
+     */
     public static WAVData loadFromFile(String filename)
-        throws UnsupportedAudioFileException, 
-            IOException {
+        throws UnsupportedAudioFileException, IOException {
         WAVData result = null;
         File soundFile = new File(filename);
         AudioInputStream aIn = AudioSystem.getAudioInputStream(soundFile);
@@ -82,6 +93,7 @@ public class WAVLoader implements ALConstants {
         aChannel.read(buffer);
         result = new WAVData(buffer, format, size, freq, false);
         aIn.close();
+
         return result;
     }
 }

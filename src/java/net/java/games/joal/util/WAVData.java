@@ -35,23 +35,33 @@ package net.java.games.joal.util;
 
 import java.nio.ByteBuffer;
 
+
 /**
- * @author Athomas Goldberg
+ * DOCUMENT ME!
  *
+ * @author Athomas Goldberg
  */
 public final class WAVData {
-	
-	public final ByteBuffer data;
-	public final int format;
-	public final int size;
-	public final int freq;
-	public final boolean loop;
-	
-	WAVData(ByteBuffer data, int format, int size, int freq, boolean loop) {
-		this.data = data;
-		this.format = format;
-		this.size = size;
-		this.freq = freq;
-		this.loop = loop;
-	}
+    //DOCUMENT ME!
+    public final ByteBuffer data;
+
+    //DOCUMENT ME!
+    public final int format;
+
+    //DOCUMENT ME!
+    public final int size;
+
+    //DOCUMENT ME!
+    public final int freq;
+
+    //DOCUMENT ME!
+    public final boolean loop;
+
+    WAVData(ByteBuffer data, int format, int size, int freq, boolean loop) {
+        this.data = data;
+        this.format = format;
+        this.size = size;
+        this.freq = freq;
+        this.loop = loop;
+    }
 }

@@ -33,15 +33,15 @@
 
 package net.java.games.sound3d;
 
-import java.io.IOException;
-
-import javax.sound.sampled.UnsupportedAudioFileException;
-
 import net.java.games.joal.AL;
 import net.java.games.joal.ALC;
 import net.java.games.joal.ALFactory;
 import net.java.games.joal.util.WAVData;
 import net.java.games.joal.util.WAVLoader;
+
+import java.io.IOException;
+
+import javax.sound.sampled.UnsupportedAudioFileException;
 
 
 /**
@@ -162,6 +162,7 @@ public class AudioSystem3D {
     public static Source loadSource(String filename)
         throws IOException, UnsupportedAudioFileException {
         Buffer buffer = loadBuffer(filename);
+
         return generateSource(buffer);
     }
 

@@ -16,7 +16,6 @@
 * specific prior written permission.
 * 
 * This software is provided "AS IS," without a warranty of any kind.
-* 
 * ALL EXPRESS OR IMPLIED CONDITIONS, REPRESENTATIONS AND WARRANTIES, INCLUDING
 * ANY IMPLIED WARRANTY OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE OR
 * NON-INFRINGEMENT, ARE HEREBY EXCLUDED. SUN MIDROSYSTEMS, INC. ("SUN") AND ITS
@@ -35,18 +34,30 @@
 package net.java.games.sound3d;
 
 /**
- * @author Athomas Goldberg
+ * DOCUMENT ME!
  *
+ * @author Athomas Goldberg
  */
 public final class Vec3f {
-	
-	public final float v1;
-	public final float v2;
-	public final float v3;
-	
-	public Vec3f(float v1, float v2, float v3) {
-		this.v1 = v1;
-		this.v2 = v2;
-		this.v3 = v3;
-	}
+    //DOCUMENT ME!
+    public final float v1;
+
+    //DOCUMENT ME!
+    public final float v2;
+
+    //DOCUMENT ME!
+    public final float v3;
+
+    /**
+     * Creates a new Vec3f object.
+     *
+     * @param v1 DOCUMENT ME!
+     * @param v2 DOCUMENT ME!
+     * @param v3 DOCUMENT ME!
+     */
+    public Vec3f(float v1, float v2, float v3) {
+        this.v1 = v1;
+        this.v2 = v2;
+        this.v3 = v3;
+    }
 }
