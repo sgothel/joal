@@ -50,12 +50,14 @@ final class ALCImpl implements ALC {
     }
 
     public Device alcOpenDevice(String deviceName) {
+    	System.out.println("Entering alcOpenDevice()");
         Device result = null;
         int pointer = openDeviceNative(deviceName);
         if(pointer != 0) {
-        	System.out.println("Device Pointer = " + pointer);
+        	System.out.println("In alcOpenDevice: Device Pointer = " + pointer);
             result = new Device(pointer);
         }
+		System.out.println("Exiting alcOpenDevice()");
         return result;
     }
 
