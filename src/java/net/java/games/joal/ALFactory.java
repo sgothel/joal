@@ -45,7 +45,7 @@ public class ALFactory {
         System.loadLibrary("joal");
     }
 
-    private static boolean isInitialized;
+    private static boolean isInitialized = false;
     private static ALImpl al;
     private static ALC alc;
 
@@ -62,7 +62,7 @@ public class ALFactory {
         } else if(osProperty.startsWith("Linux")) {
             isInitialized = init(new String[] { "libopenal.so" });
         } else {
-            // OSX            
+            isInitialized = init(new String[] { "/Library/Frameworks/OpenAL.framework/Versions/Current/OpenAL"});
         }
         return isInitialized;
     }
