@@ -148,7 +148,7 @@ public final class Source {
      * Gets the max distance where there will no longer be any attenuation of
      * the source.
      *
-     * @param the max ditance for source attentuation.
+     * @return the max ditance for source attentuation.
      */
     public float getMaxDistance() {
         float[] result = new float[1];
@@ -255,7 +255,7 @@ public final class Source {
     /**
      * Gets the gain when outside the oriented cone.
      *
-     * @param coneOuterGain the gain when outside the oriented cone.
+     * @return the gain when outside the oriented cone.
      */
     public float getConeOuterGain() {
         float[] result = new float[1];
@@ -422,7 +422,7 @@ public final class Source {
     /**
      * indicates whether looping is turned on or off. 
      *
-     * @param isLooping true-looping is on, false-looping is off
+     * @return true-looping is on, false-looping is off
      */
     public boolean getLooping() {
         boolean result = false;
