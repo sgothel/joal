@@ -104,9 +104,9 @@ Preparations:
 
     -- follow the instruction at www.openal.org to check out a fresh copy 
     -- in the linux subdir type './autogen.sh 
-    -- look at the build options  
+    -- look at the build options with ./configure --help  
     -- configure it with./configure --enable-sdl --enable-vorbis [-enable-more]
-       (look in openal.spec for a 
+       (see openal.spec for a full set)
     -- build it with make && make test and run the tests
     -- as root type make install
     -- add /usr/local/lib to you /etc/ld.so.conf and run ldconfig
