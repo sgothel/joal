@@ -18,7 +18,7 @@
 * This software is provided "AS IS," without a warranty of any kind.
 * ALL EXPRESS OR IMPLIED CONDITIONS, REPRESENTATIONS AND WARRANTIES, INCLUDING
 * ANY IMPLIED WARRANTY OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE OR
-* NON-INFRINGEMENT, ARE HEREBY EXCLUDED. SUN MIDROSYSTEMS, INC. ("SUN") AND ITS
+* NON-INFRINGEMENT, ARE HEREBY EXCLUDED. SUN MICROSYSTEMS, INC. ("SUN") AND ITS
 * LICENSORS SHALL NOT BE LIABLE FOR ANY DAMAGES SUFFERED BY LICENSEE AS A
 * RESULT OF USING, MODIFYING OR DISTRIBUTING THIS SOFTWARE OR ITS DERIVATIVES.
 * IN NO EVENT WILL SUN OR ITS LICENSORS BE LIABLE FOR ANY LOST REVENUE, PROFIT
@@ -68,7 +68,7 @@ public class Listener {
      */
     public float getGain() {
         float[] f = new float[1];
-        al.alGetListenerf(AL.AL_GAIN, f);
+        al.alGetListenerf(AL.AL_GAIN, f, 0);
 
         return f[0];
     }
@@ -109,7 +109,7 @@ public class Listener {
     public Vec3f getPosition() {
         Vec3f result = null;
         float[] tmp = new float[3];
-        al.alGetListenerfv(AL.AL_POSITION, tmp);
+        al.alGetListenerfv(AL.AL_POSITION, tmp, 0);
         result = new Vec3f(tmp[0], tmp[1], tmp[2]);
 
         return result;
@@ -136,7 +136,7 @@ public class Listener {
     public Vec3f getVelocity() {
         Vec3f result = null;
         float[] tmp = new float[3];
-        al.alGetListenerfv(AL.AL_VELOCITY, tmp);
+        al.alGetListenerfv(AL.AL_VELOCITY, tmp, 0);
         result = new Vec3f(tmp[0], tmp[1], tmp[2]);
 
         return result;
@@ -151,7 +151,7 @@ public class Listener {
      * look-at vector.
      */
     public void setOrientation(float[] orientation) {
-        al.alListenerfv(AL.AL_ORIENTATION, orientation);
+        al.alListenerfv(AL.AL_ORIENTATION, orientation, 0);
     }
 
     /**
@@ -165,7 +165,7 @@ public class Listener {
      */
     public float[] getOrientation() {
         float[] tmp = new float[6];
-        al.alGetListenerfv(AL.AL_ORIENTATION, tmp);
+        al.alGetListenerfv(AL.AL_ORIENTATION, tmp, 0);
         return tmp;
     }
 }

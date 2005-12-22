@@ -42,6 +42,8 @@ Author:
         Sun Microsystems
     -- This file updated 08/19/2003 by Ole Arndt <ole at sugarshark dot com>
     -- This file updated 11/23/2003 by Gregory Pierce <gpierce@gregorypierce.com>    
+    -- This file updated 12/21/2005 by Kenneth Russell <kbr@dev.java.net>
+
 Introduction:
 =============
 
@@ -80,17 +82,20 @@ packages and tools have been used:
   -- OSX Developer Tools
   -- OpenAL1.0 SDK from Creative Labs (avaulable at http://developer.creative.com under "Gaming->Development Kits->Open AL") 
 
+The sources currently require a built JOGL source tree as a sibling
+directory of your JOAL tree; this is to pick up the GlueGen tool,
+which currently lives in the JOGL workspace. We plan to move this tool
+into its own workspace and thereby break this dependence.
 
 Directory Organization:
 =======================
 
-The root contains a master ANT build.xml and the following sub directories:
-
-  -- apidocs   Where the javadocs get built to
-  -- lib    Where the Jar and DLL files get built to
-  -- src    The actual source for the JGI APIs.
-  -- www    JGI project webpage files
-
+  -- make           Build-related files and the main build.xml
+  -- src            The actual source for the JOAL APIs.
+  -- build          (generated directory) Where the Jar and DLL files get built to
+  -- javadoc_public (generated directory) Where the public Javadoc gets built to
+  -- unit_tests     A couple of small tests
+  -- www            JOAL project webpage files
 
 Preparations:
 =============
@@ -116,16 +121,21 @@ Preparations:
 * OSX:
  Grab the OpenAL SDK from Creative Labs and install it.
 
+ 
 JOAL Build Instructions:
 ===================
 
-Edit the value of the jdk.home property in the root build.xml file to point
-to your Java 2 SDK installation (ex: c:/j2sdk1.4.2 ,/opt/j2sdk1.4.2, or /Library/Java/Home)
+Copy the joal.properties file from the make/ subdirectory into your
+home directory, or in particular where the Java system property
+user.home points to (on Windows, this is C:\Documents and Settings\username\)
 
-Edit the value of the openal.home property in the root build.xml file to point
-to your OpenAL SDK installation.
+Download the current ANTLR jar file (http://www.antlr.org/). Edit the
+value of the antlr.jar property in this file to point to the full path
+of this jar. ANTLR is used during the glue code generation process.
 
-For Windows this might be "c:/program files/creative labs/openal 1.0 sdk". 
+Edit the joal.lib.dir property to point to the lib directory of your
+current OpenAL installation. For Windows this might be "C:/Program
+Files/OpenAL 1.1 SDK/libs/Win32".
 
 Under Linux set the property to the toplevel directory of your OpenAL CVS version.
 If OpenAl came with your distribution and the header files are in /usr/include/AL,
@@ -133,48 +143,18 @@ set the property to '/usr'.
 
 Under OSX the default distribution will install to "/Library/Frameworks/OpenAL.framework ".
 
+On Windows, you may want to edit the win32.c.compiler property to
+indicate the C compiler you prefer to use (vc6, vc7 or mingw).
+
+On OS X, you can produce 'fat' dual PowerPC/x86 binaries on an
+appropriately-equipped machine by uncommenting the declaration of the
+'macosxfat' property.
+
 To clean: ant clean
 To build: ant all (or just ant)
 To build docs: ant javadoc
 To test: ant runtests
-    
 
 Release Info:
     Initial Release:  This release contains an implementation of the Java
     bindings for OpenAL, as well as the Sound3D Object-Oriented toolkit for games.
-
-Additional Information
-    This release includes source code adapted from the Lightweight Java Games Library
-    subject to the following terms and conditions:
-    
- * Copyright (c) 2002 Light Weight Java Game Library Project
- * All rights reserved.
- * 
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are 
- * met:
- * 
- * * Redistributions of source code must retain the above copyright 
- *   notice, this list of conditions and the following disclaimer.
- *
- * * Redistributions in binary form must reproduce the above copyright
- *   notice, this list of conditions and the following disclaimer in the
- *   documentation and/or other materials provided with the distribution.
- *
- * * Neither the name of 'Light Weight Java Game Library' nor the names of 
- *   its contributors may be used to endorse or promote products derived 
- *   from this software without specific prior written permission.
- * 
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
- * TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
- * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR 
- * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, 
- * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, 
- * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR 
- * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
- * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
- * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-

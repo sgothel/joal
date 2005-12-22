@@ -18,7 +18,7 @@
 * This software is provided "AS IS," without a warranty of any kind.
 * ALL EXPRESS OR IMPLIED CONDITIONS, REPRESENTATIONS AND WARRANTIES, INCLUDING
 * ANY IMPLIED WARRANTY OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE OR
-* NON-INFRINGEMENT, ARE HEREBY EXCLUDED. SUN MIDROSYSTEMS, INC. ("SUN") AND ITS
+* NON-INFRINGEMENT, ARE HEREBY EXCLUDED. SUN MICROSYSTEMS, INC. ("SUN") AND ITS
 * LICENSORS SHALL NOT BE LIABLE FOR ANY DAMAGES SUFFERED BY LICENSEE AS A
 * RESULT OF USING, MODIFYING OR DISTRIBUTING THIS SOFTWARE OR ITS DERIVATIVES.
 * IN NO EVENT WILL SUN OR ITS LICENSORS BE LIABLE FOR ANY LOST REVENUE, PROFIT
@@ -81,7 +81,7 @@ public class Buffer {
      */
     public void delete() {
         data = null;
-        al.alDeleteBuffers(1, new int[] { bufferID });
+        al.alDeleteBuffers(1, new int[] { bufferID }, 0);
     }
 
     /**
@@ -91,7 +91,7 @@ public class Buffer {
      */
     public int getBitDepth() {
         int[] i = new int[1];
-        al.alGetBufferi(bufferID, AL.AL_BITS, i);
+        al.alGetBufferi(bufferID, AL.AL_BITS, i, 0);
 
         return i[0];
     }
@@ -103,7 +103,7 @@ public class Buffer {
      */
     public int getNumChannels() {
         int[] i = new int[1];
-        al.alGetBufferi(bufferID, AL.AL_CHANNELS, i);
+        al.alGetBufferi(bufferID, AL.AL_CHANNELS, i, 0);
 
         return i[0];
     }
@@ -124,7 +124,7 @@ public class Buffer {
      */
     public int getFrequency() {
         int[] i = new int[1];
-        al.alGetBufferi(bufferID, AL.AL_FREQUENCY, i);
+        al.alGetBufferi(bufferID, AL.AL_FREQUENCY, i, 0);
 
         return i[0];
     }
@@ -136,7 +136,7 @@ public class Buffer {
      */
     public int getSize() {
         int[] i = new int[1];
-        al.alGetBufferi(bufferID, AL.AL_SIZE, i);
+        al.alGetBufferi(bufferID, AL.AL_SIZE, i, 0);
 
         return i[0];
     }

@@ -1,165 +1,266 @@
-/**
-* Copyright (c) 2003 Sun Microsystems, Inc. All  Rights Reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-* -Redistribution of source code must retain the above copyright notice, 
-* this list of conditions and the following disclaimer.
-*
-* -Redistribution in binary form must reproduce the above copyright notice, 
-* this list of conditions and the following disclaimer in the documentation
-* and/or other materials provided with the distribution.
-*
-* Neither the name of Sun Microsystems, Inc. or the names of contributors may 
-* be used to endorse or promote products derived from this software without 
-* specific prior written permission.
-* 
-* This software is provided "AS IS," without a warranty of any kind.
-* ALL EXPRESS OR IMPLIED CONDITIONS, REPRESENTATIONS AND WARRANTIES, INCLUDING
-* ANY IMPLIED WARRANTY OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE OR
-* NON-INFRINGEMENT, ARE HEREBY EXCLUDED. SUN MIDROSYSTEMS, INC. ("SUN") AND ITS
-* LICENSORS SHALL NOT BE LIABLE FOR ANY DAMAGES SUFFERED BY LICENSEE AS A
-* RESULT OF USING, MODIFYING OR DISTRIBUTING THIS SOFTWARE OR ITS DERIVATIVES.
-* IN NO EVENT WILL SUN OR ITS LICENSORS BE LIABLE FOR ANY LOST REVENUE, PROFIT
-* OR DATA, OR FOR DIRECT, INDIRECT, SPECIAL, CONSEQUENTIAL, INCIDENTAL OR
-* PUNITIVE DAMAGES, HOWEVER CAUSED AND REGARDLESS OF THE THEORY OF LIABILITY,
-* ARISING OUT OF THE USE OF OR INABILITY TO USE THIS SOFTWARE, EVEN IF SUN HAS
-* BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
-*
-* You acknowledge that this software is not designed or intended for use in the
-* design, construction, operation or maintenance of any nuclear facility.
-*/
+/*
+ * Copyright (c) 2003 Sun Microsystems, Inc. All Rights Reserved.
+ * 
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ * 
+ * - Redistribution of source code must retain the above copyright
+ *   notice, this list of conditions and the following disclaimer.
+ * 
+ * - Redistribution in binary form must reproduce the above copyright
+ *   notice, this list of conditions and the following disclaimer in the
+ *   documentation and/or other materials provided with the distribution.
+ * 
+ * Neither the name of Sun Microsystems, Inc. or the names of
+ * contributors may be used to endorse or promote products derived from
+ * this software without specific prior written permission.
+ * 
+ * This software is provided "AS IS," without a warranty of any kind. ALL
+ * EXPRESS OR IMPLIED CONDITIONS, REPRESENTATIONS AND WARRANTIES,
+ * INCLUDING ANY IMPLIED WARRANTY OF MERCHANTABILITY, FITNESS FOR A
+ * PARTICULAR PURPOSE OR NON-INFRINGEMENT, ARE HEREBY EXCLUDED. SUN
+ * MICROSYSTEMS, INC. ("SUN") AND ITS LICENSORS SHALL NOT BE LIABLE FOR
+ * ANY DAMAGES SUFFERED BY LICENSEE AS A RESULT OF USING, MODIFYING OR
+ * DISTRIBUTING THIS SOFTWARE OR ITS DERIVATIVES. IN NO EVENT WILL SUN OR
+ * ITS LICENSORS BE LIABLE FOR ANY LOST REVENUE, PROFIT OR DATA, OR FOR
+ * DIRECT, INDIRECT, SPECIAL, CONSEQUENTIAL, INCIDENTAL OR PUNITIVE
+ * DAMAGES, HOWEVER CAUSED AND REGARDLESS OF THE THEORY OF LIABILITY,
+ * ARISING OUT OF THE USE OF OR INABILITY TO USE THIS SOFTWARE, EVEN IF
+ * SUN HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
+ * 
+ * You acknowledge that this software is not designed or intended for use
+ * in the design, construction, operation or maintenance of any nuclear
+ * facility.
+ * 
+ * Sun gratefully acknowledges that this software was originally authored
+ * and developed by Kenneth Bradley Russell and Christopher John Kline.
+ */
 
 package net.java.games.joal.util;
 
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.nio.CharBuffer;
-import java.nio.DoubleBuffer;
-import java.nio.FloatBuffer;
-import java.nio.IntBuffer;
-import java.nio.LongBuffer;
-import java.nio.ShortBuffer;
+import java.nio.*;
+import java.util.*;
 
+/** Utility routines for dealing with direct buffers. */
 
-/**
- * Provides a collection of methods for generating direct Buffers of various
- * types.
- *
- * @author Athomas Goldberg
- */
 public class BufferUtils {
-    private static final int CHAR = 2;
-    private static final int SHORT = 2;
-    private static final int INT = 4;
-    private static final int LONG = 8;
-    private static final int FLOAT = 4;
-    private static final int DOUBLE = 8;
+  public static final int SIZEOF_BYTE = 1;
+  public static final int SIZEOF_SHORT = 2;
+  public static final int SIZEOF_INT = 4;
+  public static final int SIZEOF_FLOAT = 4;
+  public static final int SIZEOF_LONG = 8;
+  public static final int SIZEOF_DOUBLE = 8;
 
-    private BufferUtils() {
-    }
+  //----------------------------------------------------------------------
+  // Allocation routines
+  //
 
-    /**
-     * Create a new direct ByteBuffer of the specified size.
-     *
-     * @param size (in bytes) of the returned ByteBuffer
-     *
-     * @return a new direct ByteBuffer of the specified size
-     */
-    public static ByteBuffer newByteBuffer(int size) {
-        ByteBuffer result = null;
-        result = ByteBuffer.allocateDirect(size).order(ByteOrder.nativeOrder());
+  /** Allocates a new direct ByteBuffer with the specified number of
+      elements. The returned buffer will have its byte order set to
+      the host platform's native byte order. */
+  public static ByteBuffer newByteBuffer(int numElements) {
+    ByteBuffer bb = ByteBuffer.allocateDirect(numElements);
+    bb.order(ByteOrder.nativeOrder());
+    return bb;
+  }
 
-        return result;
-    }
+  /** Allocates a new direct DoubleBuffer with the specified number of
+      elements. The returned buffer will have its byte order set to
+      the host platform's native byte order. */
+  public static DoubleBuffer newDoubleBuffer(int numElements) {
+    ByteBuffer bb = newByteBuffer(numElements * SIZEOF_DOUBLE);
+    return bb.asDoubleBuffer();
+  }
 
-    /**
-     * Create a new direct CharBuffer of the specified size.
-     *
-     * @param size (in chars) of the returned CharBuffer
-     *
-     * @return a new direct CharBuffer of the specified size
-     */
-    public static CharBuffer newCharBuffer(int size) {
-        CharBuffer result = null;
-        ByteBuffer temp = newByteBuffer(size * CHAR);
-        result = temp.asCharBuffer();
+  /** Allocates a new direct FloatBuffer with the specified number of
+      elements. The returned buffer will have its byte order set to
+      the host platform's native byte order. */
+  public static FloatBuffer newFloatBuffer(int numElements) {
+    ByteBuffer bb = newByteBuffer(numElements * SIZEOF_FLOAT);
+    return bb.asFloatBuffer();
+  }
 
-        return result;
-    }
+  /** Allocates a new direct IntBuffer with the specified number of
+      elements. The returned buffer will have its byte order set to
+      the host platform's native byte order. */
+  public static IntBuffer newIntBuffer(int numElements) {
+    ByteBuffer bb = newByteBuffer(numElements * SIZEOF_INT);
+    return bb.asIntBuffer();
+  }
 
-    /**
-     * Create a new direct ShortBuffer of the specified size.
-     *
-     * @param size (in shorts) of the returned ShortBuffer
-     *
-     * @return a new direct ShortBuffer of the specified size
-     */
-    public static ShortBuffer newShortBuffer(int size) {
-        ShortBuffer result = null;
-        ByteBuffer temp = newByteBuffer(size * SHORT);
-        result = temp.asShortBuffer();
+  /** Allocates a new direct LongBuffer with the specified number of
+      elements. The returned buffer will have its byte order set to
+      the host platform's native byte order. */
+  public static LongBuffer newLongBuffer(int numElements) {
+    ByteBuffer bb = newByteBuffer(numElements * SIZEOF_LONG);
+    return bb.asLongBuffer();
+  }
 
-        return result;
-    }
+  /** Allocates a new direct ShortBuffer with the specified number of
+      elements. The returned buffer will have its byte order set to
+      the host platform's native byte order. */
+  public static ShortBuffer newShortBuffer(int numElements) {
+    ByteBuffer bb = newByteBuffer(numElements * SIZEOF_SHORT);
+    return bb.asShortBuffer();
+  }
 
-    /**
-     * Create a new direct IntBuffer of the specified size.
-     *
-     * @param size (in ints) of the returned IntBuffer
-     *
-     * @return a new direct IntBuffer of the specified size
-     */
-    public static IntBuffer newIntBuffer(int size) {
-        IntBuffer result = null;
-        ByteBuffer temp = newByteBuffer(size * INT);
-        result = temp.asIntBuffer();
+  //----------------------------------------------------------------------
+  // Copy routines (type-to-type)
+  //
 
-        return result;
-    }
+  /** Copies the <i>remaining</i> elements (as defined by
+      <code>limit() - position()</code>) in the passed ByteBuffer into
+      a newly-allocated direct ByteBuffer. The returned buffer will
+      have its byte order set to the host platform's native byte
+      order. The position of the newly-allocated buffer will be zero,
+      and the position of the passed buffer is unchanged (though its
+      mark is changed). */
+  public static ByteBuffer copyByteBuffer(ByteBuffer orig) {
+    ByteBuffer dest = newByteBuffer(orig.remaining());
+    orig.mark();
+    dest.put(orig);
+    orig.reset();
+    dest.rewind();
+    return dest;
+  }
 
-    /**
-     * Create a new direct LongBuffer of the specified size.
-     *
-     * @param size (in longs) of the returned LongBuffer
-     *
-     * @return a new direct LongsBuffer of the specified size
-     */
-    public static LongBuffer newLongBuffer(int size) {
-        LongBuffer result = null;
-        ByteBuffer temp = newByteBuffer(size * LONG);
-        result = temp.asLongBuffer();
+  /** Copies the <i>remaining</i> elements (as defined by
+      <code>limit() - position()</code>) in the passed DoubleBuffer
+      into a newly-allocated direct DoubleBuffer. The returned buffer
+      will have its byte order set to the host platform's native byte
+      order. The position of the newly-allocated buffer will be zero,
+      and the position of the passed buffer is unchanged (though its
+      mark is changed). */
+  public static DoubleBuffer copyDoubleBuffer(DoubleBuffer orig) {
+    return copyDoubleBufferAsByteBuffer(orig).asDoubleBuffer();
+  }
 
-        return result;
-    }
+  /** Copies the <i>remaining</i> elements (as defined by
+      <code>limit() - position()</code>) in the passed FloatBuffer
+      into a newly-allocated direct FloatBuffer. The returned buffer
+      will have its byte order set to the host platform's native byte
+      order. The position of the newly-allocated buffer will be zero,
+      and the position of the passed buffer is unchanged (though its
+      mark is changed). */
+  public static FloatBuffer copyFloatBuffer(FloatBuffer orig) {
+    return copyFloatBufferAsByteBuffer(orig).asFloatBuffer();
+  }
 
-    /**
-     * Create a new direct FloatBuffer of the specified size.
-     *
-     * @param size (in floats) of the returned FloatBuffer
-     *
-     * @return a new direct FloatBuffer of the specified size
-     */
-    public static FloatBuffer newFloatBuffer(int size) {
-        FloatBuffer result = null;
-        ByteBuffer temp = newByteBuffer(size * FLOAT);
-        result = temp.asFloatBuffer();
+  /** Copies the <i>remaining</i> elements (as defined by
+      <code>limit() - position()</code>) in the passed IntBuffer
+      into a newly-allocated direct IntBuffer. The returned buffer
+      will have its byte order set to the host platform's native byte
+      order. The position of the newly-allocated buffer will be zero,
+      and the position of the passed buffer is unchanged (though its
+      mark is changed). */
+  public static IntBuffer copyIntBuffer(IntBuffer orig) {
+    return copyIntBufferAsByteBuffer(orig).asIntBuffer();
+  }
 
-        return result;
-    }
+  /** Copies the <i>remaining</i> elements (as defined by
+      <code>limit() - position()</code>) in the passed LongBuffer
+      into a newly-allocated direct LongBuffer. The returned buffer
+      will have its byte order set to the host platform's native byte
+      order. The position of the newly-allocated buffer will be zero,
+      and the position of the passed buffer is unchanged (though its
+      mark is changed). */
+  public static LongBuffer copyLongBuffer(LongBuffer orig) {
+    return copyLongBufferAsByteBuffer(orig).asLongBuffer();
+  }
 
-    /**
-     * Create a new direct DoubleBuffer of the specified size.
-     *
-     * @param size (in doubles) of the returned DoubleBuffer
-     *
-     * @return a new direct DoubleBuffer of the specified size
-     */
-    public static DoubleBuffer newDoubleBuffer(int size) {
-        DoubleBuffer result = null;
-        ByteBuffer temp = newByteBuffer(size * DOUBLE);
-        result = temp.asDoubleBuffer();
-        return result;
-    }
+  /** Copies the <i>remaining</i> elements (as defined by
+      <code>limit() - position()</code>) in the passed ShortBuffer
+      into a newly-allocated direct ShortBuffer. The returned buffer
+      will have its byte order set to the host platform's native byte
+      order. The position of the newly-allocated buffer will be zero,
+      and the position of the passed buffer is unchanged (though its
+      mark is changed). */
+  public static ShortBuffer copyShortBuffer(ShortBuffer orig) {
+    return copyShortBufferAsByteBuffer(orig).asShortBuffer();
+  }
+
+  //----------------------------------------------------------------------
+  // Copy routines (type-to-ByteBuffer)
+  //
+
+  /** Copies the <i>remaining</i> elements (as defined by
+      <code>limit() - position()</code>) in the passed DoubleBuffer
+      into a newly-allocated direct ByteBuffer. The returned buffer
+      will have its byte order set to the host platform's native byte
+      order. The position of the newly-allocated buffer will be zero,
+      and the position of the passed buffer is unchanged (though its
+      mark is changed). */
+  public static ByteBuffer copyDoubleBufferAsByteBuffer(DoubleBuffer orig) {
+    ByteBuffer dest = newByteBuffer(orig.remaining() * SIZEOF_DOUBLE);
+    orig.mark();
+    dest.asDoubleBuffer().put(orig);
+    orig.reset();
+    dest.rewind();
+    return dest;
+  }
+
+  /** Copies the <i>remaining</i> elements (as defined by
+      <code>limit() - position()</code>) in the passed FloatBuffer
+      into a newly-allocated direct ByteBuffer. The returned buffer
+      will have its byte order set to the host platform's native byte
+      order. The position of the newly-allocated buffer will be zero,
+      and the position of the passed buffer is unchanged (though its
+      mark is changed). */
+  public static ByteBuffer copyFloatBufferAsByteBuffer(FloatBuffer orig) {
+    ByteBuffer dest = newByteBuffer(orig.remaining() * SIZEOF_FLOAT);
+    orig.mark();
+    dest.asFloatBuffer().put(orig);
+    orig.reset();
+    dest.rewind();
+    return dest;
+  }
+
+  /** Copies the <i>remaining</i> elements (as defined by
+      <code>limit() - position()</code>) in the passed IntBuffer into
+      a newly-allocated direct ByteBuffer. The returned buffer will
+      have its byte order set to the host platform's native byte
+      order. The position of the newly-allocated buffer will be zero,
+      and the position of the passed buffer is unchanged (though its
+      mark is changed). */
+  public static ByteBuffer copyIntBufferAsByteBuffer(IntBuffer orig) {
+    ByteBuffer dest = newByteBuffer(orig.remaining() * SIZEOF_INT);
+    orig.mark();
+    dest.asIntBuffer().put(orig);
+    orig.reset();
+    dest.rewind();
+    return dest;
+  }
+
+  /** Copies the <i>remaining</i> elements (as defined by
+      <code>limit() - position()</code>) in the passed LongBuffer into
+      a newly-allocated direct ByteBuffer. The returned buffer will
+      have its byte order set to the host platform's native byte
+      order. The position of the newly-allocated buffer will be zero,
+      and the position of the passed buffer is unchanged (though its
+      mark is changed). */
+  public static ByteBuffer copyLongBufferAsByteBuffer(LongBuffer orig) {
+    ByteBuffer dest = newByteBuffer(orig.remaining() * SIZEOF_LONG);
+    orig.mark();
+    dest.asLongBuffer().put(orig);
+    orig.reset();
+    dest.rewind();
+    return dest;
+  }
+
+  /** Copies the <i>remaining</i> elements (as defined by
+      <code>limit() - position()</code>) in the passed ShortBuffer
+      into a newly-allocated direct ByteBuffer. The returned buffer
+      will have its byte order set to the host platform's native byte
+      order. The position of the newly-allocated buffer will be zero,
+      and the position of the passed buffer is unchanged (though its
+      mark is changed). */
+  public static ByteBuffer copyShortBufferAsByteBuffer(ShortBuffer orig) {
+    ByteBuffer dest = newByteBuffer(orig.remaining() * SIZEOF_SHORT);
+    orig.mark();
+    dest.asShortBuffer().put(orig);
+    orig.reset();
+    dest.rewind();
+    return dest;
+  }
 }

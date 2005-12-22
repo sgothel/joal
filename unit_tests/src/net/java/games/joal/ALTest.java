@@ -12,8 +12,7 @@ import java.nio.ByteBuffer;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 import junit.framework.TestCase;
-import net.java.games.joal.util.WAVData;
-import net.java.games.joal.util.WAVLoader;
+import net.java.games.joal.util.*;
 
 /**
  * @author Athomas Goldberg
@@ -24,8 +23,8 @@ public class ALTest extends TestCase {
 
     static AL al;
     static ALC alc;
-    static ALC.Context context;
-    static ALC.Device device;
+    static ALCcontext context;
+    static ALCdevice device;
     final static String TEST_FILE ="lewiscarroll.wav";
 
     /**
@@ -38,13 +37,12 @@ public class ALTest extends TestCase {
 
     public void setUp() {
     	try {
-			ALFactory.initialize();
 			al = ALFactory.getAL();
 			alc = ALFactory.getALC();
 			device = alc.alcOpenDevice(null);
 			context = alc.alcCreateContext(device, null);
 			alc.alcMakeContextCurrent(context);
-        } catch (OpenALException e) {
+        } catch (ALException e) {
             e.printStackTrace();
         }
     }
@@ -121,7 +119,7 @@ public class ALTest extends TestCase {
         // try basic case
         try {
             int[] buffers = new int[7];
-            al.alGenBuffers(7,buffers);
+            al.alGenBuffers(7,buffers, 0);
             for(int i = 0; i < 7; i++) {
                 assertFalse(buffers[i] == 0);
                 assertTrue(al.alIsBuffer(buffers[i]));
@@ -134,7 +132,7 @@ public class ALTest extends TestCase {
         // try exceptions
         try {
             int[] buffers = null;
-            al.alGenBuffers(7,buffers);
+            al.alGenBuffers(7,buffers, 0);
             
             
         } catch(IllegalArgumentException e) {
@@ -144,7 +142,7 @@ public class ALTest extends TestCase {
         ex = null;
         try {
             int[] buffers = new int[5];
-            al.alGenBuffers(7,buffers);
+            al.alGenBuffers(7,buffers, 0);
         } catch(IllegalArgumentException e) {
             ex = e;
         }
@@ -162,12 +160,12 @@ public class ALTest extends TestCase {
         // try basic case
         try {
             int[] buffers = new int[7];
-            al.alGenBuffers(7,buffers);
+            al.alGenBuffers(7,buffers,0);
             for(int i = 0; i < 7; i++) {
                 assertFalse(buffers[i] == 0);
                 assertTrue(al.alIsBuffer(buffers[i]));
             }
-            al.alDeleteBuffers(7,buffers);
+            al.alDeleteBuffers(7,buffers,0);
             for(int i = 0; i < 7; i++) {
                 assertFalse(al.alIsBuffer(buffers[i]));
             }
@@ -178,7 +176,7 @@ public class ALTest extends TestCase {
         Exception ex = null;
         // try exceptions
         try {
-            al.alDeleteBuffers(7,(int[])null);
+            al.alDeleteBuffers(7,(int[])null, 0);
         } catch(IllegalArgumentException e) {
             ex = e;
         }
@@ -186,8 +184,8 @@ public class ALTest extends TestCase {
         ex = null;
         try {
             int[] buffers = new int[5];
-            al.alGenBuffers(5,buffers);
-            al.alDeleteBuffers(7,buffers);
+            al.alGenBuffers(5,buffers,0);
+            al.alDeleteBuffers(7,buffers,0);
         } catch(IllegalArgumentException e) {
             ex = e;
         }
@@ -195,7 +193,7 @@ public class ALTest extends TestCase {
         
         try {
             int[] buffers = new int[7];
-            al.alDeleteBuffers(7,buffers);
+            al.alDeleteBuffers(7,buffers,0);
             assertTrue(al.alGetError() != 0);
         } catch(Exception e) {
             fail("deleting an unfilled buffer list should generate an ALError but not an exception");
@@ -212,12 +210,12 @@ public class ALTest extends TestCase {
         // try basic case
         try {
             int[] buffers = new int[7];
-            al.alGenBuffers(7,buffers);
+            al.alGenBuffers(7,buffers,0);
             for(int i = 0; i < 7; i++) {
                 assertFalse(buffers[i] == 0);
                 assertTrue(al.alIsBuffer(buffers[i]));
             }
-            al.alDeleteBuffers(7,buffers);
+            al.alDeleteBuffers(7,buffers,0);
             for(int i = 0; i < 7; i++) {
                 assertFalse(al.alIsBuffer(buffers[i]));
             }
@@ -228,7 +226,7 @@ public class ALTest extends TestCase {
         Exception ex = null;
         // try exceptions
         try {
-            al.alDeleteBuffers(7,(int[])null);
+            al.alDeleteBuffers(7,(int[])null,0);
         } catch(IllegalArgumentException e) {
             ex = e;
         }
@@ -236,8 +234,8 @@ public class ALTest extends TestCase {
         ex = null;
         try {
             int[] buffers = new int[5];
-            al.alGenBuffers(5,buffers);
-            al.alDeleteBuffers(7,buffers);
+            al.alGenBuffers(5,buffers,0);
+            al.alDeleteBuffers(7,buffers,0);
         } catch(IllegalArgumentException e) {
             ex = e;
         }
@@ -246,7 +244,7 @@ public class ALTest extends TestCase {
         ex = null;
         try {
             int[] buffers = new int[5];
-            al.alDeleteBuffers(7,buffers);
+            al.alDeleteBuffers(7,buffers,0);
         } catch(IllegalArgumentException e) {
             ex = e;
         }
@@ -254,7 +252,7 @@ public class ALTest extends TestCase {
         
         try {
             int[] buffers = new int[7];
-            al.alDeleteBuffers(7,buffers);
+            al.alDeleteBuffers(7,buffers,0);
             assertTrue(al.alGetError() != 0);
         } catch(Exception e) {
             fail("deleting an unfilled buffer list should generate an ALError but not an exception");
@@ -273,12 +271,12 @@ public class ALTest extends TestCase {
                 assertFalse(al.alIsBuffer(buffers[i]));
             }
             // created 
-            al.alGenBuffers(7,buffers);
+            al.alGenBuffers(7,buffers,0);
             for(int i = 0; i < 7; i++) {
                 assertTrue(al.alIsBuffer(buffers[i]));
             }
             // deleted
-            al.alDeleteBuffers(7,buffers);
+            al.alDeleteBuffers(7,buffers,0);
             for(int i = 0; i < 7; i++) {
                 assertFalse(al.alIsBuffer(buffers[i]));
             }            
@@ -290,63 +288,13 @@ public class ALTest extends TestCase {
     }
 
     /*
-     * Test for void alBufferData(int, int, byte[], int, int)
-     */
-    final public void testAlBufferDataintintbyteArrayintint() {
-        System.out.println("begin testAlBufferDataintintbyteArrayintint");
-        try {
-            int[] buffers = new int[1];
-            al.alGenBuffers(1, buffers);
-            WAVData wd = WAVLoader.loadFromFile(TEST_FILE);
-            int capacity = wd.data.capacity();
-            int remaining = wd.data.remaining();
-            
-            byte[] data = new byte[wd.data.capacity()];
-            for(int i = 0; i < data.length; i++) {
-                data[i] = wd.data.get(i);
-            }
-            
-            al.alBufferData(
-                buffers[0],
-                wd.format,
-                data,
-                wd.size,
-                wd.freq
-            );
-            
-            assertFalse(al.alGetBufferi(buffers[0],AL.AL_SIZE) == 0);
-        } catch(Exception e) {
-            e.printStackTrace();
-            fail(e.toString());
-        }
-        Exception ex = null;
-        try {
-            int[] buffers = new int[1];
-            al.alGenBuffers(1, buffers);
-
-            al.alBufferData(
-                buffers[0],
-                AL.AL_FORMAT_STEREO16,
-                (byte[])null,
-                0,
-                0
-            );
-        } catch(IllegalArgumentException e) {
-            ex = e;
-        }
-        assertNotNull(ex);
-        
-        System.out.println("end testAlBufferDataintintbyteArrayintint");
-    }
-
-    /*
-     * Test for void alBufferData(int, int, ByteBuffer, int, int)
+     * Test for void alBufferData(int, int, Buffer, int, int)
      */
     final public void testAlBufferDataintintByteBufferintint() {
         System.out.println("begin testAlBufferDataintintByteBufferintint");
         try {
             int[] buffers = new int[1];
-            al.alGenBuffers(1, buffers);
+            al.alGenBuffers(1, buffers, 0);
             WAVData wd =
                 WAVLoader.loadFromFile(TEST_FILE);
             al.alBufferData(
@@ -356,19 +304,21 @@ public class ALTest extends TestCase {
                 wd.size,
                 wd.freq
             );
-            assertFalse(al.alGetBufferi(buffers[0],AL.AL_SIZE) == 0);
+            int[] tmp = new int[1];
+            al.alGetBufferi(buffers[0],AL.AL_SIZE,tmp,0);
+            assertFalse(tmp[0] == 0);
         } catch(Exception e) {
             fail(e.toString());
         }
         Exception ex = null;
         try {
             int[] buffers = new int[1];
-            al.alGenBuffers(1, buffers);
+            al.alGenBuffers(1, buffers, 0);
 
             al.alBufferData(
                 buffers[0],
                 AL.AL_FORMAT_STEREO16,
-                (ByteBuffer)null,
+                null,
                 0,
                 0
             );
@@ -420,7 +370,7 @@ public class ALTest extends TestCase {
         System.out.println("begin testAlGetBufferiintintintArray");
         try {
             int[] buffers = new int[1];
-            al.alGenBuffers(1, buffers);
+            al.alGenBuffers(1, buffers, 0);
             WAVData wd =
                 WAVLoader.loadFromFile(TEST_FILE);
             al.alBufferData(
@@ -432,8 +382,8 @@ public class ALTest extends TestCase {
             );
             int[] size = new int[1];
             int[] freq = new int[1];
-            al.alGetBufferi(buffers[0],AL.AL_SIZE, size);
-            al.alGetBufferi(buffers[0],AL.AL_FREQUENCY, freq);
+            al.alGetBufferi(buffers[0],AL.AL_SIZE, size, 0);
+            al.alGetBufferi(buffers[0],AL.AL_FREQUENCY, freq, 0);
             assertEquals(wd.size, size[0]);
             assertEquals(wd.freq, freq[0]);
         } catch(Exception e) {
@@ -443,7 +393,7 @@ public class ALTest extends TestCase {
         Exception ex = null;
         try {
             int[] buffers = new int[1];
-            al.alGenBuffers(1, buffers);
+            al.alGenBuffers(1, buffers, 0);
             WAVData wd =
                 WAVLoader.loadFromFile(TEST_FILE);
             al.alBufferData(
@@ -454,7 +404,7 @@ public class ALTest extends TestCase {
                 wd.freq
             );
             int[] size = null;
-            al.alGetBufferi(buffers[0],AL.AL_SIZE, size);
+            al.alGetBufferi(buffers[0],AL.AL_SIZE, size, 0);
            
         } catch (IllegalArgumentException e) {
             ex = e;
@@ -477,7 +427,7 @@ public class ALTest extends TestCase {
     final public void testAlGetBufferiintintIntBuffer() {
         try {
             int[] buffers = new int[1];
-            al.alGenBuffers(1, buffers);
+            al.alGenBuffers(1, buffers, 0);
             WAVData wd =
                 WAVLoader.loadFromFile(TEST_FILE);
             al.alBufferData(
@@ -489,8 +439,8 @@ public class ALTest extends TestCase {
             );
             int[] size = new int[1];
             int[] freq = new int[1];
-            al.alGetBufferi(buffers[0],AL.AL_SIZE, size);
-            al.alGetBufferi(buffers[0],AL.AL_FREQUENCY, freq);
+            al.alGetBufferi(buffers[0],AL.AL_SIZE, size, 0);
+            al.alGetBufferi(buffers[0],AL.AL_FREQUENCY, freq, 0);
             assertEquals(wd.size, size[0]);
             assertEquals(wd.freq, freq[0]);
         } catch(Exception e) {
@@ -499,7 +449,7 @@ public class ALTest extends TestCase {
         Exception ex = null;
         try {
             int[] buffers = new int[1];
-            al.alGenBuffers(1, buffers);
+            al.alGenBuffers(1, buffers, 0);
             WAVData wd =
                 WAVLoader.loadFromFile(TEST_FILE);
             al.alBufferData(
@@ -510,7 +460,7 @@ public class ALTest extends TestCase {
                 wd.freq
             );
             int[] size = null;
-            al.alGetBufferi(buffers[0],AL.AL_SIZE, size);
+            al.alGetBufferi(buffers[0],AL.AL_SIZE, size, 0);
            
         } catch (IllegalArgumentException e) {
             ex = e;
@@ -526,7 +476,7 @@ public class ALTest extends TestCase {
         ex = null;
          try {
              int[] buffers = new int[1];
-             al.alGenBuffers(1, buffers);
+             al.alGenBuffers(1, buffers, 0);
              WAVData wd =
                  WAVLoader.loadFromFile(TEST_FILE);
              al.alBufferData(
@@ -537,7 +487,7 @@ public class ALTest extends TestCase {
                  wd.freq
              );
              int[] size = new int[1];
-             al.alGetBufferi(buffers[0],AL.AL_SIZE, size);
+             al.alGetBufferi(buffers[0],AL.AL_SIZE, size, 0);
            
          } catch (IllegalArgumentException e) {
              ex = e;

@@ -18,7 +18,7 @@
 * This software is provided "AS IS," without a warranty of any kind.
 * ALL EXPRESS OR IMPLIED CONDITIONS, REPRESENTATIONS AND WARRANTIES, INCLUDING
 * ANY IMPLIED WARRANTY OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE OR
-* NON-INFRINGEMENT, ARE HEREBY EXCLUDED. SUN MIDROSYSTEMS, INC. ("SUN") AND ITS
+* NON-INFRINGEMENT, ARE HEREBY EXCLUDED. SUN MICROSYSTEMS, INC. ("SUN") AND ITS
 * LICENSORS SHALL NOT BE LIABLE FOR ANY DAMAGES SUFFERED BY LICENSEE AS A
 * RESULT OF USING, MODIFYING OR DISTRIBUTING THIS SOFTWARE OR ITS DERIVATIVES.
 * IN NO EVENT WILL SUN OR ITS LICENSORS BE LIABLE FOR ANY LOST REVENUE, PROFIT
@@ -35,7 +35,7 @@
 
 package net.java.games.joal.util;
 
-import java.io.IOException;
+import java.io.*;
 import java.nio.ByteBuffer;
 
 import javax.sound.sampled.UnsupportedAudioFileException;
@@ -48,80 +48,67 @@ import net.java.games.joal.*;
  */
 public final class ALut {
 
-    private static ALC alc;
+  private static ALC alc;
     
-    private ALut() { }
+  private ALut() { }
 
-    public static void alutInit() throws OpenALException {
-    	System.out.println("Go TEAM!");
-    	System.out.println("Entering alutInit()");
-        ALFactory.initialize();
-        alc = ALFactory.getALC();
-		//String deviceName = null;
-		String deviceName = null;
-        /*
-        String os = System.getProperty("os.name");
-        if (os.startsWith("Windows")) {
-            deviceName = "DirectSound3D";
-        }
-        if (deviceName != null) {
-        */
-            ALCcontext context;
-            ALCdevice device;
-			System.out.println("In alutInit(): Device Name = " + deviceName);
-            device = alc.alcOpenDevice(deviceName);
-			System.out.println("In alutInit(): Device = " + device);
-            context = alc.alcCreateContext(device, null);
-            alc.alcMakeContextCurrent(context);
-	    /*
-        } else {
-            System.out.println(
-                "alutInit does not currently support "
-                    + os
-                    + ". "
-                    + "You'll need to construct your device and context"
-                    + "using the ALC functions for the time being. We apologize "
-                    + "for the inconvenience.");
-        }
-        */
-        System.out.println("Exiting alutInit()");
+  /** Initializes the OpenAL Utility Toolkit, creates an OpenAL
+      context and makes it current on the current thread. */
+  public static void alutInit() throws ALException {
+    alc = ALFactory.getALC();
+    String deviceName = null;
+    ALCcontext context;
+    ALCdevice device;
+    device = alc.alcOpenDevice(deviceName);
+    if (device == null) {
+      throw new ALException("Error opening default OpenAL device");
     }
+    context = alc.alcCreateContext(device, null);
+    if (context == null) {
+      throw new ALException("Error creating OpenAL context");
+    }
+    alc.alcMakeContextCurrent(context);
+    if (alc.alcGetError(device) != 0) {
+      throw new ALException("Error making OpenAL context current");
+    }
+  }
 
-    public static void alutLoadWAVFile(
-        String fileName,
-        int[] format,
-        ByteBuffer[] data,
-        int[] size,
-        int[] freq,
-        int[] loop) {
-        try {
-            WAVData wd = WAVLoader.loadFromFile(fileName);
-            format[0] = wd.format;
-            data[0] = wd.data;
-            size[0] = wd.size;
-            freq[0] = wd.freq;
-            loop[0] = wd.loop ? AL.AL_TRUE : AL.AL_FALSE;
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (UnsupportedAudioFileException e) {
-            e.printStackTrace();
-        }
+  public static void alutLoadWAVFile(String fileName,
+                                     int[] format,
+                                     ByteBuffer[] data,
+                                     int[] size,
+                                     int[] freq,
+                                     int[] loop) throws ALException {
+    try {
+      WAVData wd = WAVLoader.loadFromFile(fileName);
+      format[0] = wd.format;
+      data[0] = wd.data;
+      size[0] = wd.size;
+      freq[0] = wd.freq;
+      loop[0] = wd.loop ? AL.AL_TRUE : AL.AL_FALSE;
+    } catch (Exception e) {
+      throw new ALException(e);
     }
+  }
 
-    public static void alutUnloadWAV(
-        int format,
-        ByteBuffer data,
-        int size,
-        int freq) {
-        // unneeded. here for completeness.
+  public static void alutLoadWAVFile(InputStream stream,
+                                     int[] format,
+                                     ByteBuffer[] data,
+                                     int[] size,
+                                     int[] freq,
+                                     int[] loop) throws ALException {
+    try {
+      if (!(stream instanceof BufferedInputStream)) {
+        stream = new BufferedInputStream(stream);
+      }
+      WAVData wd = WAVLoader.loadFromStream(stream);
+      format[0] = wd.format;
+      data[0] = wd.data;
+      size[0] = wd.size;
+      freq[0] = wd.freq;
+      loop[0] = wd.loop ? AL.AL_TRUE : AL.AL_FALSE;
+    } catch (Exception e) {
+      throw new ALException(e);
     }
-
-    public static void alutExit() {
-        
-        ALCcontext context = alc.alcGetCurrentContext();
-        ALCdevice device = alc.alcGetContextsDevice(context);
-        alc.alcFreeCurrentContext();
-        alc.alcDestroyContext(context);
-        alc.alcCloseDevice(device);
-    }
+  }
 }

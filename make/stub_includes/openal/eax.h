@@ -5,7 +5,7 @@
 #include "windows.h"
 #endif
 
-#include "altypes.h"
+#include "al.h"
 
 #ifdef _WIN32
 DEFINE_GUID(DSPROPSETID_EAX20_ListenerProperties, 

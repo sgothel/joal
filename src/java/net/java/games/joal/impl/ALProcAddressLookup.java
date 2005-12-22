@@ -31,59 +31,43 @@
  * design, construction, operation or maintenance of any nuclear facility.
  */
 
-package net.java.games.joal;
+package net.java.games.joal.impl;
 
-import net.java.games.joal.impl.*;
-
+import net.java.games.joal.*;
 import com.sun.gluegen.runtime.*;
 
-/**
- * This class provides factory methods for generating AL and ALC objects.
- *
- * @author Athomas Goldberg
- * @author Kenneth Russell
- */
-public class ALFactory {
-  private static boolean initialized = false;
-  private static AL al;
-  private static ALC alc;
+/** Helper class for managing OpenAL-related proc address tables. */
 
-  private static synchronized void initialize() throws ALException {
-    try {
-      if (!initialized) {
-        NativeLibLoader.load();
-        initialized = true;
+public class ALProcAddressLookup {
+  private static final ALProcAddressTable  alTable  = new ALProcAddressTable();
+  private static final ALCProcAddressTable alcTable = new ALCProcAddressTable();
+  private static volatile boolean initialized = false;
+  
+  public static void resetProcAddressTables() {
+    if (!initialized) {
+      synchronized (ALProcAddressLookup.class) {
+        if (!initialized) {
+          // At some point this may require an OpenAL context to be
+          // current as we will actually use alGetProcAddress /
+          // alcGetProcAddress. Since these routines are currently
+          // broken and there are no per-context function pointers
+          // anyway we could actually do this work anywhere. We should
+          // also in theory have per-ALcontext ALProcAddressTables and
+          // per-ALdevice ALCProcAddressTables.
+          ALImpl impl = (ALImpl) ALFactory.getAL();
+          ProcAddressHelper.resetProcAddressTable(alTable, impl);
+          ProcAddressHelper.resetProcAddressTable(alcTable, impl);
+          initialized = true;
+        }
       }
-    } catch (UnsatisfiedLinkError e) {
-      throw new ALException(e);
     }
   }
 
-  /**
-   * Get the default AL object. This object is used to access most of the
-   * OpenAL functionality.
-   *
-   * @return the AL object
-   */
-  public static AL getAL() throws ALException {
-    initialize();
-    if (al == null) {
-      al = new ALImpl();
-    }
-    return al;
+  public static ALProcAddressTable getALProcAddressTable() {
+    return alTable;
   }
 
-  /**
-   * Get the default ALC object. This object is used to access most of the 
-   * OpenAL context functionality.
-   *
-   * @return the ALC object
-   */
-  public static ALC getALC() throws ALException{
-    initialize();
-    if (alc == null) {
-      alc = new ALCImpl();
-    }
-    return alc;
+  public static ALCProcAddressTable getALCProcAddressTable() {
+    return alcTable;
   }
 }
