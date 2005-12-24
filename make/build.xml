@@ -141,15 +141,14 @@
     <!-- 
        - Set up java.home.dir appropriately on all platforms.
       -->
-    <target name="set.java.home.dir" unless="java.home.dir">
-      <property environment="env"/>
-      <property name="java.home.dir" value="${env.JAVA_HOME}"/> <!-- Edit in joal.properties if necessary to override -->
+    <target name="setup.java.home.dir.nonmacosx" depends="load.user.properties" unless="isOSX">
+      <!-- java home dir is up one directory as java.home points to '<java-install-dir>/jre' -->
+      <property name="java.home.dir" value="${java.home}/.." />
     </target>
-
-    <target name="setup.java.home.dir" depends="load.user.properties,set.java.home.dir">
-      <available file="${java.home.dir}/include" type="dir" property="isValidJavaHome"/>
-      <fail message="java.home.dir in joal.properties does not point to a valid JDK install. Please see README.txt for instructions" unless="isValidJavaHome"/>
+    <target name="setup.java.home.dir.macosx" depends="load.user.properties" if="isOSX">
+      <property name="java.home.dir" value="/System/Library/Frameworks/JavaVM.framework/Home" />
     </target>
+    <target name="setup.java.home.dir" depends="setup.java.home.dir.nonmacosx,setup.java.home.dir.macosx"/>
 
     <!-- ================================================================== -->
     <!-- 
@@ -175,6 +174,7 @@
              and need exact string matching, which is why they use file.separator
              instead of "/". -->
         <property name="rootrel.src" value="src" />
+        <property name="rootrel.src.java" value="${rootrel.src}${sep}java" />
         <property name="rootrel.src.c" value="${rootrel.src}${sep}native" />
         <property name="rootrel.build" value="build" />
         <property name="rootrel.src.generated" value="${rootrel.build}${sep}gensrc" />
@@ -186,6 +186,7 @@
         <!-- The source directories. -->
         <property name="src"   value="${project.root}/${rootrel.src}" />
         <property name="src.c" value="${project.root}/${rootrel.src.c}" />
+        <property name="src.java" value="${project.root}/${rootrel.src.java}" />
         <property name="build" value="${project.root}/${rootrel.build}" />
         
         <!-- The generated source directories. -->
@@ -429,7 +430,7 @@
       -->
     <target name="java.compile" depends="java.generate">
         <javac destdir="${classes}" source="1.4" debug="true" debuglevel="source,lines">
-            <src path="${src}" />
+            <src path="${src.java}" />
             <src path="${src.generated.java}" />
             <classpath refid="antlr.classpath" />
         </javac>
@@ -647,7 +648,8 @@
       -->
     <target name="javadoc" depends="setup.java.home.dir,init">
         <javadoc packagenames="${javadoc.packagenames}"
-                 sourcepath="${src};${src.generated.java}"
+                 sourcepath="${src.java};${src.generated.java}"
+                 classpath="${gluegen.classes}"
                  destdir="${javadoc}" windowtitle="JOAL API"
                  source="1.4"
                  link="${javadoc.link}" />
@@ -656,7 +658,7 @@
     <target name="javadoc.dev" depends="init">
         <!-- Build the internal developer Javadoc -->
         <javadoc packagenames="${javadoc.dev.packagenames},${javadoc.dev.packagenames.platform}"
-                 sourcepath="${src};${src.generated.java}"
+                 sourcepath="${src.java};${src.generated.java}"
                  destdir="${javadoc.dev}" windowtitle="JOAL API"
                  source="1.4"
                  link="${javadoc.link}" />

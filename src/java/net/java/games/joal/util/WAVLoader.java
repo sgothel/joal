@@ -72,7 +72,7 @@ public class WAVLoader implements ALConstants {
     /**
      * This method loads a (.wav) file into a WAVData object.
      *
-     * @param filename The name of the (.wav) file
+     * @param stream An InputStream for the .WAV file.
      *
      * @return a WAVData object containing the audio data 
      *
