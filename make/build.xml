@@ -616,7 +616,7 @@
     <target name="c.build.joal">
       <antcall target="c.build" inheritRefs="true">
         <param name="c.compiler.src.files" value="c.src.files.joal"/>
-        <param name="output.lib.name" value="joal"/>
+        <param name="output.lib.name" value="joal_native"/>
       </antcall>
       <antcall target="c.rename.joal.lib.mingw" inheritRefs="true" />
       <antcall target="c.rename.joal.lib.macosx" inheritRefs="true" />

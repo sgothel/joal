@@ -42,7 +42,12 @@ class NativeLibLoader {
   static {
     AccessController.doPrivileged(new PrivilegedAction() {
         public Object run() {
-          System.loadLibrary("joal");
+          // Workaround for problem in OpenAL32.dll, which is actually
+          // the "wrapper" DLL which looks for real OpenAL
+          // implementations like nvopenal.dll and "*oal.dll".
+          // joal.dll matches this wildcard and a bug in OpenAL32.dll
+          // causes a call through a null function pointer.
+          System.loadLibrary("joal_native");
 
           // Workaround for 4845371.
           // Make sure the first reference to the JNI GetDirectBufferAddress is done
