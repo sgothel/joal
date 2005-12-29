@@ -40,24 +40,43 @@ import com.sun.gluegen.runtime.*;
 
 public class ALProcAddressLookup {
   private static final ALProcAddressTable  alTable  = new ALProcAddressTable();
+  private static volatile boolean          alTableInitialized = false;
   private static final ALCProcAddressTable alcTable = new ALCProcAddressTable();
-  private static volatile boolean initialized = false;
+  private static volatile boolean          alcTableInitialized = false;
   
-  public static void resetProcAddressTables() {
-    if (!initialized) {
+  public static void resetALProcAddressTable() {
+    if (!alTableInitialized) {
       synchronized (ALProcAddressLookup.class) {
-        if (!initialized) {
+        if (!alTableInitialized) {
           // At some point this may require an OpenAL context to be
-          // current as we will actually use alGetProcAddress /
-          // alcGetProcAddress. Since these routines are currently
-          // broken and there are no per-context function pointers
-          // anyway we could actually do this work anywhere. We should
-          // also in theory have per-ALcontext ALProcAddressTables and
-          // per-ALdevice ALCProcAddressTables.
+          // current as we will actually use alGetProcAddress. Since
+          // this routine is currently broken and there are no
+          // per-context function pointers anyway we could actually do
+          // this work anywhere. We should also in theory have
+          // per-ALcontext ALProcAddressTables and per-ALCdevice
+          // ALCProcAddressTables.
           ALImpl impl = (ALImpl) ALFactory.getAL();
           ProcAddressHelper.resetProcAddressTable(alTable, impl);
+          alTableInitialized = true;
+        }
+      }
+    }
+  }
+
+  public static void resetALCProcAddressTable() {
+    if (!alcTableInitialized) {
+      synchronized (ALProcAddressLookup.class) {
+        if (!alcTableInitialized) {
+          // At some point this may require an OpenAL device to be
+          // created as we will actually use alcGetProcAddress. Since
+          // this routine is currently broken and there are no
+          // per-device function pointers anyway we could actually do
+          // this work anywhere. We should also in theory have
+          // per-ALcontext ALProcAddressTables and per-ALCdevice
+          // ALCProcAddressTables.
+          ALImpl impl = (ALImpl) ALFactory.getAL();
           ProcAddressHelper.resetProcAddressTable(alcTable, impl);
-          initialized = true;
+          alcTableInitialized = true;
         }
       }
     }
