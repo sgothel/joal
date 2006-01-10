@@ -18,7 +18,7 @@
 * This software is provided "AS IS," without a warranty of any kind.
 * ALL EXPRESS OR IMPLIED CONDITIONS, REPRESENTATIONS AND WARRANTIES, INCLUDING
 * ANY IMPLIED WARRANTY OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE OR
-* NON-INFRINGEMENT, ARE HEREBY EXCLUDED. SUN MIDROSYSTEMS, INC. ("SUN") AND ITS
+* NON-INFRINGEMENT, ARE HEREBY EXCLUDED. SUN MICROSYSTEMS, INC. ("SUN") AND ITS
 * LICENSORS SHALL NOT BE LIABLE FOR ANY DAMAGES SUFFERED BY LICENSEE AS A
 * RESULT OF USING, MODIFYING OR DISTRIBUTING THIS SOFTWARE OR ITS DERIVATIVES.
 * IN NO EVENT WILL SUN OR ITS LICENSORS BE LIABLE FOR ANY LOST REVENUE, PROFIT
@@ -33,7 +33,7 @@
 
 package net.java.games.sound3d;
 
-import net.java.games.joal.ALC;
+import net.java.games.joal.*;
 
 
 /**
@@ -43,9 +43,9 @@ import net.java.games.joal.ALC;
  */
 public class Device {
     private final ALC alc;
-    final ALC.Device realDevice;
+    final ALCdevice realDevice;
 
-    Device(ALC alc, ALC.Device realDevice) {
+    Device(ALC alc, ALCdevice realDevice) {
         this.alc = alc;
         this.realDevice = realDevice;
     }

@@ -18,7 +18,7 @@
 * This software is provided "AS IS," without a warranty of any kind.
 * ALL EXPRESS OR IMPLIED CONDITIONS, REPRESENTATIONS AND WARRANTIES, INCLUDING
 * ANY IMPLIED WARRANTY OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE OR
-* NON-INFRINGEMENT, ARE HEREBY EXCLUDED. SUN MIDROSYSTEMS, INC. ("SUN") AND ITS
+* NON-INFRINGEMENT, ARE HEREBY EXCLUDED. SUN MICROSYSTEMS, INC. ("SUN") AND ITS
 * LICENSORS SHALL NOT BE LIABLE FOR ANY DAMAGES SUFFERED BY LICENSEE AS A
 * RESULT OF USING, MODIFYING OR DISTRIBUTING THIS SOFTWARE OR ITS DERIVATIVES.
 * IN NO EVENT WILL SUN OR ITS LICENSORS BE LIABLE FOR ANY LOST REVENUE, PROFIT
@@ -85,7 +85,7 @@ public final class Source {
      * Delete this source, freeing its resources.
      */
     public void delete() {
-        al.alDeleteSources(1, new int[] { sourceID });
+        al.alDeleteSources(1, new int[] { sourceID }, 0);
     }
 
     /**
@@ -106,7 +106,7 @@ public final class Source {
      */
     public float getPitch() {
         float[] result = new float[1];
-        al.alGetSourcef(sourceID, AL.AL_PITCH, result);
+        al.alGetSourcef(sourceID, AL.AL_PITCH, result, 0);
 
         return result[0];
     }
@@ -129,7 +129,7 @@ public final class Source {
      */
     public float getGain() {
         float[] result = new float[1];
-        al.alGetSourcef(sourceID, AL.AL_GAIN, result);
+        al.alGetSourcef(sourceID, AL.AL_GAIN, result, 0);
 
         return result[0];
     }
@@ -152,7 +152,7 @@ public final class Source {
      */
     public float getMaxDistance() {
         float[] result = new float[1];
-        al.alGetSourcef(sourceID, AL.AL_MAX_DISTANCE, result);
+        al.alGetSourcef(sourceID, AL.AL_MAX_DISTANCE, result, 0);
 
         return result[0];
     }
@@ -173,7 +173,7 @@ public final class Source {
      */
     public float getRolloffFactor() {
         float[] result = new float[1];
-        al.alGetSourcef(sourceID, AL.AL_ROLLOFF_FACTOR, result);
+        al.alGetSourcef(sourceID, AL.AL_ROLLOFF_FACTOR, result, 0);
 
         return result[0];
     }
@@ -196,7 +196,7 @@ public final class Source {
      */
     public float getReferenceDistance() {
         float[] result = new float[1];
-        al.alGetSourcef(sourceID, AL.AL_REFERENCE_DISTANCE, result);
+        al.alGetSourcef(sourceID, AL.AL_REFERENCE_DISTANCE, result, 0);
 
         return result[0];
     }
@@ -217,7 +217,7 @@ public final class Source {
      */
     public float getMinGain() {
         float[] result = new float[1];
-        al.alGetSourcef(sourceID, AL.AL_MIN_GAIN, result);
+        al.alGetSourcef(sourceID, AL.AL_MIN_GAIN, result, 0);
 
         return result[0];
     }
@@ -238,7 +238,7 @@ public final class Source {
      */
     public float getMaxGain() {
         float[] result = new float[1];
-        al.alGetSourcef(sourceID, AL.AL_MAX_GAIN, result);
+        al.alGetSourcef(sourceID, AL.AL_MAX_GAIN, result, 0);
 
         return result[0];
     }
@@ -259,7 +259,7 @@ public final class Source {
      */
     public float getConeOuterGain() {
         float[] result = new float[1];
-        al.alGetSourcef(sourceID, AL.AL_CONE_OUTER_GAIN, result);
+        al.alGetSourcef(sourceID, AL.AL_CONE_OUTER_GAIN, result, 0);
 
         return result[0];
     }
@@ -299,7 +299,7 @@ public final class Source {
     public Vec3f getPosition() {
         Vec3f result = null;
         float[] pos = new float[3];
-        al.alGetSourcefv(sourceID, AL.AL_POSITION, pos);
+        al.alGetSourcefv(sourceID, AL.AL_POSITION, pos, 0);
         result = new Vec3f(pos[0], pos[1], pos[2]);
 
         return result;
@@ -338,7 +338,7 @@ public final class Source {
     public Vec3f getVelocity() {
         Vec3f result = null;
         float[] vel = new float[3];
-        al.alGetSourcefv(sourceID, AL.AL_VELOCITY, vel);
+        al.alGetSourcefv(sourceID, AL.AL_VELOCITY, vel, 0);
         result = new Vec3f(vel[0], vel[1], vel[2]);
 
         return result;
@@ -377,7 +377,7 @@ public final class Source {
     public Vec3f getDirection() {
         Vec3f result = null;
         float[] dir = new float[3];
-        al.alGetSourcefv(sourceID, AL.AL_DIRECTION, dir);
+        al.alGetSourcefv(sourceID, AL.AL_DIRECTION, dir, 0);
         result = new Vec3f(dir[0], dir[1], dir[2]);
 
         return result;
@@ -404,7 +404,7 @@ public final class Source {
      */
     public boolean isSourceRelative() {
         int[] result = new int[1];
-        al.alGetSourcei(sourceID, AL.AL_SOURCE_RELATIVE, result);
+        al.alGetSourcei(sourceID, AL.AL_SOURCE_RELATIVE, result, 0);
 
         return result[0] == 1;
     }
@@ -427,7 +427,7 @@ public final class Source {
     public boolean getLooping() {
         boolean result = false;
         int[] tmp = new int[1];
-        al.alGetSourcei(sourceID, AL.AL_LOOPING, tmp);
+        al.alGetSourcei(sourceID, AL.AL_LOOPING, tmp, 0);
         return tmp[0] == AL.AL_TRUE;
     }
 
@@ -438,7 +438,7 @@ public final class Source {
      */
     public int getBuffersQueued() {
         int[] result = new int[1];
-        al.alGetSourcei(sourceID, AL.AL_BUFFERS_QUEUED, result);
+        al.alGetSourcei(sourceID, AL.AL_BUFFERS_QUEUED, result, 0);
 
         return result[0];
     }
@@ -449,7 +449,7 @@ public final class Source {
      */
     public int getBuffersProcessed() {
         int[] result = new int[1];
-        al.alGetSourcei(sourceID, AL.AL_BUFFERS_PROCESSED, result);
+        al.alGetSourcei(sourceID, AL.AL_BUFFERS_PROCESSED, result, 0);
 
         return result[0];
     }
@@ -487,7 +487,7 @@ public final class Source {
             arr[i] = buffers[i].bufferID;
         }
 
-        al.alSourceQueueBuffers(sourceID, numBuffers, arr);
+        al.alSourceQueueBuffers(sourceID, numBuffers, arr, 0);
     }
 
     /**
@@ -503,6 +503,6 @@ public final class Source {
             arr[i] = buffers[i].bufferID;
         }
 
-        al.alSourceUnqueueBuffers(sourceID, numBuffers, arr);
+        al.alSourceUnqueueBuffers(sourceID, numBuffers, arr, 0);
     }
 }

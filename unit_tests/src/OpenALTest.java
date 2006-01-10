@@ -18,7 +18,7 @@
 * This software is provided "AS IS," without a warranty of any kind.
 * ALL EXPRESS OR IMPLIED CONDITIONS, REPRESENTATIONS AND WARRANTIES, INCLUDING
 * ANY IMPLIED WARRANTY OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE OR
-* NON-INFRINGEMENT, ARE HEREBY EXCLUDED. SUN MIDROSYSTEMS, INC. ("SUN") AND ITS
+* NON-INFRINGEMENT, ARE HEREBY EXCLUDED. SUN MICROSYSTEMS, INC. ("SUN") AND ITS
 * LICENSORS SHALL NOT BE LIABLE FOR ANY DAMAGES SUFFERED BY LICENSEE AS A
 * RESULT OF USING, MODIFYING OR DISTRIBUTING THIS SOFTWARE OR ITS DERIVATIVES.
 * IN NO EVENT WILL SUN OR ITS LICENSORS BE LIABLE FOR ANY LOST REVENUE, PROFIT
@@ -30,17 +30,12 @@
 * You acknowledge that this software is not designed or intended for use in the
 * design, construction, operation or maintenance of any nuclear facility.
 */
-import java.nio.IntBuffer;
 
-import net.java.games.joal.AL;
-import net.java.games.joal.ALC;
-import net.java.games.joal.ALFactory;
-import net.java.games.joal.OpenALException;
-import net.java.games.joal.eax.EAX;
-import net.java.games.joal.eax.EAXFactory;
-import net.java.games.joal.util.BufferUtils;
-import net.java.games.joal.util.WAVData;
-import net.java.games.joal.util.WAVLoader;
+import java.nio.*;
+
+import net.java.games.joal.*;
+import net.java.games.joal.eax.*;
+import net.java.games.joal.util.*;
 
 /**
  * @author Athomas Goldberg
@@ -49,11 +44,9 @@ import net.java.games.joal.util.WAVLoader;
 public class OpenALTest {
     public static void main(String[] args) {
     	try {
-			ALFactory.initialize();
-
 			ALC alc = ALFactory.getALC();
-			ALC.Device device = alc.alcOpenDevice(null);
-			ALC.Context context = alc.alcCreateContext(device, null);
+			ALCdevice device = alc.alcOpenDevice(null);
+			ALCcontext context = alc.alcCreateContext(device, null);
 			alc.alcMakeContextCurrent(context);
 			AL al = ALFactory.getAL();
 			boolean eaxPresent = al.alIsExtensionPresent("EAX2.0");
@@ -62,23 +55,20 @@ public class OpenALTest {
 
 			try {
 				int[] buffers = new int[1];
-				al.alGenBuffers(1, buffers);
+				al.alGenBuffers(1, buffers, 0);
 
 				WAVData wd = WAVLoader.loadFromFile("lewiscarroll.wav");
 				al.alBufferData(buffers[0], wd.format, wd.data, wd.size, wd.freq);
 
 				int[] sources = new int[1];
-				al.alGenSources(1, sources);
+				al.alGenSources(1, sources, 0);
 				al.alSourcei(sources[0], AL.AL_BUFFER, buffers[0]);
-				System.out.println(
-					"Looping 1: "
-						+ (al.alGetSourcei(sources[0], AL.AL_LOOPING) == AL.AL_TRUE));
 				int[] loopArray = new int[1];
-				al.alGetSourcei(sources[0], AL.AL_LOOPING, loopArray);
-				System.out.println("Looping 2: " + (loopArray[0] == AL.AL_TRUE));
+				al.alGetSourcei(sources[0], AL.AL_LOOPING, loopArray, 0);
+				System.out.println("Looping 1: " + (loopArray[0] == AL.AL_TRUE));
 				int[] loopBuffer = new int[1];
-				al.alGetSourcei(sources[0], AL.AL_LOOPING, loopBuffer);
-				System.out.println("Looping 3: " + (loopBuffer[0] == AL.AL_TRUE));
+				al.alGetSourcei(sources[0], AL.AL_LOOPING, loopBuffer, 0);
+				System.out.println("Looping 2: " + (loopBuffer[0] == AL.AL_TRUE));
 
 				if (eaxPresent) {
 					IntBuffer env = BufferUtils.newIntBuffer(1);
@@ -117,13 +107,13 @@ public class OpenALTest {
 				}
 
 				al.alSourceStop(sources[0]);
-				al.alDeleteSources(1, sources);
+				al.alDeleteSources(1, sources, 0);
 				alc.alcDestroyContext(context);
 				alc.alcCloseDevice(device);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-		} catch (OpenALException e) {
+		} catch (ALException e) {
 		    e.printStackTrace();
 		}
     }

@@ -33,57 +33,30 @@
 
 package net.java.games.joal;
 
-import net.java.games.joal.impl.*;
+/** A generic exception for OpenAL errors used throughout the binding
+    as a substitute for {@link RuntimeException}. */
 
-import com.sun.gluegen.runtime.*;
-
-/**
- * This class provides factory methods for generating AL and ALC objects.
- *
- * @author Athomas Goldberg
- * @author Kenneth Russell
- */
-public class ALFactory {
-  private static boolean initialized = false;
-  private static AL al;
-  private static ALC alc;
-
-  private static synchronized void initialize() throws ALException {
-    try {
-      if (!initialized) {
-        NativeLibLoader.load();
-        initialized = true;
-      }
-    } catch (UnsatisfiedLinkError e) {
-      throw new ALException(e);
-    }
+public class ALException extends RuntimeException {
+  /** Constructs an ALException object. */
+  public ALException() {
+    super();
   }
 
-  /**
-   * Get the default AL object. This object is used to access most of the
-   * OpenAL functionality.
-   *
-   * @return the AL object
-   */
-  public static AL getAL() throws ALException {
-    initialize();
-    if (al == null) {
-      al = new ALImpl();
-    }
-    return al;
+  /** Constructs an ALException object with the specified detail
+      message. */
+  public ALException(String message) {
+    super(message);
   }
 
-  /**
-   * Get the default ALC object. This object is used to access most of the 
-   * OpenAL context functionality.
-   *
-   * @return the ALC object
-   */
-  public static ALC getALC() throws ALException{
-    initialize();
-    if (alc == null) {
-      alc = new ALCImpl();
-    }
-    return alc;
+  /** Constructs an ALException object with the specified detail
+      message and root cause. */
+  public ALException(String message, Throwable cause) {
+    super(message, cause);
+  }
+
+  /** Constructs an ALException object with the specified root
+      cause. */
+  public ALException(Throwable cause) {
+    super(cause);
   }
 }

@@ -40,7 +40,7 @@
     </target>
 
     <target name="compile" depends="init">
-    	<javac debug="true" srcdir="./src" classpath="../classes" destdir="classes"/>
+    	<javac debug="true" srcdir="./src" classpath="../build/joal.jar;lib/junit.jar" destdir="classes"/>
     </target>
     
     <target name="clean">
@@ -50,22 +50,22 @@
     <target name="runOpenALTest" depends="compile">
     <java classname="OpenALTest" fork="true">
 	<classpath>
-            <pathelement location="../lib/joal.jar"/>
+            <pathelement location="../build/joal.jar"/>
             <pathelement location="lib/junit.jar"/>
             <pathelement location="classes"/>
 	</classpath>
-    	<jvmarg value="-Djava.library.path=${basedir}/../lib"/>
+    	<jvmarg value="-Djava.library.path=${basedir}/../build/obj"/>
     </java>
     </target>
 
     <target name="runALTest" depends="compile">
     <java classname="junit.textui.TestRunner" fork="true">
 	<classpath>
-            <pathelement location="../lib/joal.jar"/>
+            <pathelement location="../build/joal.jar"/>
             <pathelement location="lib/junit.jar"/>
             <pathelement location="classes"/>
 	</classpath>
-    	<jvmarg value="-Djava.library.path=${basedir}/../lib"/>
+    	<jvmarg value="-Djava.library.path=${basedir}/../build/obj"/>
 		<arg value="net.java.games.joal.ALTest" />
     </java>
     </target>
@@ -73,11 +73,11 @@
     <target name="runSound3DTest" depends="compile">
     <java classname="Sound3DTest" fork="true">
 		<classpath>
-	        <pathelement location="../lib/joal.jar"/>
+	        <pathelement location="../build/joal.jar"/>
 	        <pathelement location="lib/junit.jar"/>
 	        <pathelement location="classes"/>
 		</classpath>
-    	<jvmarg value="-Djava.library.path=${basedir}/../lib"/>
+    	<jvmarg value="-Djava.library.path=${basedir}/../build/obj"/>
     </java>
     </target>
 </project>

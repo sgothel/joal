@@ -33,7 +33,13 @@
 
 
 #include "eaxfactory.h"
-#include "extal.h"
+#include "al.h"
+#include "eax.h"
+
+#ifdef _WIN32
+EAXSet	eaxSet;																				 // EAXSet function, ret$
+EAXGet	eaxGet;																				 // EAXGet function, ret$
+#endif
 
 /* 
  * had some problems getting this from extal.h

@@ -18,7 +18,7 @@
 * This software is provided "AS IS," without a warranty of any kind.
 * ALL EXPRESS OR IMPLIED CONDITIONS, REPRESENTATIONS AND WARRANTIES, INCLUDING
 * ANY IMPLIED WARRANTY OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE OR
-* NON-INFRINGEMENT, ARE HEREBY EXCLUDED. SUN MIDROSYSTEMS, INC. ("SUN") AND ITS
+* NON-INFRINGEMENT, ARE HEREBY EXCLUDED. SUN MICROSYSTEMS, INC. ("SUN") AND ITS
 * LICENSORS SHALL NOT BE LIABLE FOR ANY DAMAGES SUFFERED BY LICENSEE AS A
 * RESULT OF USING, MODIFYING OR DISTRIBUTING THIS SOFTWARE OR ITS DERIVATIVES.
 * IN NO EVENT WILL SUN OR ITS LICENSORS BE LIABLE FOR ANY LOST REVENUE, PROFIT
@@ -30,16 +30,10 @@
 * You acknowledge that this software is not designed or intended for use in the
 * design, construction, operation or maintenance of any nuclear facility.
 */
-import java.io.IOException;
-
-import javax.sound.sampled.UnsupportedAudioFileException;
-
-import net.java.games.sound3d.AudioSystem3D;
-import net.java.games.sound3d.Context;
-import net.java.games.sound3d.Device;
-import net.java.games.sound3d.Listener;
-import net.java.games.sound3d.Sound3DException;
-import net.java.games.sound3d.Source;
+import java.io.*;
+import javax.sound.sampled.*;
+import net.java.games.joal.*;
+import net.java.games.sound3d.*;
 
 /**
  * @author Athomas Goldberg
@@ -56,7 +50,7 @@ public class Sound3DTest {
 	public static void main(String[] args) {
 		try {
 			AudioSystem3D.init();
-		} catch (Sound3DException e) {
+		} catch (ALException e) {
             e.printStackTrace();
             return;
 		}
