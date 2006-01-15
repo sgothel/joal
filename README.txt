@@ -82,10 +82,9 @@ packages and tools have been used:
   -- OSX Developer Tools
   -- OpenAL1.0 SDK from Creative Labs (avaulable at http://developer.creative.com under "Gaming->Development Kits->Open AL") 
 
-The sources currently require a built JOGL source tree as a sibling
-directory of your JOAL tree; this is to pick up the GlueGen tool,
-which currently lives in the JOGL workspace. We plan to move this tool
-into its own workspace and thereby break this dependence.
+JOAL requires the GlueGen workspace to be checked out as a sibling
+directory to the joal directory ("cvs co gluegen"). GlueGen will be
+built automatially during the JOAL build process.
 
 Directory Organization:
 =======================
@@ -125,17 +124,21 @@ Preparations:
 JOAL Build Instructions:
 ===================
 
+Download the current ANTLR jar file (http://www.antlr.org/).
+
+Copy the gluegen.properties file from the make/ subdirectory of the
+GlueGen workspace into your home directory, or in particular where the
+Java system property user.home points to (on Windows, this is
+C:\Documents and Settings\username\). Edit the value of the antlr.jar
+property this file to point to the full path of the ANTLR jar. ANTLR
+is used during the glue code generation process.
+
 Copy the joal.properties file from the make/ subdirectory into your
 home directory, or in particular where the Java system property
-user.home points to (on Windows, this is C:\Documents and Settings\username\)
-
-Download the current ANTLR jar file (http://www.antlr.org/). Edit the
-value of the antlr.jar property in this file to point to the full path
-of this jar. ANTLR is used during the glue code generation process.
-
-Edit the joal.lib.dir property to point to the lib directory of your
-current OpenAL installation. For Windows this might be "C:/Program
-Files/OpenAL 1.1 SDK/libs/Win32".
+user.home points to (on Windows, this is C:\Documents and
+Settings\username\). Edit the joal.lib.dir property to point to the
+lib directory of your current OpenAL installation. For Windows this
+might be "C:/Program Files/OpenAL 1.1 SDK/libs/Win32".
 
 Under Linux set the property to the toplevel directory of your OpenAL CVS version.
 If OpenAl came with your distribution and the header files are in /usr/include/AL,

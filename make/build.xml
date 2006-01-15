@@ -17,87 +17,34 @@
    -        the "make" directory. This also means that this build.xml MUST
    -        be run from the "make" directory.
    -
-   - All targets do the following:
-   -   Build the ancillary Ant tasks.
-   -   Generate the Java and C files.
-   -   Compile all sources.
-   -   Create the joal.jar and platform library.
    - Public targets:
-   -   linux
-   -   macosx
-   -   solaris
-   -   win32.vc6
-   -   win32.vc7
-   -   win32.mingw:  build everything (jar, DSOs) for the current platform
+   -   all: (default; autodetects OS and chooses C compiler from joal.properties)
    -   clean:        clean all built
    -   javadoc:      create the standard developer Javadoc
-   -
-   - Optional properties:
-   -   -Djoal.cg=1 when combined with the build or javadoc targets will cause
-   -   the experimental binding to NVidia's Cg language to be built.
    -
    - Thanks to Rob Grzywinski and Artur Biesiadowski for the bulk of the
    - ANT build, including the GlueGen and StaticGLInfo tasks, the building of
    - the Java generated sources, the first and second phase Java compiles, and
-   - the building of the jar file.
+   - the building of the jar file. Thanks to Alex Radeski for the bulk of the
+   - port to the ant-contrib CPPTask framework. Thanks to Athomas Goldberg for
+   - the original OS detection code.
    -->
 <project name="JOAL" basedir="." default="all">
     
+  <!-- Pull in GlueGen cpptasks build file -->
+  <property name="gluegen.root" value="../../gluegen" />
+  <import file="${gluegen.root}/make/gluegen-cpptasks.xml" />
+
     <!-- ================================================================== -->
     <!-- 
        - Base initialization and detection of operating system.
       -->
-    <target name="base.init">
+    <target name="base.init" depends="gluegen.cpptasks.detect.os">
         <!-- Set the project root directory to be up one directory. -->
         <property name="project.root" value=".." />
     
         <!-- Set the configuration and build files to this directory. -->
         <property name="make" value="." />
-
-        <!-- Detection of operating system. -->
-        <condition property="isOSX">
-	    <and>
-	        <os family="mac"/>
-		<os family="unix"/>
-	    </and>
-	</condition>
-	<condition property="isUnix">
-	    <and>
-	        <os family="unix" />
-		<not>
-		    <os family="mac" />
-		</not>
-  	    </and>
-	</condition>
-	<condition property="isLinux">
-	    <os name="Linux" />
-        </condition>
-	<condition property="isSolaris">
-	    <os name="SunOS" />
-        </condition>
-	<condition property="isWindows">
-	    <os family="windows" />
-	</condition>
-	<condition property="isFreeBSD">
-	    <os name="FreeBSD" />
-        </condition>
-	<condition property="isLinuxAMD64">
-	    <and>
-              <istrue value="${isLinux}" />
-              <os arch="AMD64" />
-            </and>
-        </condition>
-	<condition property="isIA64">
-	    <os arch="IA64" />
-        </condition>
-        <echo message="OS X=${isOSX}" />
-        <echo message="Windows=${isWindows}" />
-        <echo message="Unix=${isUnix}" />
-        <echo message="Linux=${isLinux}" />
-        <echo message="Solaris=${isSolaris}" />
-        <echo message="FreeBSD=${isFreeBSD}" />
-        <echo message="LinuxAMD64=${isLinuxAMD64}" />
-        <echo message="IA64=${isIA64}" />
     </target>
 
     <!-- ================================================================== -->
@@ -111,8 +58,10 @@
         <property name="user.properties.file" value="${user.home}/joal.properties" />
         <property file="${user.properties.file}" />
         <echo message="Loaded ${user.properties.file}." />
+        <property file="${user.home}/gluegen.properties" />
+        <echo message="Loaded ${user.home}/gluegen.properties." />
         <echo message="antlr.jar=${antlr.jar}" />
-        <fail message="antlr.jar was not specified in joal.properties. Please see README.txt for instructions" unless="antlr.jar"/>
+        <fail message="antlr.jar was not specified in joal.properties or gluegen.properties. Please see README.txt for instructions" unless="antlr.jar"/>
         <fail message="joal.lib.dir was not specified in joal.properties. Please see README.txt for instructions" unless="joal.lib.dir"/>
         <condition property="isVC6">
             <and>
@@ -154,34 +103,40 @@
     <!-- 
        - Declare all paths and user defined variables.
       -->
-    <target name="declare.common" description="Declare properties" depends="base.init">
-        <!-- Shorthand for file.separator -->
-        <property name="sep" value="${file.separator}" />
-
+    <target name="declare.common" description="Declare properties" depends="setup.java.home.dir, gluegen.cpptasks.detect.compiler">
         <!-- The location and name of the configuration ANT file that will 
            - validate to ensure that all user-define variables are set. -->
         <property name="validate.user.properties" value="${make}/validate-properties.xml" />
            
-        <!-- Properties pointing to root of the workspace containing GlueGen.
-             This build.xml expects that GlueGen has already been built and that its
-             classes are in the build/classes subdirectory of this other workspace.
-             Currently we expect that it is contained in the JOGL project. -->
-        <property name="jogl.root" value="../../jogl" />
-        <property name="gluegen.classes" value="${jogl.root}/build/classes" />
+        <!-- GlueGen properties. -->
+        <!-- NOTE that these require a checked-out GlueGen workspace as a -->
+        <!-- sibling of the JOAL workspace. -->
+        <property name="gluegen.make.dir" value="../../gluegen/make" />
+        <property name="gluegen.build.xml" value="${gluegen.make.dir}/build.xml" />
+        <property name="gluegen.jar" value="../../gluegen/build/gluegen.jar" />
+        <property name="gluegen-rt.jar" value="../../gluegen/build/gluegen-rt.jar" />
+
+        <!-- Create the classpath that includes GlueGen and
+           - ANTLR. This requires the user-defined "antlr.jar"
+           - property. -->
+        <path id="gluegen.classpath">
+          <pathelement location="${gluegen.jar}" />
+          <pathelement location="${antlr.jar}" />
+        </path>
 
         <!-- Names of directories relative to the project root.
              Some of these are used in FileMappers later for dependence information
              and need exact string matching, which is why they use file.separator
              instead of "/". -->
         <property name="rootrel.src" value="src" />
-        <property name="rootrel.src.java" value="${rootrel.src}${sep}java" />
-        <property name="rootrel.src.c" value="${rootrel.src}${sep}native" />
+        <property name="rootrel.src.java" value="${rootrel.src}/java" />
+        <property name="rootrel.src.c" value="${rootrel.src}/native" />
         <property name="rootrel.build" value="build" />
-        <property name="rootrel.src.generated" value="${rootrel.build}${sep}gensrc" />
-        <property name="rootrel.generated.java" value="${rootrel.src.generated}${sep}classes" />
-        <property name="rootrel.generated.c.joal" value="${rootrel.src.generated}${sep}native${sep}joal" />
-        <property name="rootrel.obj" value="${rootrel.build}${sep}obj" />
-        <property name="rootrel.obj.joal" value="${rootrel.obj}${sep}joal" />
+        <property name="rootrel.src.generated" value="${rootrel.build}/gensrc" />
+        <property name="rootrel.generated.java" value="${rootrel.src.generated}/classes" />
+        <property name="rootrel.generated.c.joal" value="${rootrel.src.generated}/native/joal" />
+        <property name="rootrel.obj" value="${rootrel.build}/obj" />
+        <property name="rootrel.obj.joal" value="${rootrel.obj}/joal" />
 
         <!-- The source directories. -->
         <property name="src"   value="${project.root}/${rootrel.src}" />
@@ -219,16 +174,6 @@
         <property name="java.includes.dir.linux" value="${java.includes.dir}/linux" />
         <property name="java.includes.dir.solaris" value="${java.includes.dir}/solaris" />
         <property name="java.includes.dir.macosx" value="/System/Library/Frameworks/JavaVM.framework/Versions/CurrentJDK/Headers" />
-
-        <!-- Create the classpath that includes ANTLR and any already 
-           - compiled classes.  This requires the user-defined "antlr.jar" 
-           - property. -->
-        <path id="antlr.classpath">
-            <pathelement path="${classpath}" />
-            <pathelement location="${gluegen.classes}" />
-            <pathelement location="${classes}" />
-            <pathelement location="${antlr.jar}" />
-        </path>
 
         <!-- The resulting joal.jar. -->
         <property name="joal.jar" value="${build}/joal.jar" />
@@ -347,6 +292,23 @@
     <target name="declare" depends="init,declare.win32,declare.linux,declare.solaris,declare.macosx,declare.freebsd" />
 
     <!-- ================================================================== -->
+    <!-- GlueGen and BuildStaticGLInfo creation, task setup and Java file generation -->
+    <!--
+       - Build GlueGen
+      -->
+    <target name="build.gluegen" depends="init">
+        <!-- Run the GlueGen build to ensure that the GlueGen ANT task
+           - has been built. -->
+        <ant antfile="${gluegen.build.xml}" dir="${gluegen.make.dir}" target="all" inheritAll="false" />
+
+        <!-- Extract the GlueGen runtime classes into our build directory.
+           - We currently bundle them into jogl.jar; they could be kept in
+           - a separate jar, but this makes deployment simpler.
+           -->
+        <unjar src="${gluegen-rt.jar}" dest="${classes}" />
+    </target>
+
+    <!-- ================================================================== -->
     <!-- Java file generation -->
     <!--
        - Check to see whether we need to rebuild the generated sources.
@@ -378,10 +340,10 @@
        - from the C GL headers.  This involves setting the taskdef and creating
        - the classpath reference id then running the task on each header.
       -->
-    <target name="java.generate" depends="java.generate.check" unless="java.generate.skip">
+    <target name="java.generate" depends="build.gluegen, java.generate.check" unless="java.generate.skip">
         <!-- Add the GlueGen task to ANT -->
         <taskdef name="gluegen" classname="com.sun.gluegen.ant.GlueGenTask"
-                 classpathref="antlr.classpath" />
+                 classpathref="gluegen.classpath" />
                  
         <!-- Use the GlueGen task to generate the Java files -->
 
@@ -390,7 +352,7 @@
                  config="${joal.cfg}"
                  includeRefid="stub.includes.fileset.all"
                  emitter="com.sun.gluegen.procaddress.ProcAddressEmitter">
-            <classpath refid="antlr.classpath" />
+            <classpath refid="gluegen.classpath" />
         </gluegen>
 
 	<!-- Generate the ALConstants interface class -->
@@ -398,7 +360,7 @@
                  config="${joal.constants.cfg}"
                  includeRefid="stub.includes.fileset.all"
                  emitter="com.sun.gluegen.JavaEmitter">
-            <classpath refid="antlr.classpath" />
+            <classpath refid="gluegen.classpath" />
         </gluegen>
 
 	<!-- Generate the ALC interface class and implementation -->
@@ -406,7 +368,7 @@
                  config="${joal.alc.cfg}"
                  includeRefid="stub.includes.fileset.all"
                  emitter="com.sun.gluegen.procaddress.ProcAddressEmitter">
-            <classpath refid="antlr.classpath" />
+            <classpath refid="gluegen.classpath" />
         </gluegen>
 
 	<!-- Generate the ALCConstants interface class -->
@@ -414,7 +376,7 @@
                  config="${joal.alc.constants.cfg}"
                  includeRefid="stub.includes.fileset.all"
                  emitter="com.sun.gluegen.JavaEmitter">
-            <classpath refid="antlr.classpath" />
+            <classpath refid="gluegen.classpath" />
         </gluegen>
 
         <!-- Inform the user that the generators have successfully created 
@@ -432,7 +394,6 @@
         <javac destdir="${classes}" source="1.4" debug="true" debuglevel="source,lines">
             <src path="${src.java}" />
             <src path="${src.generated.java}" />
-            <classpath refid="antlr.classpath" />
         </javac>
     </target>
 
@@ -443,10 +404,6 @@
 
     <target name="c.configure">
     
-      <!-- import cpptasks -->
-      <typedef resource="net/sf/antcontrib/cpptasks/antlib.xml" classpath="${jogl.root}/make/lib/cpptasks.jar"/>
-      <!--typedef resource="net/sf/antcontrib/cpptasks/antlib.xml"/-->
-
       <!-- compiler configuration -->
       <compiler id="compiler.cfg.linux" name="gcc" />
 
@@ -533,8 +490,7 @@
         <linkerarg value="/MACHINE:IX86" />       <!-- explicity set target platform -->
         
         <syslibset dir="${joal.lib.dir}" libs="openal32" />
-        <syslibset dir="${c.linker.lib.root}/lib" libs="kernel32" unless="isVC7"/>
-        <syslibset dir="${c.linker.lib.root}/PlatformSDK/lib" libs="kernel32" if="isVC7"/>
+        <syslibset libs="kernel32"/>
       </linker>
 
       <linker id="linker.cfg.macosx" name="gcc">
@@ -631,8 +587,6 @@
         <jar destfile="${joal.jar}">
             <fileset dir="${classes}">
                 <include name="net/java/games/**" />
-            </fileset>
-            <fileset dir="${gluegen.classes}">
                 <include name="com/sun/gluegen/runtime/**" />
             </fileset>
         </jar>
@@ -649,7 +603,6 @@
     <target name="javadoc" depends="setup.java.home.dir,init">
         <javadoc packagenames="${javadoc.packagenames}"
                  sourcepath="${src.java};${src.generated.java}"
-                 classpath="${gluegen.classes}"
                  destdir="${javadoc}" windowtitle="JOAL API"
                  source="1.4"
                  link="${javadoc.link}" />
@@ -734,7 +687,7 @@
     <!--
        - Build everything.
       -->
-    <target name="all" depends="setup.java.home.dir,init,declare">
+    <target name="all" depends="init,declare">
         <!-- Generate, compile, and build the jar for the Java sources. -->
         <antcall target="jar" inheritRefs="true" />
         
