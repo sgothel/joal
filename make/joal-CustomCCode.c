@@ -1,6 +1,10 @@
 #if defined(_MSC_VER) /* Windows */
 #include <windows.h>
 static HMODULE oalModule = NULL;
+#else
+/* Hack for Linux */
+#define __USE_GNU
+#include <dlfcn.h>
 #endif
 
 /*   Java->C glue code:
