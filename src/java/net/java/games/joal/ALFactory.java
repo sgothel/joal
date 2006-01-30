@@ -48,6 +48,8 @@ public class ALFactory {
   private static AL al;
   private static ALC alc;
 
+  private ALFactory() {}
+
   private static synchronized void initialize() throws ALException {
     try {
       if (!initialized) {
