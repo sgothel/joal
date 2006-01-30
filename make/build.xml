@@ -601,7 +601,7 @@
                  sourcepath="${src.java};${src.generated.java}"
                  destdir="${javadoc}" windowtitle="JOAL API"
                  source="1.4"
-                 link="${javadoc.link}" />
+                 linkoffline="${javadoc.link} 142-packages" />
     </target>
 
     <target name="javadoc.dev" depends="init">
@@ -610,7 +610,7 @@
                  sourcepath="${src.java};${src.generated.java}"
                  destdir="${javadoc.dev}" windowtitle="JOAL API"
                  source="1.4"
-                 link="${javadoc.link}" />
+                 linkoffline="${javadoc.link} 142-packages" />
     </target>
 
     <!-- ================================================================== -->
