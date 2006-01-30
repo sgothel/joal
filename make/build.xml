@@ -499,11 +499,7 @@
         <linkerarg value="-arch" if="macosxfat"/>
         <linkerarg value="i386" if="macosxfat"/>
         <linkerarg value="-framework" />
-        <linkerarg value="Cocoa" />
-        <linkerarg value="-framework" />
-        <linkerarg value="OpenGL" />
-        <linkerarg value="-framework" if="c.compiler.use-cglib" />
-        <linkerarg value="Cg" if="c.compiler.use-cglib" />
+        <linkerarg value="OpenAL" />
       </linker>
 
       <patternset id="c.src.files.joal">
@@ -560,13 +556,13 @@
     <target name="c.rename.joal.lib.mingw" if="isMingw">
       <!-- FIXME: this is a hack; the cpptask should have an option to change the
            suffix or at least understand the override from .so to .dll -->
-      <move file="${obj}/libjoal.so" tofile="${obj}/joal.dll" failonerror="false" />
+      <move file="${obj}/libjoal_native.so" tofile="${obj}/joal_native.dll" failonerror="false" />
     </target>
 
     <target name="c.rename.joal.lib.macosx" if="isOSX">
       <!-- FIXME: this is a hack; the cpptask should have an option to change the
            suffix or at least understand the override from dylib to jnilib -->
-      <move file="${obj}/libjoal.dylib" tofile="${obj}/libjoal.jnilib" />
+      <move file="${obj}/libjoal_native.dylib" tofile="${obj}/libjoal_native.jnilib" />
     </target>
 
     <target name="c.build.joal">
