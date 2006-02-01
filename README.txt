@@ -106,6 +106,23 @@ Preparations:
   OpenAL comes with various Linux distributions. You might have it already. 
   If not, try rpmfind, apt-get or emerge. 
 
+  More up-to-date versions are available from openal.org in the
+  downloads section. Install first the openal-[version].i586.rpm and
+  then the openal-devel-[version]-i586.rpm. Unfortunately, due to
+  confusion in the OpenAL version numbering, the version from
+  openal.org may seem to be "older" than the version preinstalled on
+  the Linux distribution, even though it is more recent. To work
+  around this problem, do the following steps:
+
+    # rpm --force --upgrade openal-0.0.8-1.i586.rpm
+    # rpm -i openal-devel-0.0.8-1.i586.rpm
+
+  Now test to make sure the RPMs are installed:
+
+    # rpm -qa | grep -i openal
+    openal-0.0.8-1
+    openal-devel-0.0.8-1 
+
   For the newest version you need to compile OpenAL yourself from CVS:
 
     -- follow the instruction at www.openal.org to check out a fresh copy 
@@ -118,7 +135,7 @@ Preparations:
     -- add /usr/local/lib to you /etc/ld.so.conf and run ldconfig
 
 * OSX:
- Grab the OpenAL SDK from Creative Labs and install it.
+ Grab the OpenAL SDK from openal.org and install it.
 
  
 JOAL Build Instructions:
