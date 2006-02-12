@@ -162,8 +162,11 @@
         <dirset id="stub.includes.fileset.all" dir=".">
             <include name="${stub.includes.dir}/openal/**" />
         </dirset>
-        <fileset id="stub.includes.dependencies.fileset" dir=".">
-            <include name="${stub.includes.dir}/openal/**" />
+        <fileset id="stub.includes.dependencies.fileset.1" dir="${stub.includes.dir}">
+            <include name="openal/**" />
+        </fileset>
+        <fileset id="stub.includes.dependencies.fileset.2" file="${gluegen.jar}" />
+        <fileset id="stub.includes.dependencies.fileset.3" dir=".">
             <include name="*.cfg" />
             <include name="*.java" />
             <include name="*.c" />
@@ -318,10 +321,9 @@
         <!-- Blow away all target files if any dependencies are violated
              (the uptodate task doesn't allow arbitrary source and target filesets but should) -->
         <dependset>
-            <srcfileset refid="stub.includes.dependencies.fileset" />
-            <srcfileset dir=".">
-	        <include name="${classes}/net/java/games/gluegen/**/*.class" />
-            </srcfileset>
+            <srcfileset refid="stub.includes.dependencies.fileset.1" />
+            <srcfileset refid="stub.includes.dependencies.fileset.2" />
+            <srcfileset refid="stub.includes.dependencies.fileset.3" />
             <targetfileset dir=".">
                 <include name="${src.generated.java}/**/*.java" />
                 <include name="${src.generated.c}/**/*.c" />
@@ -329,9 +331,11 @@
         </dependset>
 
         <!-- Now check for the presence of one well-known file -->
-        <uptodate property="java.generate.skip">
-            <srcfiles refid="stub.includes.dependencies.fileset" />
-            <mapper type="merge" to="${src.generated.java}/net/java/games/joal/AL.java" />
+        <uptodate property="java.generate.skip"
+                  targetfile="${src.generated.java}/net/java/games/joal/AL.java">
+            <srcfiles refid="stub.includes.dependencies.fileset.1" />
+            <srcfiles refid="stub.includes.dependencies.fileset.2" />
+            <srcfiles refid="stub.includes.dependencies.fileset.3" />
         </uptodate>
     </target>
 
