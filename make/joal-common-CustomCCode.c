@@ -7,3 +7,4 @@ typedef int intptr_t;
 /* This header seems to be available on all other platforms */
 #include <inttypes.h>
 #endif
+#include <string.h>
