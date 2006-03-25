@@ -1,0 +1,8 @@
+Specification-Title: Java Bindings for OpenAL
+Specification-Version: 1.0.0-pre
+Specification-Vendor: java.net JOAL community
+Implementation-Title: Java Bindings for OpenAL Runtime Environment
+Implementation-Version: @VERSION@
+Implementation-Vendor: java.net JOGL community
+Extension-Name: net.java.games.joal
+Implementation-Vendor-Id: com.sun

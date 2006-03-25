@@ -31,6 +31,9 @@
    -->
 <project name="JOAL" basedir="." default="all">
     
+  <!-- This is the version of JOAL you are building -->
+  <property name="base_version" value="1.0.0"/>
+
   <!-- Pull in GlueGen cpptasks build file -->
   <property name="gluegen.root" value="../../gluegen" />
   <import file="${gluegen.root}/make/gluegen-cpptasks.xml" />
@@ -583,14 +586,26 @@
        - Build the joal.jar file.
       -->
     <target name="jar" depends="java.compile">
+        <!-- Prepare the manifest -->
+        <tstamp>
+             <format property="timestamp" pattern="yyyyMMdd-HH:mm:ss"/>
+        </tstamp>
+        <copy file="joalversion"
+          tofile="tempversion"
+          overwrite="true">
+          <filterset>
+              <filter token="VERSION" value="${base_version}-pre-${timestamp}"/>
+          </filterset>
+        </copy>
+
         <!-- Build the jar excluding any build specific classes. -->
-        <jar destfile="${joal.jar}">
+        <jar manifest="tempversion" destfile="${joal.jar}">
             <fileset dir="${classes}">
                 <include name="net/java/games/**" />
                 <include name="com/sun/gluegen/runtime/**" />
             </fileset>
         </jar>
-
+        <delete file="tempversion"/>
     </target>
 
     <!-- ================================================================== -->
@@ -619,16 +634,13 @@
 
     <!-- ================================================================== -->
     <!--
-       - Build the platform-independent distribution out of jars built for
-       - Windows, Linux and Mac OS X; the Java sources for Joal can't be
-       - fully cross-compiled at this time. To run this target, you need to
+       - Build the Java Web Start binaries out of native library builds for
+       - each individual platform. To run this target, you need to
        - specify the property joal.dist.dir as a System property (i.e.,
        - "ant -Djoal.dist.dir=../dist dist"); directories named joal-linux,
        - joal-win32, and joal-macosx need to be inside that directory and each
-       - of those directories needs to contain both the joal.jar for that
-       - platform as well as the native code (libjoal.so, joal.dll, or
-       - libjoal.jnilib). Also builds jars containing the native code for
-       - Windows, Linux, Mac OS X, Solaris/SPARC and Solaris/x86.
+       - of those directories needs to contain the native code for that platform
+       - (libjoal_native.so, joal_native.dll, or libjoal_native.jnilib).
       -->
     <target name="dist.check" unless="joal.dist.dir">
         <fail>
@@ -643,31 +655,32 @@
     </target>
 
     <target name="dist" depends="dist.check">
-        <delete file="${joal.dist.dir}/joal.jar" />
+        <delete file="${jogl.dist.dir}/jogl-src.zip" />
         <delete>
             <fileset dir="${joal.dist.dir}" includes="joal-natives-*.jar" />
         </delete>
-        <jar destfile="${joal.dist.dir}/joal.jar" duplicate="preserve">
-	    <zipgroupfileset dir="${joal.dist.dir}"
-	                     includes="joal-win32/*.jar, joal-linux/*.jar, joal-macosx/*.jar" />
-        </jar>
         <jar destfile="${joal.dist.dir}/joal-natives-win32.jar"
              basedir="${joal.dist.dir}/joal-win32"
-             includes="joal.dll" />
+             includes="joal_native.dll" />
         <jar destfile="${joal.dist.dir}/joal-natives-linux.jar"
              basedir="${joal.dist.dir}/joal-linux"
-             includes="libjoal.so" />
+             includes="libjoal_native.so" />
         <jar destfile="${joal.dist.dir}/joal-natives-macosx.jar"
              basedir="${joal.dist.dir}/joal-macosx"
-             includes="libjoal.jnilib" />
-        <jar destfile="${joal.dist.dir}/joal-natives-solsparc.jar"
+             includes="libjoal_native.jnilib" />
+        <!-- Note: Solaris builds elided for now as we would have to build OpenAL ourselves -->
+        <!-- jar destfile="${joal.dist.dir}/joal-natives-solsparc.jar"
              basedir="${joal.dist.dir}/joal-solsparc"
-             includes="libjoal.so" />
-        <!-- Note: Solaris/x86 elided for now as it requires Mesa to
-             be installed -->
+             includes="libjoal_native.so" -->
         <!-- jar destfile="${joal.dist.dir}/joal-natives-solx86.jar"
              basedir="${joal.dist.dir}/joal-solx86"
-             includes="libjoal.so" -->
+             includes="libjoal_native.so" -->
+	<!-- Build a source archive as well -->
+        <zip destfile="${joal.dist.dir}/joal-src.zip"
+	     basedir="../.."
+	     includes="gluegen/LICENSE.txt,gluegen/doc/**,gluegen/make/**,gluegen/src/**,joal/README.txt,joal/make/**,joal/src/**"
+	     excludes="**/*.class,**/*~"
+	     />
     </target>
 
     <!-- ================================================================== -->
