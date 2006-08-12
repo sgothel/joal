@@ -180,6 +180,8 @@
         <property name="java.includes.dir.linux" value="${java.includes.dir}/linux" />
         <property name="java.includes.dir.solaris" value="${java.includes.dir}/solaris" />
         <property name="java.includes.dir.macosx" value="/System/Library/Frameworks/JavaVM.framework/Versions/CurrentJDK/Headers" />
+        <property name="java.includes.dir.freebsd" value="${java.includes.dir}/freebsd" />
+        <property name="java.includes.dir.hpux" value="${java.includes.dir}/hp-ux" />
 
         <!-- The resulting joal.jar. -->
         <property name="joal.jar" value="${build}/joal.jar" />
@@ -204,78 +206,111 @@
       -->
     <target name="declare.win32.vc6" if="isVC6">
       <echo message="Win32.VC6" />
-      <property name="c.compiler.include.root"                value="${vc6.root}" />
-      <property name="c.linker.lib.root"                      value="${vc6.root}" />
-
       <property name="compiler.cfg.id"                      value="compiler.cfg.win32.msvc" />
-      <property name="linker.cfg.id"                        value="linker.cfg.win32.msvc" />
+      <property name="linker.cfg.id"                        value="linker.cfg.win32.msvc.joal" />
     </target>
     
     <target name="declare.win32.vc7" if="isVC7">
       <echo message="Win32.VC7" />
-      <property name="c.compiler.include.root"                value="${vc7.root}" />
-      <property name="c.linker.lib.root"                      value="${vc7.root}" />
-
       <property name="compiler.cfg.id"                      value="compiler.cfg.win32.msvc" />
-      <property name="linker.cfg.id"                        value="linker.cfg.win32.msvc" />
+      <property name="linker.cfg.id"                        value="linker.cfg.win32.msvc.joal" />
+    </target>
+    
+    <target name="declare.win32.vc8" if="isVC8">
+      <echo message="Win32.VC8" />
+      <property name="compiler.cfg.id"                      value="compiler.cfg.win32.msvc" />
+      <property name="linker.cfg.id"                        value="linker.cfg.win32.msvc.joal" />
+    </target>
+
+    <target name="declare.win32.vc8_x64" if="isVC8_X64">
+      <echo message="Win32.VC8_X64" />
+      <property name="compiler.cfg.id"                      value="compiler.cfg.win32.msvc" />
+      <property name="linker.cfg.id"                        value="linker.cfg.win32.msvc.joal" />
     </target>
     
     <target name="declare.win32.mingw" if="isMingw">
       <echo message="Win32.MingW" />
       <property name="compiler.cfg.id"                      value="compiler.cfg.win32.mingw" />
-      <property name="linker.cfg.id"                        value="linker.cfg.win32.mingw" />
+      <property name="linker.cfg.id"                        value="linker.cfg.win32.mingw.joal" />
     </target>
 
-    <target name="declare.win32" depends="declare.win32.vc6,declare.win32.vc7,declare.win32.mingw" if="isWindows">
+    <target name="declare.win32" depends="declare.win32.vc6,declare.win32.vc7,declare.win32.vc8,declare.win32.vc8_x64,declare.win32.mingw" if="isWindows">
       <property name="java.includes.dir.platform"           value="${java.includes.dir.win32}" />
-      <property name="java.lib.dir.platform"                value="${java.lib.dir.win32}" />
     </target>
 
     <target name="declare.linux.x86" if="isLinux" unless="isLinuxAMD64">
       <echo message="Linux.x86" />
       <property name="java.includes.dir.platform"           value="${java.includes.dir.linux}" />
-      <property name="java.lib.dir.platform"                value="${java.lib.dir.linux}" />       
 
       <property name="compiler.cfg.id"                      value="compiler.cfg.linux" /> 
-      <property name="linker.cfg.id"                        value="linker.cfg.linux" /> 
+      <property name="linker.cfg.id"                        value="linker.cfg.linux.joal" /> 
     </target>
     
     <target name="declare.linux.amd64" if="isLinuxAMD64">
       <echo message="Linux.AMD64" />
       <property name="java.includes.dir.platform"           value="${java.includes.dir.linux}" />
-      <property name="java.lib.dir.platform"                value="${java.lib.dir.linux.amd64}" />       
 
       <property name="compiler.cfg.id"                      value="compiler.cfg.linux.amd64" /> 
-      <property name="linker.cfg.id"                        value="linker.cfg.linux.amd64" /> 
+      <property name="linker.cfg.id"                        value="linker.cfg.linux.amd64.joal" /> 
     </target>
 
-    <target name="declare.linux" depends="declare.linux.x86,declare.linux.amd64" if="isLinux" />
+    <target name="declare.linux.ia64" if="isLinuxIA64">
+      <echo message="Linux.IA64" />
+      <property name="java.includes.dir.platform"           value="${java.includes.dir.linux}" />
+
+      <property name="compiler.cfg.id"                      value="compiler.cfg.linux" /> 
+      <property name="linker.cfg.id"                        value="linker.cfg.linux.joal" /> 
+    </target>
+
+    <target name="declare.linux" depends="declare.linux.x86,declare.linux.amd64,declare.linux.ia64" if="isLinux" />
 
     <target name="declare.solaris32" if="isSolaris32Bit">
       <echo message="Solaris" />
       <property name="java.includes.dir.platform"           value="${java.includes.dir.solaris}" />
-      <property name="java.lib.dir.platform"                value="${java.lib.dir.solaris}" />
 
       <property name="compiler.cfg.id"                      value="compiler.cfg.solaris" /> 
-      <property name="linker.cfg.id"                        value="linker.cfg.solaris" /> 
+      <property name="linker.cfg.id"                        value="linker.cfg.solaris.joal" /> 
+    </target>
+
+    <target name="declare.solaris.sparcv9" if="isSolarisSparcv9">
+      <echo message="SolarisSparcv9" />
+      <property name="java.includes.dir.platform"           value="${java.includes.dir.solaris}" />
+
+      <property name="compiler.cfg.id"                      value="compiler.cfg.solaris.sparcv9" />
+      <property name="linker.cfg.id"                        value="linker.cfg.solaris.sparcv9.joal" />
+    </target>
+   
+
+    <target name="declare.solaris.amd64" if="isSolarisAMD64">
+      <echo message="SolarisAMD64" />
+      <property name="java.includes.dir.platform"           value="${java.includes.dir.solaris}" />
+
+      <property name="compiler.cfg.id"                      value="compiler.cfg.solaris.amd64" /> 
+      <property name="linker.cfg.id.core"                   value="linker.cfg.solaris.amd64.joal" /> 
     </target>
 
     <target name="declare.macosx" if="isOSX">
       <echo message="MacOSX" />
       <property name="java.includes.dir.platform"           value="${java.includes.dir.macosx}" />
-      <property name="java.lib.dir.platform"                value="${java.lib.dir.macosx}" />
 
       <property name="compiler.cfg.id"                      value="compiler.cfg.macosx" /> 
-      <property name="linker.cfg.id"                        value="linker.cfg.macosx" /> 
+      <property name="linker.cfg.id"                        value="linker.cfg.macosx.joal" /> 
     </target>
 
     <target name="declare.freebsd" if="isFreeBSD">
       <echo message="FreeBSD" />
       <property name="java.includes.dir.platform"           value="${java.includes.dir.freebsd}" />
-      <property name="java.lib.dir.platform"                value="${java.lib.dir.linux}" />
 
       <property name="compiler.cfg.id"                      value="compiler.cfg.freebsd" />
-      <property name="linker.cfg.id"                        value="linker.cfg.linux" />
+      <property name="linker.cfg.id"                        value="linker.cfg.linux.joal" />
+    </target>
+
+    <target name="declare.hpux" if="isHPUX">
+      <echo message="HP-UX" />
+      <property name="java.includes.dir.platform"           value="${java.includes.dir.hpux}" />
+
+      <property name="compiler.cfg.id"                      value="compiler.cfg.hpux" />
+      <property name="linker.cfg.id"                        value="linker.cfg.hpux.joal" />
     </target>
 
     <!-- ================================================================== -->
@@ -409,104 +444,45 @@
        - Compile the native C code for JOAL.
       -->
 
-    <target name="c.configure">
-    
-      <!-- compiler configuration -->
-      <compiler id="compiler.cfg.linux" name="gcc" />
-
-      <compiler id="compiler.cfg.linux.amd64" name="gcc">
-        <compilerarg value="-fPIC"/>
-      </compiler>
-
-      <compiler id="compiler.cfg.solaris" name="suncc">
-      </compiler>
-
-      <compiler id="compiler.cfg.win32.mingw" name="gcc">
-        <defineset>
-          <define name="_DEBUG"   if="c.compiler.use-debug"/>        
-          <define name="DEBUG"    if="c.compiler.use-debug"/>        
-          <define name="NDEBUG"   unless="c.compiler.use-debug"/>        
-
-          <define name="DBUILD_DLL" />
-          <define name="_WINGDI_" /> 
-          <define name="_STRICT_ANSI" /> 
-          <define name="_JNI_IMPLEMENTATION_" />
-        </defineset>
-      </compiler>
-
-      <compiler id="compiler.cfg.win32.msvc" name="msvc">
-        <compilerarg value="/W3"/>      <!-- set warning level -->
-        <compilerarg value="/Ob1"/>     <!-- inline only functions marked inline -->
-        <compilerarg value="/GF"/>      <!-- enable string pooling -->
-        <compilerarg value="/Gy"/>      <!-- enable function level linking -->
-        <compilerarg value="/GS"      if="isVC7"/>  <!-- buffer security checks -->
-        <compilerarg value="/Wp64"    if="isVC7"/>  <!-- detect 64-bit port problems -->
-        <compilerarg value="/RTCcsu"  if="isVC7"/>  <!-- various runtime checks -->
-	<!-- Note: previous compiler options for VC7 were:
-	     Debug:     /MDd /Yd /GS /RTCs /RTCu /RTCc /W3 /Od /GF /EHsc /Zi /GS /Gy /Wp64 /Zi /D &quot;_DEBUG&quot;
-             Optimized: /MD /W3 /O2 /Ob1 /GF /EHsc /GS /Gy /Wp64 /D &quot;NDEBUG&quot; -->
-
-        <sysincludepath path="${c.compiler.include.root}/PlatformSDK/Include"/>
-        <sysincludepath path="${c.compiler.include.root}/include"/>
-
-        <defineset>
-          <define name="_DEBUG"   if="c.compiler.use-debug"/>        
-          <define name="DEBUG"    if="c.compiler.use-debug"/>        
-          <define name="NDEBUG"   unless="c.compiler.use-debug"/>        
-        </defineset>
-      </compiler>
-
-      <compiler id="compiler.cfg.macosx" name="gcc">
-        <compilerarg value="-arch" if="macosxfat"/>
-        <compilerarg value="ppc" if="macosxfat"/>
-        <compilerarg value="-arch" if="macosxfat"/>
-        <compilerarg value="i386" if="macosxfat"/>
-        <compilerarg value="-Wmost" />
-        <compilerarg value="-ObjC" />
-        <defineset>
-          <define name="macosx" />
-        </defineset>
-      </compiler>
-
-      <compiler id="compiler.cfg.freebsd" name="gcc">
-        <includepath path="/usr/X11R6/include" />
-      </compiler>
-
+    <target name="c.configure" depends="gluegen.cpptasks.configure.compiler">
       <!-- linker configuration -->
  
-      <linker id="linker.cfg.linux" name="gcc">
+      <linker id="linker.cfg.linux.joal" extends="linker.cfg.linux">
         <syslibset dir="${joal.lib.dir}" libs="openal"/>
       </linker>
 
-      <linker id="linker.cfg.linux.amd64" name="gcc">
+      <linker id="linker.cfg.linux.amd64.joal" extends="linker.cfg.linux.amd64">
         <syslibset dir="${joal.lib.dir}" libs="openal"/>
       </linker>
 
-      <linker id="linker.cfg.solaris" name="suncc">
+      <linker id="linker.cfg.solaris.joal" extends="linker.cfg.solaris">
         <syslibset dir="${joal.lib.dir}" libs="openal"/>
       </linker>
 
-      <linker id="linker.cfg.win32.mingw" name="gcc" incremental="false">
-        <linkerarg value="-Wl,--kill-at" />        <!-- remove @ from function names -->
+      <linker id="linker.cfg.solaris.sparcv9.joal" extends="linker.cfg.solaris.sparcv9">
+        <syslibset dir="${joal.lib.dir}" libs="openal"/>
+      </linker>
+
+      <linker id="linker.cfg.solaris.amd64.joal" extends="linker.cfg.solaris.amd64">
+        <syslibset dir="${joal.lib.dir}" libs="openal"/>
+      </linker>
+
+      <linker id="linker.cfg.win32.mingw.joal" extends="linker.cfg.win32.mingw">
         <syslibset dir="${joal.lib.dir}" libs="openal32, kernel32"/>
       </linker>
 
-      <linker id="linker.cfg.win32.msvc" name="msvc" incremental="false">
-        <linkerarg value="/OPT:REF,ICF" />        <!-- enable link-time optimisations -->
-        <linkerarg value="/SUBSYSTEM:WINDOWS" />  <!-- output is not a console app as uses WinMain entry point -->
-        <linkerarg value="/MACHINE:IX86" />       <!-- explicity set target platform -->
-        
+      <linker id="linker.cfg.win32.msvc.joal" extends="linker.cfg.win32.msvc">
         <syslibset dir="${joal.lib.dir}" libs="openal32" />
         <syslibset libs="kernel32"/>
       </linker>
 
-      <linker id="linker.cfg.macosx" name="gcc">
-        <linkerarg value="-arch" if="macosxfat"/>
-        <linkerarg value="ppc" if="macosxfat"/>
-        <linkerarg value="-arch" if="macosxfat"/>
-        <linkerarg value="i386" if="macosxfat"/>
+      <linker id="linker.cfg.macosx.joal" extends="linker.cfg.macosx">
         <linkerarg value="-framework" />
         <linkerarg value="OpenAL" />
+      </linker>
+
+      <linker id="linker.cfg.hpux.joal" extends="linker.cfg.hpux">
+        <syslibset dir="${joal.lib.dir}" libs="openal"/>
       </linker>
 
       <patternset id="c.src.files.joal">
