@@ -631,25 +631,37 @@
     </target>
 
     <target name="dist" depends="dist.check">
-        <delete file="${jogl.dist.dir}/jogl-src.zip" />
+        <delete file="${joal.dist.dir}/joal-src.zip" />
         <delete>
             <fileset dir="${joal.dist.dir}" includes="joal-natives-*.jar" />
         </delete>
-        <jar destfile="${joal.dist.dir}/joal-natives-win32.jar"
-             basedir="${joal.dist.dir}/joal-win32"
+        <jar destfile="${joal.dist.dir}/joal-natives-windows-i586.jar"
+             basedir="${joal.dist.dir}/joal-win/32"
              includes="joal_native.dll" />
-        <jar destfile="${joal.dist.dir}/joal-natives-linux.jar"
-             basedir="${joal.dist.dir}/joal-linux"
+        <jar destfile="${joal.dist.dir}/joal-natives-linux-i586.jar"
+             basedir="${joal.dist.dir}/joal-linux/32"
              includes="libjoal_native.so" />
-        <jar destfile="${joal.dist.dir}/joal-natives-macosx.jar"
-             basedir="${joal.dist.dir}/joal-macosx"
-             includes="libjoal_native.jnilib" />
-        <!-- Note: Solaris builds elided for now as we would have to build OpenAL ourselves -->
-        <!-- jar destfile="${joal.dist.dir}/joal-natives-solsparc.jar"
-             basedir="${joal.dist.dir}/joal-solsparc"
+        <!-- NOTE: No OpenAL for Linux/AMD64 or Solaris at the moment -->
+        <!-- jar destfile="${joal.dist.dir}/joal-natives-linux-amd64.jar"
+             basedir="${joal.dist.dir}/joal-linux/64"
              includes="libjoal_native.so" -->
-        <!-- jar destfile="${joal.dist.dir}/joal-natives-solx86.jar"
-             basedir="${joal.dist.dir}/joal-solx86"
+        <jar destfile="${joal.dist.dir}/joal-natives-macosx-ppc.jar"
+             basedir="${joal.dist.dir}/joal-macosx/ppc"
+             includes="libjoal_native.jnilib" />
+        <jar destfile="${joal.dist.dir}/joal-natives-macosx-universal.jar"
+             basedir="${joal.dist.dir}/joal-macosx/fat"
+             includes="libjoal_native.jnilib" />
+        <!-- jar destfile="${joal.dist.dir}/joal-natives-solaris-sparc.jar"
+             basedir="${joal.dist.dir}/joal-solsparc/32"
+             includes="libjoal_native.so" -->
+        <!-- jar destfile="${joal.dist.dir}/joal-natives-solaris-sparcv9.jar"
+             basedir="${joal.dist.dir}/joal-solsparc/64"
+             includes="libjoal_native.so" -->
+        <!-- jar destfile="${joal.dist.dir}/joal-natives-solaris-i586.jar"
+             basedir="${joal.dist.dir}/joal-solx86/32"
+             includes="libjoal_native.so" -->
+        <!-- jar destfile="${joal.dist.dir}/joal-natives-solaris-amd64.jar"
+             basedir="${joal.dist.dir}/joal-solx86/64"
              includes="libjoal_native.so" -->
 	<!-- Build a source archive as well -->
         <zip destfile="${joal.dist.dir}/joal-src.zip"
