@@ -289,7 +289,15 @@
       <property name="linker.cfg.id.core"                   value="linker.cfg.solaris.amd64" /> 
     </target>
 
-    <target name="declare.macosx" if="isOSX">
+    <target name="declare.macosx.ppc" if="isOSXPPC">
+      <echo message="MacOSX PPC" />
+    </target>
+
+    <target name="declare.macosx.universal" if="isOSXUniversal">
+      <echo message="MacOSX Universal" />
+    </target>
+
+    <target name="declare.macosx" if="isOSX" depends="declare.macosx.ppc,declare.macosx.universal">
       <echo message="MacOSX" />
       <property name="java.includes.dir.platform"           value="${java.includes.dir.macosx}" />
 
@@ -522,6 +530,15 @@
       </antcall>
       <antcall target="c.rename.joal.lib.mingw" inheritRefs="true" />
       <antcall target="c.rename.joal.lib.macosx" inheritRefs="true" />
+      <!-- Create Java Web Start jar file from built file -->
+      <jar destfile="../build/joal-natives-${os.and.arch}.jar">
+        <fileset dir="../build/obj">
+          <include name="*joal_native.${native.library.suffix}" />
+        </fileset>
+        <fileset dir="lib/${os.and.arch}">
+          <include name="*.${native.library.suffix}" />
+        </fileset>
+      </jar>
     </target>
 
     <!-- ================================================================== -->
