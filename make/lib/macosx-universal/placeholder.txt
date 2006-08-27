@@ -1,0 +1,5 @@
+This is just a placeholder file to keep this directory from being
+empty and eliminated during "cvs update -d -P" operations. This
+directory needs to be present for the build to complete, although we
+do not currently bundle an OpenAL implementation with the Java Web
+Start binaries on this platform.
