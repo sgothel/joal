@@ -598,20 +598,20 @@
         <delete>
             <fileset dir="${joal.dist.dir}" includes="joal-natives-*.jar" />
         </delete>
-	<copy todir="${joal.dist.dir}">
-           <fileset dir="${joal.dist.dir}">
-             <include name="joal-win/32/*.jar" /> 
-             <include name="joal-linux/32/*.jar" /> 
-             <include name="joal-macosx/ppc/*.jar" /> 
-             <include name="joal-macosx/fat/*.jar" /> 
-             <!-- NOTE: No OpenAL for Windows/AMD64, Linux/AMD64 or Solaris at the moment -->
-             <!-- include name="joal-win/64/*.jar" / --> 
-             <!-- include name="joal-linux/64/*.jar" / --> 
-             <!-- include name="joal-solsparc/32/*.jar" / --> 
-             <!-- include name="joal-solsparc/64/*.jar" / --> 
-             <!-- include name="joal-solx86/32/*.jar" / --> 
-             <!-- include name="joal-solx86/64/*.jar" / --> 
+        <copy todir="${joal.dist.dir}">
+           <fileset dir="${joal.dist.dir}/joal-win/32">
+             <include name="*.jar" />
            </fileset>
+           <fileset dir="${joal.dist.dir}/joal-linux/32">
+             <include name="*.jar" />
+           </fileset>
+           <fileset dir="${joal.dist.dir}/joal-macosx/ppc">
+             <include name="*.jar" />
+           </fileset>
+           <fileset dir="${joal.dist.dir}/joal-macosx/fat">
+             <include name="*.jar" />
+           </fileset>
+           <!-- NOTE: No OpenAL for Windows/AMD64, Linux/AMD64 or Solaris at the moment -->
         </copy>
 	<!-- Build a source archive as well -->
         <zip destfile="${joal.dist.dir}/joal-src.zip"
