@@ -40,21 +40,9 @@
 
     <!-- ================================================================== -->
     <!-- 
-       - Base initialization and detection of operating system.
-      -->
-    <target name="base.init" depends="gluegen.cpptasks.detect.os">
-        <!-- Set the project root directory to be up one directory. -->
-        <property name="project.root" value=".." />
-    
-        <!-- Set the configuration and build files to this directory. -->
-        <property name="make" value="." />
-    </target>
-
-    <!-- ================================================================== -->
-    <!-- 
        - Load user properties which override build defaults.
       -->
-    <target name="load.user.properties" depends="base.init">
+    <target name="load.user.properties">
         <!-- Load the user specified properties file that defines various host
            - specific paths.  The user will be notified if this is does not
            - exist. -->
@@ -66,38 +54,29 @@
         <echo message="antlr.jar=${antlr.jar}" />
         <fail message="antlr.jar was not specified in joal.properties or gluegen.properties. Please see README.txt for instructions" unless="antlr.jar"/>
         <fail message="joal.lib.dir was not specified in joal.properties. Please see README.txt for instructions" unless="joal.lib.dir"/>
-        <condition property="isVC6">
-            <and>
-              <istrue value="${isWindows}" />
-              <equals arg1="${win32.c.compiler}" arg2="vc6" />
-            </and>
-        </condition>
-        <condition property="isVC7">
-            <and>
-              <istrue value="${isWindows}" />
-              <equals arg1="${win32.c.compiler}" arg2="vc7" />
-            </and>
-        </condition>
-        <condition property="isMingw">
-            <and>
-              <istrue value="${isWindows}" />
-              <equals arg1="${win32.c.compiler}" arg2="mingw" />
-            </and>
-        </condition>
-        <echo message="VC6=${isVC6}" />
-        <echo message="VC7=${isVC7}" />
-        <echo message="MingW=${isMingw}" />
+    </target>
+
+    <!-- ================================================================== -->
+    <!-- 
+       - Base initialization and detection of operating system.
+      -->
+    <target name="base.init" depends="load.user.properties,gluegen.cpptasks.detect.os">
+        <!-- Set the project root directory to be up one directory. -->
+        <property name="project.root" value=".." />
+    
+        <!-- Set the configuration and build files to this directory. -->
+        <property name="make" value="." />
     </target>
 
     <!-- ================================================================== -->
     <!-- 
        - Set up java.home.dir appropriately on all platforms.
       -->
-    <target name="setup.java.home.dir.nonmacosx" depends="load.user.properties" unless="isOSX">
+    <target name="setup.java.home.dir.nonmacosx" depends="base.init" unless="isOSX">
       <!-- java home dir is up one directory as java.home points to '<java-install-dir>/jre' -->
       <property name="java.home.dir" value="${java.home}/.." />
     </target>
-    <target name="setup.java.home.dir.macosx" depends="load.user.properties" if="isOSX">
+    <target name="setup.java.home.dir.macosx" depends="base.init" if="isOSX">
       <property name="java.home.dir" value="/System/Library/Frameworks/JavaVM.framework/Home" />
     </target>
     <target name="setup.java.home.dir" depends="setup.java.home.dir.nonmacosx,setup.java.home.dir.macosx"/>
