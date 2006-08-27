@@ -44,20 +44,6 @@ class NativeLibLoader {
   static {
     AccessController.doPrivileged(new PrivilegedAction() {
         public Object run() {
-
-          boolean useGlueGen =
-            (System.getProperty("joal.use.gluegen") != null);
-
-          if (useGlueGen) {
-            // Workaround for problems when OpenAL is not installed;
-            // want to be able to download the OpenAL shared library
-            // over e.g. Java Web Start and still link against it, so we
-            // have to use an alternate loading mechanism to work around
-            // the JDK's usage of RTLD_LOCAL on Unix platforms
-            NativeLibrary lib = NativeLibrary.open("OpenAL32", "openal", "openal",
-                                                   NativeLibLoader.class.getClassLoader());
-          }
-
           // Workaround for problem in OpenAL32.dll, which is actually
           // the "wrapper" DLL which looks for real OpenAL
           // implementations like nvopenal.dll and "*oal.dll".

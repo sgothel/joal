@@ -207,31 +207,31 @@
     <target name="declare.win32.vc6" if="isVC6">
       <echo message="Win32.VC6" />
       <property name="compiler.cfg.id"                      value="compiler.cfg.win32.msvc" />
-      <property name="linker.cfg.id"                        value="linker.cfg.win32.msvc.joal" />
+      <property name="linker.cfg.id"                        value="linker.cfg.win32.msvc" />
     </target>
     
     <target name="declare.win32.vc7" if="isVC7">
       <echo message="Win32.VC7" />
       <property name="compiler.cfg.id"                      value="compiler.cfg.win32.msvc" />
-      <property name="linker.cfg.id"                        value="linker.cfg.win32.msvc.joal" />
+      <property name="linker.cfg.id"                        value="linker.cfg.win32.msvc" />
     </target>
     
     <target name="declare.win32.vc8" if="isVC8">
       <echo message="Win32.VC8" />
       <property name="compiler.cfg.id"                      value="compiler.cfg.win32.msvc" />
-      <property name="linker.cfg.id"                        value="linker.cfg.win32.msvc.joal" />
+      <property name="linker.cfg.id"                        value="linker.cfg.win32.msvc" />
     </target>
 
     <target name="declare.win32.vc8_x64" if="isVC8_X64">
       <echo message="Win32.VC8_X64" />
       <property name="compiler.cfg.id"                      value="compiler.cfg.win32.msvc" />
-      <property name="linker.cfg.id"                        value="linker.cfg.win32.msvc.joal" />
+      <property name="linker.cfg.id"                        value="linker.cfg.win32.msvc" />
     </target>
     
     <target name="declare.win32.mingw" if="isMingw">
       <echo message="Win32.MingW" />
       <property name="compiler.cfg.id"                      value="compiler.cfg.win32.mingw" />
-      <property name="linker.cfg.id"                        value="linker.cfg.win32.mingw.joal" />
+      <property name="linker.cfg.id"                        value="linker.cfg.win32.mingw" />
     </target>
 
     <target name="declare.win32" depends="declare.win32.vc6,declare.win32.vc7,declare.win32.vc8,declare.win32.vc8_x64,declare.win32.mingw" if="isWindows">
@@ -243,7 +243,7 @@
       <property name="java.includes.dir.platform"           value="${java.includes.dir.linux}" />
 
       <property name="compiler.cfg.id"                      value="compiler.cfg.linux" /> 
-      <property name="linker.cfg.id"                        value="linker.cfg.linux.joal" /> 
+      <property name="linker.cfg.id"                        value="linker.cfg.linux" /> 
     </target>
     
     <target name="declare.linux.amd64" if="isLinuxAMD64">
@@ -251,7 +251,7 @@
       <property name="java.includes.dir.platform"           value="${java.includes.dir.linux}" />
 
       <property name="compiler.cfg.id"                      value="compiler.cfg.linux.amd64" /> 
-      <property name="linker.cfg.id"                        value="linker.cfg.linux.amd64.joal" /> 
+      <property name="linker.cfg.id"                        value="linker.cfg.linux.amd64" /> 
     </target>
 
     <target name="declare.linux.ia64" if="isLinuxIA64">
@@ -259,7 +259,7 @@
       <property name="java.includes.dir.platform"           value="${java.includes.dir.linux}" />
 
       <property name="compiler.cfg.id"                      value="compiler.cfg.linux" /> 
-      <property name="linker.cfg.id"                        value="linker.cfg.linux.joal" /> 
+      <property name="linker.cfg.id"                        value="linker.cfg.linux" /> 
     </target>
 
     <target name="declare.linux" depends="declare.linux.x86,declare.linux.amd64,declare.linux.ia64" if="isLinux" />
@@ -269,7 +269,7 @@
       <property name="java.includes.dir.platform"           value="${java.includes.dir.solaris}" />
 
       <property name="compiler.cfg.id"                      value="compiler.cfg.solaris" /> 
-      <property name="linker.cfg.id"                        value="linker.cfg.solaris.joal" /> 
+      <property name="linker.cfg.id"                        value="linker.cfg.solaris" /> 
     </target>
 
     <target name="declare.solaris.sparcv9" if="isSolarisSparcv9">
@@ -277,7 +277,7 @@
       <property name="java.includes.dir.platform"           value="${java.includes.dir.solaris}" />
 
       <property name="compiler.cfg.id"                      value="compiler.cfg.solaris.sparcv9" />
-      <property name="linker.cfg.id"                        value="linker.cfg.solaris.sparcv9.joal" />
+      <property name="linker.cfg.id"                        value="linker.cfg.solaris.sparcv9" />
     </target>
    
 
@@ -286,7 +286,7 @@
       <property name="java.includes.dir.platform"           value="${java.includes.dir.solaris}" />
 
       <property name="compiler.cfg.id"                      value="compiler.cfg.solaris.amd64" /> 
-      <property name="linker.cfg.id.core"                   value="linker.cfg.solaris.amd64.joal" /> 
+      <property name="linker.cfg.id.core"                   value="linker.cfg.solaris.amd64" /> 
     </target>
 
     <target name="declare.macosx" if="isOSX">
@@ -302,7 +302,7 @@
       <property name="java.includes.dir.platform"           value="${java.includes.dir.freebsd}" />
 
       <property name="compiler.cfg.id"                      value="compiler.cfg.freebsd" />
-      <property name="linker.cfg.id"                        value="linker.cfg.linux.joal" />
+      <property name="linker.cfg.id"                        value="linker.cfg.linux" />
     </target>
 
     <target name="declare.hpux" if="isHPUX">
@@ -310,7 +310,7 @@
       <property name="java.includes.dir.platform"           value="${java.includes.dir.hpux}" />
 
       <property name="compiler.cfg.id"                      value="compiler.cfg.hpux" />
-      <property name="linker.cfg.id"                        value="linker.cfg.hpux.joal" />
+      <property name="linker.cfg.id"                        value="linker.cfg.hpux" />
     </target>
 
     <!-- ================================================================== -->
@@ -447,42 +447,9 @@
     <target name="c.configure" depends="gluegen.cpptasks.configure.compiler">
       <!-- linker configuration -->
  
-      <linker id="linker.cfg.linux.joal" extends="linker.cfg.linux">
-        <syslibset dir="${joal.lib.dir}" libs="openal"/>
-      </linker>
-
-      <linker id="linker.cfg.linux.amd64.joal" extends="linker.cfg.linux.amd64">
-        <syslibset dir="${joal.lib.dir}" libs="openal"/>
-      </linker>
-
-      <linker id="linker.cfg.solaris.joal" extends="linker.cfg.solaris">
-        <syslibset dir="${joal.lib.dir}" libs="openal"/>
-      </linker>
-
-      <linker id="linker.cfg.solaris.sparcv9.joal" extends="linker.cfg.solaris.sparcv9">
-        <syslibset dir="${joal.lib.dir}" libs="openal"/>
-      </linker>
-
-      <linker id="linker.cfg.solaris.amd64.joal" extends="linker.cfg.solaris.amd64">
-        <syslibset dir="${joal.lib.dir}" libs="openal"/>
-      </linker>
-
-      <linker id="linker.cfg.win32.mingw.joal" extends="linker.cfg.win32.mingw">
-        <syslibset dir="${joal.lib.dir}" libs="openal32, kernel32"/>
-      </linker>
-
-      <linker id="linker.cfg.win32.msvc.joal" extends="linker.cfg.win32.msvc">
-        <syslibset dir="${joal.lib.dir}" libs="openal32" />
-        <syslibset libs="kernel32"/>
-      </linker>
-
       <linker id="linker.cfg.macosx.joal" extends="linker.cfg.macosx">
         <linkerarg value="-framework" />
         <linkerarg value="OpenAL" />
-      </linker>
-
-      <linker id="linker.cfg.hpux.joal" extends="linker.cfg.hpux">
-        <syslibset dir="${joal.lib.dir}" libs="openal"/>
       </linker>
 
       <patternset id="c.src.files.joal">

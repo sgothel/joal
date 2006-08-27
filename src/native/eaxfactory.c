@@ -37,8 +37,12 @@
 #include "eax.h"
 
 #ifdef _WIN32
-EAXSet	eaxSet;																				 // EAXSet function, ret$
-EAXGet	eaxGet;																				 // EAXGet function, ret$
+#include <windows.h>
+static HMODULE oalModule = NULL;
+static LPALISEXTENSIONPRESENT _ptr_alIsExtensionPresent = NULL;
+static LPALGETPROCADDRESS     _ptr_alGetProcAddress     = NULL;
+EAXSet	eaxSet; // EAXSet function
+EAXGet	eaxGet;	// EAXGet function
 #endif
 
 /* 
@@ -48,9 +52,20 @@ EAXGet	eaxGet;																				 // EAXGet function, ret$
 JNIEXPORT void JNICALL Java_net_java_games_joal_eax_EAXFactory_init
   (JNIEnv *env, jclass clazz) {
 #ifdef _WIN32
-	if(alIsExtensionPresent("EAX2.0")) {
-	   	eaxSet = alGetProcAddress((ALubyte*)"EAXSet");
-   		eaxGet = alGetProcAddress((ALubyte*)"EAXGet");
-	}
+  if (_ptr_alIsExtensionPresent == NULL) {
+    if (oalModule == NULL) {
+      oalModule = GetModuleHandle("OpenAL32");
+    }
+    _ptr_alIsExtensionPresent = (LPALISEXTENSIONPRESENT) GetProcAddress(oalModule, "alIsExtensionPresent");
+    _ptr_alGetProcAddress     = (LPALGETPROCADDRESS)     GetProcAddress(oalModule, "alGetProcAddress");
+  }
+
+  if (_ptr_alIsExtensionPresent != NULL &&
+      _ptr_alGetProcAddress     != NULL) {
+    if ((*_ptr_alIsExtensionPresent)("EAX2.0")) {
+      eaxSet = (*_ptr_alGetProcAddress)((ALubyte*)"EAXSet");
+      eaxGet = (*_ptr_alGetProcAddress)((ALubyte*)"EAXGet");
+    }
+  }
 #endif
 }

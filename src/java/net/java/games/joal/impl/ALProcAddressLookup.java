@@ -43,6 +43,30 @@ public class ALProcAddressLookup {
   private static volatile boolean          alTableInitialized = false;
   private static final ALCProcAddressTable alcTable = new ALCProcAddressTable();
   private static volatile boolean          alcTableInitialized = false;
+  private static final DynamicLookup       lookup   = new DynamicLookup();
+  private static volatile NativeLibrary    openAL   = null;
+
+  static class DynamicLookup implements DynamicLookupHelper {
+    public long dynamicLookupFunction(String functionName) {
+      // At some point this may require an OpenAL context to be
+      // current as we will actually use alGetProcAddress. Since
+      // this routine is currently broken and there are no
+      // per-context function pointers anyway we could actually do
+      // this work anywhere.
+      if (openAL == null) {
+        // We choose not to search the system path first because we
+        // bundle a very recent version of OpenAL which we would like
+        // to override existing installations
+        openAL = NativeLibrary.open("OpenAL32", "openal", "openal",
+                                    false,
+                                    ALProcAddressLookup.class.getClassLoader());
+        if (openAL == null) {
+          throw new RuntimeException("Unable to find and load OpenAL library");
+        }
+      }
+      return openAL.lookupFunction(functionName);
+    }
+  }
   
   public static void resetALProcAddressTable() {
     if (!alTableInitialized) {
@@ -55,8 +79,7 @@ public class ALProcAddressLookup {
           // this work anywhere. We should also in theory have
           // per-ALcontext ALProcAddressTables and per-ALCdevice
           // ALCProcAddressTables.
-          ALImpl impl = (ALImpl) ALFactory.getAL();
-          ProcAddressHelper.resetProcAddressTable(alTable, impl);
+          ProcAddressHelper.resetProcAddressTable(alTable, lookup);
           alTableInitialized = true;
         }
       }
@@ -74,8 +97,7 @@ public class ALProcAddressLookup {
           // this work anywhere. We should also in theory have
           // per-ALcontext ALProcAddressTables and per-ALCdevice
           // ALCProcAddressTables.
-          ALImpl impl = (ALImpl) ALFactory.getAL();
-          ProcAddressHelper.resetProcAddressTable(alcTable, impl);
+          ProcAddressHelper.resetProcAddressTable(alcTable, lookup);
           alcTableInitialized = true;
         }
       }
