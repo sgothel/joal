@@ -281,7 +281,7 @@
       <property name="java.includes.dir.platform"           value="${java.includes.dir.macosx}" />
 
       <property name="compiler.cfg.id"                      value="compiler.cfg.macosx" /> 
-      <property name="linker.cfg.id"                        value="linker.cfg.macosx.joal" /> 
+      <property name="linker.cfg.id"                        value="linker.cfg.macosx" /> 
     </target>
 
     <target name="declare.freebsd" if="isFreeBSD">
@@ -434,11 +434,6 @@
     <target name="c.configure" depends="gluegen.cpptasks.configure.compiler">
       <!-- linker configuration -->
  
-      <linker id="linker.cfg.macosx.joal" extends="linker.cfg.macosx">
-        <linkerarg value="-framework" />
-        <linkerarg value="OpenAL" />
-      </linker>
-
       <patternset id="c.src.files.joal">
         <include name="${rootrel.src.c}/*.c"/>
         <include name="${rootrel.generated.c.joal}/*.c"/>

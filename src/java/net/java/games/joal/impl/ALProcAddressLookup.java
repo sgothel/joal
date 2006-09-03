@@ -57,7 +57,7 @@ public class ALProcAddressLookup {
         // We choose not to search the system path first because we
         // bundle a very recent version of OpenAL which we would like
         // to override existing installations
-        openAL = NativeLibrary.open("OpenAL32", "openal", "openal",
+        openAL = NativeLibrary.open("OpenAL32", "openal", "OpenAL",
                                     false,
                                     ALProcAddressLookup.class.getClassLoader());
         if (openAL == null) {
