@@ -566,6 +566,47 @@
                  linkoffline="${javadoc.link} 142-packages" />
     </target>
 
+    <!-- Build zip archives for developers, both source and binaries -->
+    <target name="zip">
+        <!-- Clean up and create temporary directory -->
+        <delete dir="../build/tmp" failonerror="false" />
+        <delete>
+            <fileset dir="../build">
+                <include name="*.zip" />
+            </fileset>
+        </delete>
+        <tstamp>
+             <format property="timestamp" pattern="yyyyMMdd"/>
+        </tstamp>
+        <property name="tmp.version" value="${base_version}-pre-${timestamp}" />
+        <property name="joal.tmp.version" value="joal-${tmp.version}-${os.and.arch}" />
+        <mkdir dir="../build/tmp/${joal.tmp.version}/lib" />
+        <copy file="../build/joal.jar" todir="../build/tmp/${joal.tmp.version}/lib" />
+        <copy file="../../gluegen/build/gluegen-rt.jar" todir="../build/tmp/${joal.tmp.version}/lib" />
+        <copy todir="../build/tmp/${joal.tmp.version}/lib">
+            <fileset dir="../build/obj">
+                <include name="*.${native.library.suffix}" />
+            </fileset>
+        </copy>
+        <copy todir="../build/tmp/${joal.tmp.version}/lib">
+            <fileset dir="../../gluegen/build/obj">
+                <include name="*.${native.library.suffix}" />
+            </fileset>
+        </copy>
+        <copy file="../README.txt" todir="../build/tmp/${joal.tmp.version}" />
+        <copy file="../LICENSE.txt" todir="../build/tmp/${joal.tmp.version}" />
+        <zip destfile="../build/${joal.tmp.version}.zip"
+             basedir="../build/tmp"
+             includes="${joal.tmp.version}/**" />
+	<!-- Build a source archive as well -->
+        <delete file="../build/joal-${tmp.version}-src.zip" />
+        <zip destfile="../build/joal-${tmp.version}-src.zip"
+	     basedir="../.."
+	     includes="gluegen/LICENSE.txt,gluegen/doc/**,gluegen/make/**,gluegen/src/**,joal/README.txt,joal/LICENSE.txt,joal/make/**,joal/src/**,joal/build/gensrc/classes/net/java/games/joal/AL.java,joal/build/gensrc/classes/net/java/games/joal/ALC.java,joal/build/gensrc/classes/net/java/games/joal/ALCConstants.java,joal/build/gensrc/classes/net/java/games/joal/ALCcontext.java,joal/build/gensrc/classes/net/java/games/joal/ALCdevice.java,joal/build/gensrc/classes/net/java/games/joal/ALConstants.java"
+	     excludes="**/*.class,**/*~"
+	     />
+    </target>
+
     <!-- ================================================================== -->
     <!--
        - Build the Java Web Start binaries out of native library builds for
@@ -589,30 +630,39 @@
     </target>
 
     <target name="dist" depends="dist.check">
-        <delete file="${joal.dist.dir}/joal-src.zip" />
         <delete>
-            <fileset dir="${joal.dist.dir}" includes="joal-natives-*.jar" />
+            <fileset dir="${joal.dist.dir}" includes="*.jar" />
+            <fileset dir="${joal.dist.dir}" includes="*.zip" />
         </delete>
+        <!-- Copy Java Web Start jar files, source archive(s) and binary zip archives -->
         <copy todir="${joal.dist.dir}">
            <fileset dir="${joal.dist.dir}/joal-win/32">
              <include name="*.jar" />
+             <include name="*.zip" />
            </fileset>
            <fileset dir="${joal.dist.dir}/joal-linux/32">
              <include name="*.jar" />
+             <!-- Pick up source archive from Linux build as well -->
+             <include name="*.zip" />
            </fileset>
            <fileset dir="${joal.dist.dir}/joal-macosx/ppc">
              <include name="*.jar" />
+             <include name="*.zip" />
            </fileset>
            <fileset dir="${joal.dist.dir}/joal-macosx/fat">
              <include name="*.jar" />
+             <include name="*.zip" />
            </fileset>
            <!-- NOTE: No OpenAL for Windows/AMD64, Linux/AMD64 or Solaris at the moment -->
         </copy>
-	<!-- Build a source archive as well -->
-        <zip destfile="${joal.dist.dir}/joal-src.zip"
-	     basedir="../.."
-	     includes="gluegen/LICENSE.txt,gluegen/doc/**,gluegen/make/**,gluegen/src/**,joal/README.txt,joal/make/**,joal/src/**"
-	     excludes="**/*.class,**/*~"
+        <!-- Build one archive containing all jars related to Java Web Start -->
+        <tstamp>
+             <format property="timestamp" pattern="yyyyMMdd"/>
+        </tstamp>
+        <property name="tmp.version" value="${base_version}-pre-${timestamp}" />
+        <zip destfile="${joal.dist.dir}/joal-${tmp.version}-webstart.zip"
+	     basedir="${joal.dist.dir}"
+	     includes="*.jar"
 	     />
     </target>
 
@@ -639,6 +689,9 @@
         
         <!-- Compile the native C sources . -->
         <antcall target="c.build.joal" inheritRefs="true" />
+
+        <!-- Build zip archives. -->
+        <antcall target="zip" inheritRefs="true" />
     </target>
 
     <!-- ================================================================== -->
