@@ -38,11 +38,6 @@ package net.java.games.joal.eax;
  *
  */
 public final class EAXFactory {
-
-	static {
-		System.loadLibrary("joal");
-	}
-	
 	private static int SOURCE_GUID;
 	private static int LISTENER_GUID;
 
