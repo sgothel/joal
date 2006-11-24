@@ -32,7 +32,7 @@
 <project name="JOAL" basedir="." default="all">
     
   <!-- This is the version of JOAL you are building -->
-  <property name="base_version" value="1.0.0"/>
+  <property name="base_version" value="1.1.0"/>
 
   <!-- Pull in GlueGen cpptasks build file -->
   <property name="gluegen.root" value="../../gluegen" />
@@ -328,12 +328,6 @@
         <!-- Run the GlueGen build to ensure that the GlueGen ANT task
            - has been built. -->
         <ant antfile="${gluegen.build.xml}" dir="${gluegen.make.dir}" target="all" inheritAll="false" />
-
-        <!-- Extract the GlueGen runtime classes into our build directory.
-           - We currently bundle them into jogl.jar; they could be kept in
-           - a separate jar, but this makes deployment simpler.
-           -->
-        <unjar src="${gluegen-rt.jar}" dest="${classes}" />
     </target>
 
     <!-- ================================================================== -->
@@ -420,7 +414,7 @@
        - Compile the original and generated source.
       -->
     <target name="java.compile" depends="java.generate">
-        <javac destdir="${classes}" source="1.4" debug="true" debuglevel="source,lines">
+        <javac destdir="${classes}" classpath="${gluegen-rt.jar}" source="1.4" debug="true" debuglevel="source,lines">
             <src path="${src.java}" />
             <src path="${src.generated.java}" />
         </javac>
@@ -582,7 +576,7 @@
         <property name="joal.tmp.version" value="joal-${tmp.version}-${os.and.arch}" />
         <mkdir dir="../build/tmp/${joal.tmp.version}/lib" />
         <copy file="../build/joal.jar" todir="../build/tmp/${joal.tmp.version}/lib" />
-        <copy file="../../gluegen/build/gluegen-rt.jar" todir="../build/tmp/${joal.tmp.version}/lib" />
+        <copy file="${gluegen-rt.jar}" todir="../build/tmp/${joal.tmp.version}/lib" />
         <copy todir="../build/tmp/${joal.tmp.version}/lib">
             <fileset dir="../build/obj">
                 <include name="*.${native.library.suffix}" />
