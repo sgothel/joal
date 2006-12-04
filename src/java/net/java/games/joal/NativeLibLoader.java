@@ -41,28 +41,43 @@ import java.security.*;
 import com.sun.gluegen.runtime.*;
 
 class NativeLibLoader {
-  static {
-    AccessController.doPrivileged(new PrivilegedAction() {
-        public Object run() {
-          // Workaround for problem in OpenAL32.dll, which is actually
-          // the "wrapper" DLL which looks for real OpenAL
-          // implementations like nvopenal.dll and "*oal.dll".
-          // joal.dll matches this wildcard and a bug in OpenAL32.dll
-          // causes a call through a null function pointer.
-          System.loadLibrary("joal_native");
+  private static volatile boolean loadingEnabled = true;
+  private static volatile boolean didLoading;
 
-          // Workaround for 4845371.
-          // Make sure the first reference to the JNI GetDirectBufferAddress is done
-          // from a privileged context so the VM's internal class lookups will succeed.
-          // FIXME: need to figure out an appropriate entry point to call
-          //          JAWT jawt = new JAWT();
-          //          JAWTFactory.JAWT_GetAWT(jawt);
+  public static void disableLoading() {
+    loadingEnabled = false;
+  }
 
-          return null;
-        }
-      });
+  public static void enableLoading() {
+    loadingEnabled = true;
   }
 
   public static void load() {
+    if (!didLoading && loadingEnabled) {
+      synchronized (NativeLibLoader.class) {
+        if (!didLoading && loadingEnabled) {
+          didLoading = true;
+          AccessController.doPrivileged(new PrivilegedAction() {
+              public Object run() {
+                // Workaround for problem in OpenAL32.dll, which is actually
+                // the "wrapper" DLL which looks for real OpenAL
+                // implementations like nvopenal.dll and "*oal.dll".
+                // joal.dll matches this wildcard and a bug in OpenAL32.dll
+                // causes a call through a null function pointer.
+                System.loadLibrary("joal_native");
+
+                // Workaround for 4845371.
+                // Make sure the first reference to the JNI GetDirectBufferAddress is done
+                // from a privileged context so the VM's internal class lookups will succeed.
+                // FIXME: need to figure out an appropriate entry point to call
+                //          JAWT jawt = new JAWT();
+                //          JAWTFactory.JAWT_GetAWT(jawt);
+
+                return null;
+              }
+            });
+        }
+      }
+    }
   }
 }
