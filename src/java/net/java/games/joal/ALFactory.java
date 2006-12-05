@@ -35,8 +35,6 @@ package net.java.games.joal;
 
 import net.java.games.joal.impl.*;
 
-import com.sun.gluegen.runtime.*;
-
 /**
  * This class provides factory methods for generating AL and ALC objects.
  *
