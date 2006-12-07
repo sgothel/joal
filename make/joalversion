@@ -1,5 +1,5 @@
 Specification-Title: Java Bindings for OpenAL
-Specification-Version: 1.0.0-pre
+Specification-Version: 1.1.0
 Specification-Vendor: java.net JOAL community
 Implementation-Title: Java Bindings for OpenAL Runtime Environment
 Implementation-Version: @VERSION@
