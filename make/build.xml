@@ -39,7 +39,7 @@
   <import file="${gluegen.root}/make/gluegen-cpptasks.xml" />
 
   <!-- Uncomment this property to perform a full release build -->
-  <!-- property name="release-build" value="true" / -->
+  <property name="release-build" value="true" />
 
   <!-- Set up version string (used in several places) based on whether we're
        doing a release build or not -->
