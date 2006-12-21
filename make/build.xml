@@ -32,11 +32,29 @@
 <project name="JOAL" basedir="." default="all">
     
   <!-- This is the version of JOAL you are building -->
-  <property name="base_version" value="1.1.0-beta4"/>
+  <property name="base_version" value="1.1.0"/>
 
   <!-- Pull in GlueGen cpptasks build file -->
   <property name="gluegen.root" value="../../gluegen" />
   <import file="${gluegen.root}/make/gluegen-cpptasks.xml" />
+
+  <!-- Uncomment this property to perform a full release build -->
+  <!-- property name="release-build" value="true" / -->
+
+  <!-- Set up version string (used in several places) based on whether we're
+       doing a release build or not -->
+  <target name="setup-version-string-release" if="release-build">
+      <property name="version-string" value="${base_version}" />
+  </target>
+
+  <target name="setup-version-string-prerelease" unless="release-build">
+      <tstamp>
+           <format property="timestamp" pattern="yyyyMMdd"/>
+      </tstamp>
+      <property name="version-string" value="${base_version}-pre-${timestamp}" />
+  </target>
+
+    <target name="setup-version-string" depends="setup-version-string-release,setup-version-string-prerelease" />
 
     <!-- ================================================================== -->
     <!-- 
@@ -513,16 +531,14 @@
     <!--
        - Build the joal.jar file.
       -->
-    <target name="jar" depends="java.compile">
+    <target name="jar" depends="java.compile,setup-version-string">
         <!-- Prepare the manifest -->
-        <tstamp>
-             <format property="timestamp" pattern="yyyyMMdd-HH:mm:ss"/>
-        </tstamp>
         <copy file="joalversion"
           tofile="tempversion"
           overwrite="true">
           <filterset>
-              <filter token="VERSION" value="${base_version}-pre-${timestamp}"/>
+              <filter token="VERSION" value="${version-string}"/>
+              <filter token="BASEVERSION" value="${base_version}"/>
           </filterset>
         </copy>
 
@@ -561,7 +577,7 @@
     </target>
 
     <!-- Build zip archives for developers, both source and binaries -->
-    <target name="zip">
+    <target name="zip" depends="setup-version-string">
         <!-- Clean up and create temporary directory -->
         <delete dir="../build/tmp" failonerror="false" />
         <delete>
@@ -569,11 +585,7 @@
                 <include name="*.zip" />
             </fileset>
         </delete>
-        <tstamp>
-             <format property="timestamp" pattern="yyyyMMdd"/>
-        </tstamp>
-        <property name="tmp.version" value="${base_version}-pre-${timestamp}" />
-        <property name="joal.tmp.version" value="joal-${tmp.version}-${os.and.arch}" />
+        <property name="joal.tmp.version" value="joal-${version-string}-${os.and.arch}" />
         <mkdir dir="../build/tmp/${joal.tmp.version}/lib" />
         <copy file="../build/joal.jar" todir="../build/tmp/${joal.tmp.version}/lib" />
         <copy file="${gluegen-rt.jar}" todir="../build/tmp/${joal.tmp.version}/lib" />
@@ -593,8 +605,8 @@
              basedir="../build/tmp"
              includes="${joal.tmp.version}/**" />
 	<!-- Build a source archive as well -->
-        <delete file="../build/joal-${tmp.version}-src.zip" />
-        <zip destfile="../build/joal-${tmp.version}-src.zip"
+        <delete file="../build/joal-${version-string}-src.zip" />
+        <zip destfile="../build/joal-${version-string}-src.zip"
 	     basedir="../.."
 	     includes="gluegen/LICENSE.txt,gluegen/doc/**,gluegen/make/**,gluegen/src/**,joal/README.txt,joal/LICENSE.txt,joal/make/**,joal/src/**,joal/build/gensrc/classes/net/java/games/joal/AL.java,joal/build/gensrc/classes/net/java/games/joal/ALC.java,joal/build/gensrc/classes/net/java/games/joal/ALCConstants.java,joal/build/gensrc/classes/net/java/games/joal/ALCcontext.java,joal/build/gensrc/classes/net/java/games/joal/ALCdevice.java,joal/build/gensrc/classes/net/java/games/joal/ALConstants.java"
 	     excludes="**/*.class,**/*~"
@@ -623,7 +635,7 @@
         </fail>
     </target>
 
-    <target name="dist" depends="dist.check">
+    <target name="dist" depends="dist.check,setup-version-string">
         <delete>
             <fileset dir="${joal.dist.dir}" includes="*.jar" />
             <fileset dir="${joal.dist.dir}" includes="*.zip" />
@@ -653,8 +665,7 @@
         <tstamp>
              <format property="timestamp" pattern="yyyyMMdd"/>
         </tstamp>
-        <property name="tmp.version" value="${base_version}-pre-${timestamp}" />
-        <zip destfile="${joal.dist.dir}/joal-${tmp.version}-webstart.zip"
+        <zip destfile="${joal.dist.dir}/joal-${version-string}-webstart.zip"
 	     basedir="${joal.dist.dir}"
 	     includes="*.jar"
 	     />
