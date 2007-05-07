@@ -42,7 +42,7 @@ import java.nio.Buffer;
  */
 public class EAX implements EAXConstants {
     static {
-        System.loadLibrary("joal");
+        System.loadLibrary("joal_native");
     }
 
 	public static final int SOURCE 		= 0;
