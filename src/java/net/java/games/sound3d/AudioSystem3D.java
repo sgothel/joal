@@ -37,7 +37,7 @@ import net.java.games.joal.*;
 import net.java.games.joal.util.WAVData;
 import net.java.games.joal.util.WAVLoader;
 
-import java.io.IOException;
+import java.io.*;
 
 import javax.sound.sampled.UnsupportedAudioFileException;
 
@@ -137,7 +137,7 @@ public class AudioSystem3D {
    *
    * @throws IOException If the file cannot be found or some other IO error
    * occurs. 
-   * @throws UnsupportedAudioFileException If the format of the sudio data is
+   * @throws UnsupportedAudioFileException If the format of the audio data is
    * not supported
    */
   public static Buffer loadBuffer(String filename)
@@ -153,8 +153,37 @@ public class AudioSystem3D {
   }
 
   /**
+   * Loads a Sound3D buffer with the specified audio file.
+   *
+   * @param stream contains the stream associated with the audio file.
+   *
+   * @return a new Sound3D buffer containing the audio data from the
+   * passed stream.
+   *
+   * @throws IOException If the stream cannot be read or some other IO error
+   * occurs. 
+   * @throws UnsupportedAudioFileException If the format of the audio data is
+   * not supported
+   */
+  public static Buffer loadBuffer(InputStream stream)
+    throws IOException, UnsupportedAudioFileException {
+    Buffer result;
+    Buffer[] tmp = generateBuffers(1);
+    result = tmp[0];
+ 
+    if (!(stream instanceof BufferedInputStream)) {
+      stream = new BufferedInputStream(stream);
+    }
+    WAVData wd = WAVLoader.loadFromStream(stream);
+ 
+    result.configure(wd.data, wd.format, wd.freq);
+ 
+    return result;
+  }
+
+  /**
    * Loads a Sound3D Source with the specified audio file. This is
-   * functionally equivelant to generateSource(loadBuffer(fileName));
+   * functionally equivalent to generateSource(loadBuffer(fileName));
    *
    * @param filename the name of the file to load.
    *
@@ -163,12 +192,33 @@ public class AudioSystem3D {
    *
    * @throws IOException If the file cannot be found or some other IO error
    * occurs. 
-   * @throws UnsupportedAudioFileException If the format of the sudio data is
+   * @throws UnsupportedAudioFileException If the format of the audio data is
    * not supported
    */
   public static Source loadSource(String filename)
     throws IOException, UnsupportedAudioFileException {
     Buffer buffer = loadBuffer(filename);
+
+    return generateSource(buffer);
+  }
+
+  /**
+   * Loads a Sound3D Source with the specified audio stream. This is
+   * functionally equivalent to generateSource(loadBuffer(stream));
+   *
+   * @param stream contains the stream associated with the audio file.
+   *
+   * @return a new Sound3D Source containing the audio data from the
+   * passed stream.
+   *
+   * @throws IOException If the file cannot be found or some other IO error
+   * occurs. 
+   * @throws UnsupportedAudioFileException If the format of the audio data is
+   * not supported
+   */
+  public static Source loadSource(InputStream stream)
+    throws IOException, UnsupportedAudioFileException {
+    Buffer buffer = loadBuffer(stream);
 
     return generateSource(buffer);
   }
