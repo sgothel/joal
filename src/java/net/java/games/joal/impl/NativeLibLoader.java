@@ -36,6 +36,7 @@
 
 package net.java.games.joal.impl;
 
+import java.lang.reflect.Method;
 import java.security.*;
 
 import com.sun.gluegen.runtime.*;
@@ -66,12 +67,12 @@ public class NativeLibLoader {
                 // implementations like nvopenal.dll and "*oal.dll".
                 // joal.dll matches this wildcard and a bug in OpenAL32.dll
                 // causes a call through a null function pointer.
-                System.loadLibrary("joal_native");
+                loadLibraryInternal("joal_native");
 
                 // Workaround for 4845371.
                 // Make sure the first reference to the JNI GetDirectBufferAddress is done
                 // from a privileged context so the VM's internal class lookups will succeed.
-                // FIXME: need to figure out an appropriate entry point to call
+                // FIXME: need to figure out an appropriate entry point to call for JOAL
                 //          JAWT jawt = new JAWT();
                 //          JAWTFactory.JAWT_GetAWT(jawt);
 
@@ -80,6 +81,23 @@ public class NativeLibLoader {
             });
         }
       }
+    }
+  }
+
+  private static void loadLibraryInternal(String libraryName) {
+    String sunAppletLauncher = System.getProperty("sun.jnlp.applet.launcher");
+    boolean usingJNLPAppletLauncher = Boolean.valueOf(sunAppletLauncher).booleanValue();
+
+    if (usingJNLPAppletLauncher) {
+        try {
+          Class jnlpAppletLauncherClass = Class.forName("org.jdesktop.applet.util.JNLPAppletLauncher");
+          Method jnlpLoadLibraryMethod = jnlpAppletLauncherClass.getDeclaredMethod("loadLibrary", new Class[] { String.class });
+          jnlpLoadLibraryMethod.invoke(null, new Object[] { libraryName });
+        } catch (Exception e) {
+          throw new RuntimeException(e);
+        }
+    } else {
+      System.loadLibrary(libraryName);
     }
   }
 }
