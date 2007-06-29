@@ -33,6 +33,8 @@
 
 package net.java.games.joal.impl;
 
+import java.lang.reflect.Field;
+
 import net.java.games.joal.*;
 import com.sun.gluegen.runtime.*;
 
@@ -80,6 +82,13 @@ public class ALProcAddressLookup {
           // per-ALcontext ALProcAddressTables and per-ALCdevice
           // ALCProcAddressTables.
           ProcAddressHelper.resetProcAddressTable(alTable, lookup);
+
+          // The above only manages to find addresses for the core OpenAL
+          // functions.  The below uses alGetProcAddress() to find the addresses
+          // of extensions such as EFX, just as in the C++ examples of the
+          // OpenAL 1.1 SDK.
+          useALGetProcAddress();
+
           alTableInitialized = true;
         }
       }
@@ -110,5 +119,41 @@ public class ALProcAddressLookup {
 
   public static ALCProcAddressTable getALCProcAddressTable() {
     return alcTable;
+  }
+
+
+  /**
+   * Retrieves the values of the OpenAL functions using alGetProcAddress().
+   */
+  private static void useALGetProcAddress() {
+    String addrOfPrefix = "_addressof_";
+    ALImpl al = (ALImpl) ALFactory.getAL();
+
+    Field[] fields = ALProcAddressTable.class.getFields();
+    for (int i = 0; i < fields.length; i++) {
+      Field field = fields[i];
+
+      // Skip non-address fields
+      String fieldname = field.getName();
+      if (!fieldname.startsWith(addrOfPrefix)) {
+        continue;
+      }
+      try {
+        String functionname = fieldname.substring(addrOfPrefix.length());
+        long fieldval = field.getLong(alTable);
+
+        // Skip fields which have already been valued
+        if (fieldval != 0) {
+          continue;
+        }
+
+        // Get the address
+        long procAddressVal = al.alGetProcAddress(functionname);
+        field.setLong(alTable, procAddressVal);
+      }
+      catch (Exception ex) {
+        throw new RuntimeException("Unable to repopulate ALProcAddressTable values", ex);
+      }
+    }
   }
 }
