@@ -34,12 +34,12 @@
   <!-- This is the version of JOAL you are building -->
   <property name="base_version" value="1.1.2"/>
 
+  <!-- Uncomment this property to perform a full release build -->
+  <!-- property name="release-build" value="true" / -->
+
   <!-- Pull in GlueGen cpptasks build file -->
   <property name="gluegen.root" value="../../gluegen" />
   <import file="${gluegen.root}/make/gluegen-cpptasks.xml" />
-
-  <!-- Uncomment this property to perform a full release build -->
-  <property name="release-build" value="true" />
 
   <!-- Set up version string (used in several places) based on whether we're
        doing a release build or not -->
