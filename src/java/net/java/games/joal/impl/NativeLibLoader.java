@@ -36,6 +36,7 @@
 
 package net.java.games.joal.impl;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.security.*;
 
@@ -94,7 +95,17 @@ public class NativeLibLoader {
           Method jnlpLoadLibraryMethod = jnlpAppletLauncherClass.getDeclaredMethod("loadLibrary", new Class[] { String.class });
           jnlpLoadLibraryMethod.invoke(null, new Object[] { libraryName });
         } catch (Exception e) {
-          throw new RuntimeException(e);
+          Throwable t = e;
+          if (t instanceof InvocationTargetException) {
+            t = ((InvocationTargetException) t).getTargetException();
+          }
+          if (t instanceof Error)
+            throw (Error) t;
+          if (t instanceof RuntimeException) {
+            throw (RuntimeException) t;
+          }
+          // Throw UnsatisfiedLinkError for best compatibility with System.loadLibrary()
+          throw (UnsatisfiedLinkError) new UnsatisfiedLinkError().initCause(e);
         }
     } else {
       System.loadLibrary(libraryName);
