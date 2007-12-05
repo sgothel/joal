@@ -72,6 +72,7 @@ public class Buffer {
      */
     public void configure(ByteBuffer data, int format, int freq) {
         if (!isConfigured) {
+            this.data = data;
             al.alBufferData(bufferID, format, data, data.capacity(), freq);
         }
     }
