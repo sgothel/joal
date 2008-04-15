@@ -35,7 +35,7 @@
   <property name="base_version" value="1.1.2"/>
 
   <!-- Uncomment this property to perform a full release build -->
-  <!-- property name="release-build" value="true" / -->
+  <property name="release-build" value="true" />
 
   <!-- Pull in GlueGen cpptasks build file -->
   <property name="gluegen.root" value="../../gluegen" />
