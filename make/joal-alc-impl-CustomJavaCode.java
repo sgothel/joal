@@ -3,7 +3,7 @@ public java.lang.String alcGetString(ALCdevice device, int param) {
     throw new ALException("Call alcGetDeviceSpecifiers to fetch all available device names");
   }
 
-  ByteBuffer buf = alcGetStringImpl(device, param);
+  java.nio.ByteBuffer buf = alcGetStringImpl(device, param);
   if (buf == null) {
     return null;
   }
@@ -29,7 +29,7 @@ public java.lang.String[] alcGetCaptureDeviceSpecifiers() {
 }
 
 private java.lang.String[] getDoubleNullTerminatedString(int which) {
-  ByteBuffer buf = alcGetStringImpl(null, which);
+  java.nio.ByteBuffer buf = alcGetStringImpl(null, which);
   if (buf == null) {
     return null;
   }
