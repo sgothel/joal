@@ -32,10 +32,10 @@
 <project name="JOAL" basedir="." default="all">
     
   <!-- This is the version of JOAL you are building -->
-  <property name="base_version" value="1.1.2"/>
+  <property name="base_version" value="1.1.3"/>
 
   <!-- Uncomment this property to perform a full release build -->
-  <property name="release-build" value="true" />
+  <!-- property name="release-build" value="true" / -->
 
   <!-- Pull in GlueGen cpptasks build file -->
   <property name="gluegen.root" value="../../gluegen" />
