@@ -685,7 +685,7 @@
             <fileset dir="${javadoc}" />
             <fileset dir="${javadoc.dev}" />
         </delete>
-        <ant dir="../unit_tests" target="clean"/>
+        <ant dir="../test" target="clean"/>
     </target>
 
     <!-- ================================================================== -->
@@ -708,9 +708,9 @@
        - Build and run tests.
       -->
 
-    <target name="runtests" depends="all">
-        <ant dir="../unit_tests" target="compile"/>
-    	<ant dir="../unit_tests" target="runOpenALTest"/>
-    	<ant dir="../unit_tests" target="runSound3DTest"/>
+    <target name="test" depends="all">
+        <ant dir="../test" target="compile"/>
+    	<ant dir="../test" target="runOpenALTest"/>
+    	<ant dir="../test" target="runSound3DTest"/>
     </target>
 </project>

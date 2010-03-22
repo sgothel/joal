@@ -1,8 +1,8 @@
 Specification-Title: Java Binding for OpenAL
 Specification-Version: @BASEVERSION@
-Specification-Vendor: java.net JOAL community
-Implementation-Title: Java Bindings for OpenAL Runtime Environment
+Specification-Vendor: JogAmp.org
+Implementation-Title: Java Bindings for the OpenAL API
 Implementation-Version: @VERSION@
-Implementation-Vendor: java.net JOAL community
+Implementation-Vendor: JogAmp.org
 Extension-Name: net.java.games.joal
-Implementation-Vendor-Id: com.sun
+Implementation-Vendor-Id: JogAmp.org
