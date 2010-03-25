@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-   - Ant build for JOAL.  This build has been tested with ANT 1.6.2.  The
+   - Ant build for JOAL.  This build has been tested with ANT 1.7.1.  The
    - optional.jar that contains the optional ANT tasks must be in the ANT
    - classpath (typically the ant/lib directory).
    -
@@ -30,7 +30,7 @@
    - the original OS detection code.
    -->
 <project name="JOAL" basedir="." default="all">
-    
+
   <!-- This is the version of JOAL you are building -->
   <property name="base_version" value="1.1.3"/>
 
@@ -61,7 +61,7 @@
               value="/usr/share/java/antlr.jar"/>
 
     <!-- ================================================================== -->
-    <!-- 
+    <!--
        - Load user properties which override build defaults.
       -->
     <target name="load.user.properties">
@@ -79,19 +79,19 @@
     </target>
 
     <!-- ================================================================== -->
-    <!-- 
+    <!--
        - Base initialization and detection of operating system.
       -->
     <target name="base.init" depends="load.user.properties,gluegen.cpptasks.detect.os">
         <!-- Set the project root directory to be up one directory. -->
         <property name="project.root" value=".." />
-    
+
         <!-- Set the configuration and build files to this directory. -->
         <property name="make" value="." />
     </target>
 
     <!-- ================================================================== -->
-    <!-- 
+    <!--
        - Set up java.home.dir appropriately on all platforms.
       -->
     <target name="setup.java.home.dir.nonmacosx" depends="base.init" unless="isOSX">
@@ -104,21 +104,21 @@
     <target name="setup.java.home.dir" depends="setup.java.home.dir.nonmacosx,setup.java.home.dir.macosx"/>
 
     <!-- ================================================================== -->
-    <!-- 
+    <!--
        - Declare all paths and user defined variables.
       -->
     <target name="declare.common" description="Declare properties" depends="setup.java.home.dir, gluegen.cpptasks.detect.compiler">
-        <!-- The location and name of the configuration ANT file that will 
+        <!-- The location and name of the configuration ANT file that will
            - validate to ensure that all user-define variables are set. -->
         <property name="validate.user.properties" value="${make}/validate-properties.xml" />
-           
+
         <!-- GlueGen properties. -->
         <!-- NOTE that these require a checked-out GlueGen workspace as a -->
         <!-- sibling of the JOAL workspace. -->
-        <property name="gluegen.make.dir" value="../../gluegen/make" />
+        <property name="gluegen.make.dir" value="${gluegen.root}/make" />
         <property name="gluegen.build.xml" value="${gluegen.make.dir}/build.xml" />
-        <property name="gluegen.jar" value="../../gluegen/build/gluegen.jar" />
-        <property name="gluegen-rt.jar" value="../../gluegen/build/gluegen-rt.jar" />
+        <property name="gluegen.jar" value="${gluegen.root}/build/gluegen.jar" />
+        <property name="gluegen-rt.jar" value="${gluegen.root}/build/gluegen-rt.jar" />
 
         <!-- Create the classpath that includes GlueGen and
            - ANTLR. This requires the user-defined "antlr.jar"
@@ -147,12 +147,12 @@
         <property name="src.c" value="${project.root}/${rootrel.src.c}" />
         <property name="src.java" value="${project.root}/${rootrel.src.java}" />
         <property name="build" value="${project.root}/${rootrel.build}" />
-        
+
         <!-- The generated source directories. -->
         <property name="src.generated" value="${build}/gensrc" />
         <property name="src.generated.java" value="${src.generated}/classes" />
         <property name="src.generated.c" value="${src.generated}/native/joal" />
-        
+
         <!-- The compiler output directories. -->
         <property name="classes" value="${build}/classes" />
         <property name="obj"      value="${project.root}/${rootrel.obj}" />
@@ -200,7 +200,7 @@
         <property name="joal.alc.cfg" value="${config}/joal-alc.cfg" />
         <property name="joal.alc.constants.cfg" value="${config}/joal-alc-constants.cfg" />
     </target>
-    
+
     <!-- ================================================================== -->
     <!--
        - Platform specific declares.
@@ -210,13 +210,13 @@
       <property name="compiler.cfg.id"                      value="compiler.cfg.win32.msvc" />
       <property name="linker.cfg.id"                        value="linker.cfg.win32.msvc" />
     </target>
-    
+
     <target name="declare.win32.vc7" if="isVC7">
       <echo message="Win32.VC7" />
       <property name="compiler.cfg.id"                      value="compiler.cfg.win32.msvc" />
       <property name="linker.cfg.id"                        value="linker.cfg.win32.msvc" />
     </target>
-    
+
     <target name="declare.win32.vc8" if="isVC8">
       <echo message="Win32.VC8" />
       <property name="compiler.cfg.id"                      value="compiler.cfg.win32.msvc" />
@@ -228,7 +228,7 @@
       <property name="compiler.cfg.id"                      value="compiler.cfg.win32.msvc" />
       <property name="linker.cfg.id"                        value="linker.cfg.win32.msvc" />
     </target>
-    
+
     <target name="declare.win32.mingw" if="isMingw">
       <echo message="Win32.MingW" />
       <property name="compiler.cfg.id"                      value="compiler.cfg.win32.mingw" />
@@ -243,24 +243,24 @@
       <echo message="Linux.x86" />
       <property name="java.includes.dir.platform"           value="${java.includes.dir.linux}" />
 
-      <property name="compiler.cfg.id"                      value="compiler.cfg.linux" /> 
-      <property name="linker.cfg.id"                        value="linker.cfg.linux" /> 
+      <property name="compiler.cfg.id"                      value="compiler.cfg.linux" />
+      <property name="linker.cfg.id"                        value="linker.cfg.linux" />
     </target>
-    
+
     <target name="declare.linux.amd64" if="isLinuxAMD64">
       <echo message="Linux.AMD64" />
       <property name="java.includes.dir.platform"           value="${java.includes.dir.linux}" />
 
-      <property name="compiler.cfg.id"                      value="compiler.cfg.linux.amd64" /> 
-      <property name="linker.cfg.id"                        value="linker.cfg.linux.amd64" /> 
+      <property name="compiler.cfg.id"                      value="compiler.cfg.linux.amd64" />
+      <property name="linker.cfg.id"                        value="linker.cfg.linux.amd64" />
     </target>
 
     <target name="declare.linux.ia64" if="isLinuxIA64">
       <echo message="Linux.IA64" />
       <property name="java.includes.dir.platform"           value="${java.includes.dir.linux}" />
 
-      <property name="compiler.cfg.id"                      value="compiler.cfg.linux" /> 
-      <property name="linker.cfg.id"                        value="linker.cfg.linux" /> 
+      <property name="compiler.cfg.id"                      value="compiler.cfg.linux" />
+      <property name="linker.cfg.id"                        value="linker.cfg.linux" />
     </target>
 
     <target name="declare.linux" depends="declare.linux.x86,declare.linux.amd64,declare.linux.ia64" if="isLinux" />
@@ -269,8 +269,8 @@
       <echo message="Solaris" />
       <property name="java.includes.dir.platform"           value="${java.includes.dir.solaris}" />
 
-      <property name="compiler.cfg.id"                      value="compiler.cfg.solaris" /> 
-      <property name="linker.cfg.id"                        value="linker.cfg.solaris" /> 
+      <property name="compiler.cfg.id"                      value="compiler.cfg.solaris" />
+      <property name="linker.cfg.id"                        value="linker.cfg.solaris" />
     </target>
 
     <target name="declare.solaris.sparcv9" if="isSolarisSparcv9">
@@ -280,14 +280,14 @@
       <property name="compiler.cfg.id"                      value="compiler.cfg.solaris.sparcv9" />
       <property name="linker.cfg.id"                        value="linker.cfg.solaris.sparcv9" />
     </target>
-   
+
 
     <target name="declare.solaris.amd64" if="isSolarisAMD64">
       <echo message="SolarisAMD64" />
       <property name="java.includes.dir.platform"           value="${java.includes.dir.solaris}" />
 
-      <property name="compiler.cfg.id"                      value="compiler.cfg.solaris.amd64" /> 
-      <property name="linker.cfg.id.core"                   value="linker.cfg.solaris.amd64" /> 
+      <property name="compiler.cfg.id"                      value="compiler.cfg.solaris.amd64" />
+      <property name="linker.cfg.id.core"                   value="linker.cfg.solaris.amd64" />
     </target>
 
     <target name="declare.macosx.ppc" if="isOSXPPC">
@@ -302,8 +302,8 @@
       <echo message="MacOSX" />
       <property name="java.includes.dir.platform"           value="${java.includes.dir.macosx}" />
 
-      <property name="compiler.cfg.id"                      value="compiler.cfg.macosx" /> 
-      <property name="linker.cfg.id"                        value="linker.cfg.macosx" /> 
+      <property name="compiler.cfg.id"                      value="compiler.cfg.macosx" />
+      <property name="linker.cfg.id"                        value="linker.cfg.macosx" />
     </target>
 
     <target name="declare.freebsd" if="isFreeBSD">
@@ -323,14 +323,14 @@
     </target>
 
     <!-- ================================================================== -->
-    <!-- 
+    <!--
        - Initialize all parameters required for the build and create any
        - required directories.
       -->
     <target name="init" depends="declare.common">
         <!-- Call the external config validator script to make sure the config is ok and consistent -->
         <ant antfile="${validate.user.properties}" inheritall="true"/>
-        
+
         <!-- Create the required output directories. -->
         <mkdir dir="${src.generated.java}" />
         <mkdir dir="${src.generated.c}" />
@@ -381,19 +381,19 @@
     </target>
 
     <!--
-       - Setup the generating ANT tasks and use it to generate the Java files 
-       - from the C GL headers.  This involves setting the taskdef and creating
+       - Setup the generating ANT tasks and use it to generate the Java files
+       - from the C AL headers.  This involves setting the taskdef and creating
        - the classpath reference id then running the task on each header.
       -->
     <target name="java.generate" depends="build.gluegen, java.generate.check" unless="java.generate.skip">
         <!-- Add the GlueGen task to ANT -->
         <taskdef name="gluegen" classname="com.sun.gluegen.ant.GlueGenTask"
                  classpathref="gluegen.classpath" />
-                 
+
         <!-- Use the GlueGen task to generate the Java files -->
 
 	<!-- Generate the AL interface class and implementation -->
-        <gluegen src="${stub.includes.openal}/al.c" 
+        <gluegen src="${stub.includes.openal}/al.c"
                  config="${joal.cfg}"
                  includeRefid="stub.includes.fileset.all"
                  emitter="com.sun.gluegen.procaddress.ProcAddressEmitter">
@@ -401,7 +401,7 @@
         </gluegen>
 
 	<!-- Generate the ALConstants interface class -->
-        <gluegen src="${stub.includes.openal}/al.c" 
+        <gluegen src="${stub.includes.openal}/al.c"
                  config="${joal.constants.cfg}"
                  includeRefid="stub.includes.fileset.all"
                  emitter="com.sun.gluegen.JavaEmitter">
@@ -409,7 +409,7 @@
         </gluegen>
 
 	<!-- Generate the ALC interface class and implementation -->
-        <gluegen src="${stub.includes.openal}/alc.h" 
+        <gluegen src="${stub.includes.openal}/alc.h"
                  config="${joal.alc.cfg}"
                  includeRefid="stub.includes.fileset.all"
                  emitter="com.sun.gluegen.procaddress.ProcAddressEmitter">
@@ -417,22 +417,22 @@
         </gluegen>
 
 	<!-- Generate the ALCConstants interface class -->
-        <gluegen src="${stub.includes.openal}/alc.h" 
+        <gluegen src="${stub.includes.openal}/alc.h"
                  config="${joal.alc.constants.cfg}"
                  includeRefid="stub.includes.fileset.all"
                  emitter="com.sun.gluegen.JavaEmitter">
             <classpath refid="gluegen.classpath" />
         </gluegen>
 
-        <!-- Inform the user that the generators have successfully created 
+        <!-- Inform the user that the generators have successfully created
            - the necessary Java files -->
         <echo message="" />
         <echo message="GlueGen has successfully generated files." />
-    
-    </target>      
+
+    </target>
 
     <!-- ================================================================== -->
-    <!-- 
+    <!--
        - Compile the original and generated source.
       -->
     <target name="java.compile" depends="java.generate">
@@ -443,13 +443,13 @@
     </target>
 
     <!-- ================================================================== -->
-    <!-- 
+    <!--
        - Compile the native C code for JOAL.
       -->
 
     <target name="c.configure" depends="gluegen.cpptasks.configure.compiler">
       <!-- linker configuration -->
- 
+
       <patternset id="c.src.files.joal">
         <include name="${rootrel.src.c}/*.c"/>
         <include name="${rootrel.generated.c.joal}/*.c"/>
@@ -466,28 +466,28 @@
       <echo message="Output lib name = ${output.lib.name}" />
 
       <!-- NOTE: the value of the debug and optimise attributes will not be overridden if already set externally -->
-      <property name="c.compiler.debug"     value="false" /> 
-      <!-- Optimise flags one of { none, size, speed, minimal, full, aggressive, extreme, unsafe } --> 
-      <property name="c.compiler.optimise"  value="none" /> 
+      <property name="c.compiler.debug"     value="false" />
+      <!-- Optimise flags one of { none, size, speed, minimal, full, aggressive, extreme, unsafe } -->
+      <property name="c.compiler.optimise"  value="none" />
 
       <condition property="c.compiler.use-debug"><istrue value="${c.compiler.debug}"/></condition>
 
-      <cc outtype="shared" 
-          objdir="${obj.joal}" 
+      <cc outtype="shared"
+          objdir="${obj.joal}"
           outfile="${obj}/${output.lib.name}"
-          optimize="${c.compiler.optimise}" 
+          optimize="${c.compiler.optimise}"
           debug="${c.compiler.debug}"
-          multithreaded="true" 
-          exceptions="false" 
-          rtti="false">   
+          multithreaded="true"
+          exceptions="false"
+          rtti="false">
 
         <!-- TODO: versioninfo  companyname="java.net"
                       legalcopyright="Copyright"
                       productname="JOAL"
                       productversion="x.y.z"
                       description="Description"
-                      fileversion="x.y.z" 
-                      filecomments="File Comment" /-->      
+                      fileversion="x.y.z"
+                      filecomments="File Comment" /-->
 
         <fileset dir="${project.root}"><patternset refid="${c.compiler.src.files}"/></fileset>
 
@@ -499,7 +499,7 @@
 
         <linker extends="${linker.cfg.id}" />
       </cc>
-    </target>  
+    </target>
 
     <target name="c.rename.joal.lib.mingw" if="isMingw">
       <!-- FIXME: this is a hack; the cpptask should have an option to change the
@@ -559,8 +559,8 @@
     <!-- ================================================================== -->
     <!--
        - Build the Javadocs for the sources.
-       - NOTE:  these are not entirely correct as the javadocs targets depend 
-       -        on the platform specific build targets.  To circumvent any 
+       - NOTE:  these are not entirely correct as the javadocs targets depend
+       -        on the platform specific build targets.  To circumvent any
        -        errors, ensure that the source is built first.
       -->
     <target name="javadoc" depends="setup.java.home.dir,init">
@@ -599,7 +599,7 @@
             </fileset>
         </copy>
         <copy todir="../build/tmp/${joal.tmp.version}/lib">
-            <fileset dir="../../gluegen/build/obj">
+            <fileset dir="${gluegen.root}/build/obj">
                 <include name="*.${native.library.suffix}" />
             </fileset>
         </copy>
@@ -629,7 +629,7 @@
       -->
     <target name="dist.check" unless="joal.dist.dir">
         <fail>
-  
+
     ******************************************************************
     ** To build the Joal distribution out of the platform-specific  **
     ** component jars and native code, the property joal.dist.dir   **
@@ -695,7 +695,7 @@
     <target name="all" depends="init,declare">
         <!-- Generate, compile, and build the jar for the Java sources. -->
         <antcall target="jar" inheritRefs="true" />
-        
+
         <!-- Compile the native C sources . -->
         <antcall target="c.build.joal" inheritRefs="true" />
 
