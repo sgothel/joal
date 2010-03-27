@@ -36,7 +36,7 @@ package net.java.games.joal.impl;
 import java.lang.reflect.Field;
 
 import net.java.games.joal.*;
-import com.sun.gluegen.runtime.*;
+import com.jogamp.gluegen.runtime.*;
 
 /** Helper class for managing OpenAL-related proc address tables. */
 

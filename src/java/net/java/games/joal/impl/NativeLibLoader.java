@@ -40,7 +40,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.security.*;
 
-import com.sun.gluegen.runtime.*;
+import com.jogamp.gluegen.runtime.*;
 
 public class NativeLibLoader {
   private static volatile boolean loadingEnabled = true;
