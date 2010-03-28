@@ -66,7 +66,7 @@ public class ALProcAddressLookup {
           throw new RuntimeException("Unable to find and load OpenAL library");
         }
       }
-      return openAL.lookupFunction(functionName);
+      return openAL.dynamicLookupFunction(functionName);
     }
   }
   
