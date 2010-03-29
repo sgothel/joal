@@ -1,6 +1,4 @@
-<?xml version="1.0" encoding="iso-8859-1"?>
-
-<!--
+/**
 * Copyright (c) 2003 Sun Microsystems, Inc. All  Rights Reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -20,7 +18,7 @@
 * This software is provided "AS IS," without a warranty of any kind.
 * ALL EXPRESS OR IMPLIED CONDITIONS, REPRESENTATIONS AND WARRANTIES, INCLUDING
 * ANY IMPLIED WARRANTY OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE OR
-* NON-INFRINGEMENT, ARE HEREBY EXCLUDED. SUN MIDROSYSTEMS, INC. ("SUN") AND ITS
+* NON-INFRINGEMENT, ARE HEREBY EXCLUDED. SUN MICROSYSTEMS, INC. ("SUN") AND ITS
 * LICENSORS SHALL NOT BE LIABLE FOR ANY DAMAGES SUFFERED BY LICENSEE AS A
 * RESULT OF USING, MODIFYING OR DISTRIBUTING THIS SOFTWARE OR ITS DERIVATIVES.
 * IN NO EVENT WILL SUN OR ITS LICENSORS BE LIABLE FOR ANY LOST REVENUE, PROFIT
@@ -31,49 +29,35 @@
 *
 * You acknowledge that this software is not designed or intended for use in the
 * design, construction, operation or maintenance of any nuclear facility.
--->
+*/
 
-<project name="Sun Games Initiative Client Technologies" basedir="." default="all">
+package com.jogamp.openal.sound3d;
 
-    <target name="init">
-	<mkdir dir="../../classes"/>
-    </target>
+/**
+ * A onvenience class representing a 3-element float vector
+ *
+ * @author Athomas Goldberg
+ */
+public final class Vec3f {
+    /** the first element in the vector */
+    public final float v1;
 
-    <target name="compile" depends="init">
-    	<javac srcdir="." destdir="../../classes" debug="${debug}" optimize="${optimize}"/>
-    </target>
-    
-    <target name="all" depends="init,compile">
-    </target>
-    
-    <target name="javadoc" depends="compile">
-    	<javadoc packagenames="com.jogamp.openal.*"
-    	         sourcepath="."
-				 additionalparam="-breakiterator"
-				 windowtitle="Java Bindings for OpenAL / Sound3D Toolkit"
-				 doctitle="Java Bindings for OpenAL / Sound3D Toolkit"
-    	         destdir="../../apidocs">
-    		<group title = "Java Bindings for OpenAL">
-    			<package name="com.jogamp.openal"/>
-    			<package name="com.jogamp.openal.eax"/>
-    			<package name="com.jogamp.openal.util"/>
-    		</group>
-    		<group title="Sound3D Toolkit">
-    			<package name="com.jogamp.openal.sound3d"/>
-    		</group>
-    	</javadoc>   
-    </target>
-    
-    <target name="jar" depends="compile">
-	<jar basedir="../../classes" destfile="../../lib/joal.jar" compress="yes" update="yes" index="yes">
-		
-	</jar>
-    </target>
+    /** the first element in the vector */
+    public final float v2;
 
-    <target name="clean">
-    	<delete dir="../../apidocs"/>
-    	<delete dir="../../classes/net"/>
-    	<delete file="../../lib/joal.jar"/>
-    </target>
-    
-</project>
+    /** the first element in the vector */
+    public final float v3;
+
+    /**
+     * Creates a new Vec3f object.
+     *
+     * @param v1 the first element in the vector
+     * @param v2 the second element in the vector
+     * @param v3 the third element in the vector
+     */
+    public Vec3f(float v1, float v2, float v3) {
+        this.v1 = v1;
+        this.v2 = v2;
+        this.v3 = v3;
+    }
+}

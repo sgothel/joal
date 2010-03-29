@@ -191,8 +191,8 @@
         <property name="javadoc" value="${project.root}/javadoc_public" />
         <property name="javadoc.dev" value="${project.root}/javadoc_joal_dev" />
         <property name="javadoc.link" value="http://java.sun.com/j2se/1.4.2/docs/api/" />
-        <property name="javadoc.packagenames" value="net.java.games.joal,net.java.games.joal.util,net.java.games.sound3d" />
-        <property name="javadoc.dev.packagenames" value="${javadoc.packagenames},net.java.games.joal.impl" />
+        <property name="javadoc.packagenames" value="com.jogamp.openal,com.jogamp.openal.util,com.jogamp.openal.sound3d" />
+        <property name="javadoc.dev.packagenames" value="${javadoc.packagenames},com.jogamp.openal.impl" />
 
 	<!-- Names of configuration files used during glue code generation. -->
         <property name="joal.cfg" value="${config}/joal.cfg" />

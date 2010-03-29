@@ -31,7 +31,7 @@
 * design, construction, operation or maintenance of any nuclear facility.
 */
 
-Project: net.java.games.joal.* & net.java.games.sound3d.*
+Project: com.jogamp.openal.* & com.jogamp.openal.sound3d.*
 Purpose Open Source Java Bindings for OpenAL and Object-Oriented 3D sound toolkit
 Author:
     -- JOAL/Sound3D API Original Author

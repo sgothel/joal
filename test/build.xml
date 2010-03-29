@@ -66,7 +66,7 @@
             <pathelement location="classes"/>
 	</classpath>
     	<jvmarg value="-Djava.library.path=${basedir}/../build/obj"/>
-		<arg value="net.java.games.joal.ALTest" />
+		<arg value="com.jogamp.openal.ALTest" />
     </java>
     </target>
     

@@ -1,6 +1,4 @@
-<?xml version="1.0" encoding="iso-8859-1"?>
-
-<!--
+/**
 * Copyright (c) 2003 Sun Microsystems, Inc. All  Rights Reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -20,7 +18,7 @@
 * This software is provided "AS IS," without a warranty of any kind.
 * ALL EXPRESS OR IMPLIED CONDITIONS, REPRESENTATIONS AND WARRANTIES, INCLUDING
 * ANY IMPLIED WARRANTY OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE OR
-* NON-INFRINGEMENT, ARE HEREBY EXCLUDED. SUN MIDROSYSTEMS, INC. ("SUN") AND ITS
+* NON-INFRINGEMENT, ARE HEREBY EXCLUDED. SUN MICROSYSTEMS, INC. ("SUN") AND ITS
 * LICENSORS SHALL NOT BE LIABLE FOR ANY DAMAGES SUFFERED BY LICENSEE AS A
 * RESULT OF USING, MODIFYING OR DISTRIBUTING THIS SOFTWARE OR ITS DERIVATIVES.
 * IN NO EVENT WILL SUN OR ITS LICENSORS BE LIABLE FOR ANY LOST REVENUE, PROFIT
@@ -31,49 +29,49 @@
 *
 * You acknowledge that this software is not designed or intended for use in the
 * design, construction, operation or maintenance of any nuclear facility.
--->
+*/
 
-<project name="Sun Games Initiative Client Technologies" basedir="." default="all">
+package com.jogamp.openal.sound3d;
 
-    <target name="init">
-	<mkdir dir="../../classes"/>
-    </target>
+import com.jogamp.openal.*;
 
-    <target name="compile" depends="init">
-    	<javac srcdir="." destdir="../../classes" debug="${debug}" optimize="${optimize}"/>
-    </target>
-    
-    <target name="all" depends="init,compile">
-    </target>
-    
-    <target name="javadoc" depends="compile">
-    	<javadoc packagenames="com.jogamp.openal.*"
-    	         sourcepath="."
-				 additionalparam="-breakiterator"
-				 windowtitle="Java Bindings for OpenAL / Sound3D Toolkit"
-				 doctitle="Java Bindings for OpenAL / Sound3D Toolkit"
-    	         destdir="../../apidocs">
-    		<group title = "Java Bindings for OpenAL">
-    			<package name="com.jogamp.openal"/>
-    			<package name="com.jogamp.openal.eax"/>
-    			<package name="com.jogamp.openal.util"/>
-    		</group>
-    		<group title="Sound3D Toolkit">
-    			<package name="com.jogamp.openal.sound3d"/>
-    		</group>
-    	</javadoc>   
-    </target>
-    
-    <target name="jar" depends="compile">
-	<jar basedir="../../classes" destfile="../../lib/joal.jar" compress="yes" update="yes" index="yes">
-		
-	</jar>
-    </target>
 
-    <target name="clean">
-    	<delete dir="../../apidocs"/>
-    	<delete dir="../../classes/net"/>
-    	<delete file="../../lib/joal.jar"/>
-    </target>
-    
-</project>
+/**
+ * This class provides a Sound3D Context associated with a specified device.
+ *
+ * @author Athomas Goldberg
+ */
+public class Context {
+    private final ALC alc;
+    final ALCcontext realContext;
+    final Device device;
+
+    Context(ALC alc, ALCcontext realContext, Device device) {
+        this.alc = alc;
+        this.realContext = realContext;
+        this.device = device;
+    }
+
+    /**
+     * Suspend this context
+     */
+    public void suspend() {
+        alc.alcSuspendContext(realContext);
+    }
+
+    /**
+     * destroys this context freeing its resources.
+     */
+    public void destroy() {
+        alc.alcDestroyContext(realContext);
+    }
+
+    /**
+     * Gets the device associated with this context.
+     *
+     * @return the device associated with this context. 
+     */
+    public Device getDevice() {
+        return device;
+    }
+}

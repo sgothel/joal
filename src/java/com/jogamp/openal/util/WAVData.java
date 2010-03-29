@@ -1,6 +1,4 @@
-<?xml version="1.0" encoding="iso-8859-1"?>
-
-<!--
+/**
 * Copyright (c) 2003 Sun Microsystems, Inc. All  Rights Reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -20,7 +18,7 @@
 * This software is provided "AS IS," without a warranty of any kind.
 * ALL EXPRESS OR IMPLIED CONDITIONS, REPRESENTATIONS AND WARRANTIES, INCLUDING
 * ANY IMPLIED WARRANTY OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE OR
-* NON-INFRINGEMENT, ARE HEREBY EXCLUDED. SUN MIDROSYSTEMS, INC. ("SUN") AND ITS
+* NON-INFRINGEMENT, ARE HEREBY EXCLUDED. SUN MICROSYSTEMS, INC. ("SUN") AND ITS
 * LICENSORS SHALL NOT BE LIABLE FOR ANY DAMAGES SUFFERED BY LICENSEE AS A
 * RESULT OF USING, MODIFYING OR DISTRIBUTING THIS SOFTWARE OR ITS DERIVATIVES.
 * IN NO EVENT WILL SUN OR ITS LICENSORS BE LIABLE FOR ANY LOST REVENUE, PROFIT
@@ -31,49 +29,47 @@
 *
 * You acknowledge that this software is not designed or intended for use in the
 * design, construction, operation or maintenance of any nuclear facility.
--->
+*/
 
-<project name="Sun Games Initiative Client Technologies" basedir="." default="all">
+package com.jogamp.openal.util;
 
-    <target name="init">
-	<mkdir dir="../../classes"/>
-    </target>
+import java.nio.ByteBuffer;
 
-    <target name="compile" depends="init">
-    	<javac srcdir="." destdir="../../classes" debug="${debug}" optimize="${optimize}"/>
-    </target>
-    
-    <target name="all" depends="init,compile">
-    </target>
-    
-    <target name="javadoc" depends="compile">
-    	<javadoc packagenames="com.jogamp.openal.*"
-    	         sourcepath="."
-				 additionalparam="-breakiterator"
-				 windowtitle="Java Bindings for OpenAL / Sound3D Toolkit"
-				 doctitle="Java Bindings for OpenAL / Sound3D Toolkit"
-    	         destdir="../../apidocs">
-    		<group title = "Java Bindings for OpenAL">
-    			<package name="com.jogamp.openal"/>
-    			<package name="com.jogamp.openal.eax"/>
-    			<package name="com.jogamp.openal.util"/>
-    		</group>
-    		<group title="Sound3D Toolkit">
-    			<package name="com.jogamp.openal.sound3d"/>
-    		</group>
-    	</javadoc>   
-    </target>
-    
-    <target name="jar" depends="compile">
-	<jar basedir="../../classes" destfile="../../lib/joal.jar" compress="yes" update="yes" index="yes">
-		
-	</jar>
-    </target>
 
-    <target name="clean">
-    	<delete dir="../../apidocs"/>
-    	<delete dir="../../classes/net"/>
-    	<delete file="../../lib/joal.jar"/>
-    </target>
-    
-</project>
+/**
+ * This class is a holder for WAV (.wav )file Data returned from the WavLoader
+ *
+ * @author Athomas Goldberg
+ */
+public final class WAVData {
+    /** The audio data */
+    public final ByteBuffer data;
+
+    /** the format of the Data. One of:
+     * <pre>
+     * AL.AL_FORMAT_MONO8
+     * AL.AL_FORMAT_MONO16
+     * AL.AL_FORMAT_STEREO8
+     * AL.AL_FORMAT_STEREO16
+     * </pre>
+     *
+     */
+    public final int format;
+
+    /** Size (in bytes) of the data */
+    public final int size;
+
+    /** The frequency of the data */
+    public final int freq;
+
+    /** flag indicating whether or not the sound in the data should loop */
+    public final boolean loop;
+
+    WAVData(ByteBuffer data, int format, int size, int freq, boolean loop) {
+        this.data = data;
+        this.format = format;
+        this.size = size;
+        this.freq = freq;
+        this.loop = loop;
+    }
+}

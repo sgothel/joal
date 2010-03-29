@@ -49,7 +49,7 @@
        - we can not overwrite it.
       -->
     <target name="test.for.jogl.jar">
-        <available property="jogl.jar.on.class.path" classname="net.java.games.jogl.GL" />
+        <available property="jogl.jar.on.class.path" classname="com.jogamp.opengl.GL" />
     </target>
     <target name="java.class.path.validate" depends="test.for.jogl.jar" if="jogl.jar.on.class.path">
         <fail>

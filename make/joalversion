@@ -4,5 +4,5 @@ Specification-Vendor: JogAmp.org
 Implementation-Title: Java Bindings for the OpenAL API
 Implementation-Version: @VERSION@
 Implementation-Vendor: JogAmp.org
-Extension-Name: net.java.games.joal
+Extension-Name: com.jogamp.openal
 Implementation-Vendor-Id: JogAmp.org
