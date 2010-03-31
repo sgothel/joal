@@ -33,6 +33,8 @@
 
 package com.jogamp.openal.impl;
 
+import com.jogamp.common.os.DynamicLookupHelper;
+import com.jogamp.common.os.NativeLibrary;
 import java.lang.reflect.Field;
 
 import com.jogamp.openal.*;
