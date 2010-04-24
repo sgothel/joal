@@ -86,7 +86,7 @@ public class ALProcAddressLookup {
           // this work anywhere. We should also in theory have
           // per-ALcontext ALProcAddressTables and per-ALCdevice
           // ALCProcAddressTables.
-          ProcAddressHelper.resetProcAddressTable(alTable, lookup);
+          alTable.reset(lookup);
 
           // The above only manages to find addresses for the core OpenAL
           // functions.  The below uses alGetProcAddress() to find the addresses
@@ -111,7 +111,7 @@ public class ALProcAddressLookup {
           // this work anywhere. We should also in theory have
           // per-ALcontext ALProcAddressTables and per-ALCdevice
           // ALCProcAddressTables.
-          ProcAddressHelper.resetProcAddressTable(alcTable, lookup);
+          alcTable.reset(lookup);
           alcTableInitialized = true;
         }
       }
