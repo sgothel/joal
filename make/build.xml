@@ -34,6 +34,12 @@
   <!-- This is the version of JOAL you are building -->
   <property name="base_version" value="1.1.3"/>
 
+  <condition property="rootrel.build" value="build">
+      <not>
+          <isset property="rootrel.build"/>
+      </not>
+  </condition>
+
   <!-- Uncomment this property to perform a full release build -->
   <!-- property name="release-build" value="true" / -->
 
@@ -117,8 +123,8 @@
         <!-- sibling of the JOAL workspace. -->
         <property name="gluegen.make.dir" value="${gluegen.root}/make" />
         <property name="gluegen.build.xml" value="${gluegen.make.dir}/build.xml" />
-        <property name="gluegen.jar" value="${gluegen.root}/build/gluegen.jar" />
-        <property name="gluegen-rt.jar" value="${gluegen.root}/build/gluegen-rt.jar" />
+        <property name="gluegen.jar" value="${gluegen.root}/${rootrel.build}/gluegen.jar" />
+        <property name="gluegen-rt.jar" value="${gluegen.root}/${rootrel.build}/gluegen-rt.jar" />
 
         <!-- Create the classpath that includes GlueGen and
            - ANTLR. This requires the user-defined "antlr.jar"
@@ -135,7 +141,6 @@
         <property name="rootrel.src" value="src" />
         <property name="rootrel.src.java" value="${rootrel.src}/java" />
         <property name="rootrel.src.c" value="${rootrel.src}/native" />
-        <property name="rootrel.build" value="build" />
         <property name="rootrel.src.generated" value="${rootrel.build}/gensrc" />
         <property name="rootrel.generated.java" value="${rootrel.src.generated}/classes" />
         <property name="rootrel.generated.c.joal" value="${rootrel.src.generated}/native/joal" />
@@ -394,6 +399,7 @@
 
 	<!-- Generate the AL interface class and implementation -->
         <gluegen src="${stub.includes.openal}/al.c"
+                 outputRootDir="${build}"
                  config="${joal.cfg}"
                  includeRefid="stub.includes.fileset.all"
                  emitter="com.sun.gluegen.procaddress.ProcAddressEmitter">
@@ -402,6 +408,7 @@
 
 	<!-- Generate the ALConstants interface class -->
         <gluegen src="${stub.includes.openal}/al.c"
+                 outputRootDir="${build}"
                  config="${joal.constants.cfg}"
                  includeRefid="stub.includes.fileset.all"
                  emitter="com.sun.gluegen.JavaEmitter">
@@ -410,6 +417,7 @@
 
 	<!-- Generate the ALC interface class and implementation -->
         <gluegen src="${stub.includes.openal}/alc.h"
+                 outputRootDir="${build}"
                  config="${joal.alc.cfg}"
                  includeRefid="stub.includes.fileset.all"
                  emitter="com.sun.gluegen.procaddress.ProcAddressEmitter">
@@ -418,6 +426,7 @@
 
 	<!-- Generate the ALCConstants interface class -->
         <gluegen src="${stub.includes.openal}/alc.h"
+                 outputRootDir="${build}"
                  config="${joal.alc.constants.cfg}"
                  includeRefid="stub.includes.fileset.all"
                  emitter="com.sun.gluegen.JavaEmitter">
@@ -521,8 +530,8 @@
       <antcall target="c.rename.joal.lib.mingw" inheritRefs="true" />
       <antcall target="c.rename.joal.lib.macosx" inheritRefs="true" />
       <!-- Create Java Web Start jar file from built file -->
-      <jar destfile="../build/joal-natives-${os.and.arch}.jar">
-        <fileset dir="../build/obj">
+      <jar destfile="../${rootrel.build}/joal-natives-${os.and.arch}.jar">
+        <fileset dir="../${rootrel.build}/obj">
           <include name="*joal_native.${native.library.suffix}" />
         </fileset>
         <fileset dir="lib/${os.and.arch}">
@@ -583,36 +592,36 @@
     <!-- Build zip archives for developers, both source and binaries -->
     <target name="zip" depends="setup-version-string">
         <!-- Clean up and create temporary directory -->
-        <delete dir="../build/tmp" failonerror="false" />
+        <delete dir="../${rootrel.build}/tmp" failonerror="false" />
         <delete>
-            <fileset dir="../build">
+            <fileset dir="../${rootrel.build}">
                 <include name="*.zip" />
             </fileset>
         </delete>
         <property name="joal.tmp.version" value="joal-${version-string}-${os.and.arch}" />
-        <mkdir dir="../build/tmp/${joal.tmp.version}/lib" />
-        <copy file="../build/joal.jar" todir="../build/tmp/${joal.tmp.version}/lib" />
-        <copy file="${gluegen-rt.jar}" todir="../build/tmp/${joal.tmp.version}/lib" />
-        <copy todir="../build/tmp/${joal.tmp.version}/lib">
-            <fileset dir="../build/obj">
+        <mkdir dir="../${rootrel.build}/tmp/${joal.tmp.version}/lib" />
+        <copy file="../${rootrel.build}/joal.jar" todir="../${rootrel.build}/tmp/${joal.tmp.version}/lib" />
+        <copy file="${gluegen-rt.jar}" todir="../${rootrel.build}/tmp/${joal.tmp.version}/lib" />
+        <copy todir="../${rootrel.build}/tmp/${joal.tmp.version}/lib">
+            <fileset dir="../${rootrel.build}/obj">
                 <include name="*.${native.library.suffix}" />
             </fileset>
         </copy>
-        <copy todir="../build/tmp/${joal.tmp.version}/lib">
-            <fileset dir="${gluegen.root}/build/obj">
+        <copy todir="../${rootrel.build}/tmp/${joal.tmp.version}/lib">
+            <fileset dir="${gluegen.root}/${rootrel.build}/obj">
                 <include name="*.${native.library.suffix}" />
             </fileset>
         </copy>
-        <copy file="../README.txt" todir="../build/tmp/${joal.tmp.version}" />
-        <copy file="../LICENSE.txt" todir="../build/tmp/${joal.tmp.version}" />
-        <zip destfile="../build/${joal.tmp.version}.zip"
-             basedir="../build/tmp"
+        <copy file="../README.txt" todir="../${rootrel.build}/tmp/${joal.tmp.version}" />
+        <copy file="../LICENSE.txt" todir="../${rootrel.build}/tmp/${joal.tmp.version}" />
+        <zip destfile="../${rootrel.build}/${joal.tmp.version}.zip"
+             basedir="../${rootrel.build}/tmp"
              includes="${joal.tmp.version}/**" />
 	<!-- Build a source archive as well -->
-        <delete file="../build/joal-${version-string}-src.zip" />
-        <zip destfile="../build/joal-${version-string}-src.zip"
+        <delete file="../${rootrel.build}/joal-${version-string}-src.zip" />
+        <zip destfile="../${rootrel.build}/joal-${version-string}-src.zip"
 	     basedir="../.."
-	     includes="gluegen/LICENSE.txt,gluegen/doc/**,gluegen/make/**,gluegen/src/**,joal/README.txt,joal/LICENSE.txt,joal/make/**,joal/src/**,joal/build/gensrc/classes/net/java/games/joal/AL.java,joal/build/gensrc/classes/net/java/games/joal/ALC.java,joal/build/gensrc/classes/net/java/games/joal/ALCConstants.java,joal/build/gensrc/classes/net/java/games/joal/ALCcontext.java,joal/build/gensrc/classes/net/java/games/joal/ALCdevice.java,joal/build/gensrc/classes/net/java/games/joal/ALConstants.java"
+	     includes="gluegen/LICENSE.txt,gluegen/doc/**,gluegen/make/**,gluegen/src/**,joal/README.txt,joal/LICENSE.txt,joal/make/**,joal/src/**,joal/${rootrel.build}/gensrc/classes/net/java/games/joal/AL.java,joal/${rootrel.build}/gensrc/classes/net/java/games/joal/ALC.java,joal/${rootrel.build}/gensrc/classes/net/java/games/joal/ALCConstants.java,joal/${rootrel.build}/gensrc/classes/net/java/games/joal/ALCcontext.java,joal/${rootrel.build}/gensrc/classes/net/java/games/joal/ALCdevice.java,joal/${rootrel.build}/gensrc/classes/net/java/games/joal/ALConstants.java"
 	     excludes="**/*.class,**/*~"
 	     />
     </target>
@@ -713,4 +722,5 @@
     	<ant dir="../test" target="runOpenALTest"/>
     	<ant dir="../test" target="runSound3DTest"/>
     </target>
+
 </project>
