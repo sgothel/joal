@@ -1,9 +1,9 @@
-<!DOCTYPE html PUBliC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <link href="../../style.css" rel="stylesheet" type="text/css"/>
-        <title></title>
+        <title>Java Bindings for the OpenAL API</title>
     </head>
     <body>
         <div id="container">
@@ -14,86 +14,52 @@
             <div id="menu">
                 <ul>
                     <li><a href="http://jogamp.org/">Home</a></li>
+                    <li><a href="../../gluegen/www">Gluegen</a></li>
                     <li><a href="../../jocl/www">JOCL</a></li>
                     <li><a href="../../jogl/www">JOGL</a></li>
                     <li><a href="../../joal-demos/www">Demos</a></li>
-                    <li><a href="../../wiki/index.php/Jogl_FAQ">Wiki</a></li>-->
+                    <li><a href="../../wiki/index.php/Jogl_FAQ">Wiki</a></li>
+                    <li><a href="../../blog/">Blogs</a></li>
+                    <li><a href="../../forum.html">Forums</a></li>
                     <li><a href="http://download.java.net/media/joal/builds/nightly/javadoc_public/">JavaDoc</a></li>
                 </ul>
             </div>
-            <div id="main" class="fill">
-
-                <table width="100%" border="0" cellspacing="1" cellpadding="0">
-                    <tr>
-                        <td width="66%" valign="top">
-                            <table width="100%" border="0" cellpadding="5" cellspacing="1">
-                                <tr>
-                                    <td valign="top">
-                                        <table width="100%" border="0" cellpadding="5" cellspacing="1">
-                                            <tr>
-                                                <td width="589" valign="top">
-                                                    <div align="left">
-                                                        <h3>Overview</h3>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td valign="top" bgcolor="#F8F8F8">
-                                                    <div align="justify">
-                                                        <p>
-                                                            The JOAL Project hosts a reference implementation of the
-                                                            Java bindings for OpenAL API, and is designed to provide
-                                                            hardware-supported 3D spatialized audio for games written
-                                                            in Java.
-                                                        </p>
-                                                        <p>
-                                                            This project also hosts the Sound3D Toolkit, a high level
-                                                            API for spatialized audio built on top of the OpenAL bindings.
-                                                            This toolkit is designed to provide access to all the features
-                                                            of OpenAL through an intuitive, easy to use, object-oriented
-                                                            interface.
-                                                        </p>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        </table>
-                                    </td>
-                                </tr>
-                            </table>
-                        </td>
-                        <td valign="top">
-                            <table width="100%" border="0" cellpadding="5" cellspacing="1">
-                                <tr>
-                                    <td>
-                                        <table width="100%" border="0" cellpadding="5" cellspacing="1">
-                                            <tr>
-                                                <td valign="top">
-                                                    <div align="left">
-                                                        <h3>Useful Links</h3>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td valign="top" bgcolor="#F8F8F8">
-                                                    <ul>
-                                                        <li><a href="http://www.openal.org" target="_blank">OpenAL</a> Home</li>
-                                                        <li><a href="http://connect.creativelabs.com/openal/Documentation/OpenAL%201.1%20Specification.pdf" target="_blank">OpenAL Specification</a></li>
-                                                        <li><a href="http://connect.creativelabs.com/openal/Documentation/OpenAL_Programmers_Guide.pdf" target="_blank">OpenAL Programmer's Guide</a></li>
-                                                        <li><a href="http://joal-demos.dev.java.net">JOAL Tutorials and Demos</a></li>
-                                                        <li><a href="http://www.javagaming.org/index.php/board,26.0.html">JOAL Forums</a></li>
-                                                        <li>
-                                                            <a href="http://download.java.net/media/joal/builds/nightly/javadoc_public/" target="_blank">JOAL / Sound3D JavaDoc</a>
-                                                        </li>
-                                                    </ul>
-                                                </td>
-                                            </tr>
-                                        </table>
-                                    </td>
-                                </tr>
-                            </table>
-                        </td>
-                    </tr>
-                </table>
+            <div id="main">
+                <div id="sidebar">
+                    <h3>Useful Links</h3>
+                    <ul>
+                        <li><a href="http://www.openal.org">OpenAL Home</a></li>
+                        <li><a href="http://connect.creativelabs.com/openal/Documentation/OpenAL%201.1%20Specification.pdf">OpenAL Specification</a></li>
+                        <li><a href="http://connect.creativelabs.com/openal/Documentation/OpenAL_Programmers_Guide.pdf">OpenAL Programmer's Guide</a></li>
+                        <li><a href="http://joal-demos.dev.java.net">JOAL Tutorials and Demos</a></li>
+                        <li><a href="http://www.javagaming.org/index.php/board,26.0.html">JOAL Forums</a></li>
+                        <li><a href="http://download.java.net/media/joal/builds/nightly/javadoc_public/">JOAL / Sound3D JavaDoc</a></li>
+                    </ul>
+                </div>
+                <div id="text">
+                    <h3>Overview</h3>
+                    <p>
+                        The JOAL Project hosts a reference implementation of the
+                        Java bindings for OpenAL API, and is designed to provide
+                        hardware-supported 3D spatialized audio for games written
+                        in Java.
+                    </p>
+                    <p>
+                        This project also hosts the Sound3D Toolkit, a high level
+                        API for spatialized audio built on top of the OpenAL bindings.
+                        This toolkit is designed to provide access to all the features
+                        of OpenAL through an intuitive, easy to use, object-oriented
+                        interface.
+                    </p>
+                </div>
+            </div>
+            <div id="footer">
+                <div id="footer_left">
+                    <span>JogAmp.org</span>
+                    by <a href="http://jogamp.org">http://jogamp.org</a>
+                    is licensed under a <br/>
+                    <a href="http://creativecommons.org/licenses/by/3.0/us/">Creative Commons Attribution 3.0 License</a>.
+                </div>
             </div>
         </div>
     </body>
