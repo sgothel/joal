@@ -62,33 +62,24 @@
 
     <target name="setup-version-string" depends="setup-version-string-release,setup-version-string-prerelease" />
 
-   <!-- On jpackage.org-compatible systems, antlr.jar can be found in /usr/share/java -->
-   <available property="antlr.jar" file="/usr/share/java/antlr.jar"
-              value="/usr/share/java/antlr.jar"/>
-
     <!-- ================================================================== -->
     <!--
        - Load user properties which override build defaults.
       -->
     <target name="load.user.properties">
-        <!-- Load the user specified properties file that defines various host
-           - specific paths.  The user will be notified if this is does not
-           - exist. -->
         <property name="user.properties.file" value="${user.home}/joal.properties" />
         <property file="${user.properties.file}" />
-        <echo message="Loaded ${user.properties.file}." />
-        <property file="${user.home}/gluegen.properties" />
-        <echo message="Loaded ${user.home}/gluegen.properties." />
-        <echo message="antlr.jar=${antlr.jar}" />
-        <fail message="antlr.jar was not specified in joal.properties or gluegen.properties. Please see README.txt for instructions" unless="antlr.jar"/>
-        <fail message="joal.lib.dir was not specified in joal.properties. Please see README.txt for instructions" unless="joal.lib.dir"/>
+        <echo message="Loaded ${user.properties.file}. (optionally)" />
     </target>
 
     <!-- ================================================================== -->
     <!--
        - Base initialization and detection of operating system.
       -->
-    <target name="base.init" depends="load.user.properties,gluegen.cpptasks.detect.os">
+    <target name="base.init" depends="load.user.properties,gluegen.properties.load.user,gluegen.cpptasks.detect.os">
+
+        <fail message="joal.lib.dir was not specified in joal.properties (and not defined elsewhere)." unless="joal.lib.dir"/>
+
         <!-- Set the project root directory to be up one directory. -->
         <property name="project.root" value=".." />
 
@@ -445,7 +436,7 @@
        - Compile the original and generated source.
       -->
     <target name="java.compile" depends="java.generate">
-        <javac destdir="${classes}" classpath="${gluegen-rt.jar}" source="1.4" debug="true" debuglevel="source,lines">
+        <javac destdir="${classes}" classpath="${gluegen-rt.jar}" source="1.4" debug="true" debuglevel="source,lines" includeantruntime="false">
             <src path="${src.java}" />
             <src path="${src.generated.java}" />
         </javac>
