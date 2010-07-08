@@ -33,9 +33,9 @@ package com.jogamp.openal;
 * design, construction, operation or maintenance of any nuclear facility.
 */
 
+import com.jogamp.common.nio.Buffers;
 import java.nio.*;
 
-import com.jogamp.openal.*;
 import com.jogamp.openal.eax.*;
 import com.jogamp.openal.util.*;
 
@@ -73,7 +73,7 @@ public class OpenALTest {
 				System.out.println("Looping 2: " + (loopBuffer[0] == AL.AL_TRUE));
 
 				if (eaxPresent) {
-					IntBuffer env = BufferUtils.newIntBuffer(1);
+					IntBuffer env = Buffers.newDirectIntBuffer(1);
 					env.put(EAX.EAX_ENVIRONMENT_BATHROOM);
 					eax.setListenerProperty(
 						EAX.DSPROPERTY_EAXLISTENER_ENVIRONMENT,
