@@ -369,7 +369,7 @@
 
         <!-- Now check for the presence of one well-known file -->
         <uptodate property="java.generate.skip"
-                  targetfile="${src.generated.java}/net/java/games/joal/AL.java">
+                  targetfile="${src.generated.java}/com/jogamp/openal/AL.java">
             <srcfiles refid="stub.includes.dependencies.fileset.1" />
             <srcfiles refid="stub.includes.dependencies.fileset.2" />
             <srcfiles refid="stub.includes.dependencies.fileset.3" />
@@ -549,8 +549,7 @@
         <!-- Build the jar excluding any build specific classes. -->
         <jar manifest="tempversion" destfile="${joal.jar}">
             <fileset dir="${classes}">
-                <include name="net/java/games/**" />
-                <include name="com/sun/gluegen/runtime/**" />
+                <include name="com/jogamp/openal/**" />
             </fileset>
         </jar>
         <delete file="tempversion"/>
@@ -612,7 +611,7 @@
         <delete file="../${rootrel.build}/joal-${version-string}-src.zip" />
         <zip destfile="../${rootrel.build}/joal-${version-string}-src.zip"
 	     basedir="../.."
-	     includes="gluegen/LICENSE.txt,gluegen/doc/**,gluegen/make/**,gluegen/src/**,joal/README.txt,joal/LICENSE.txt,joal/make/**,joal/src/**,joal/${rootrel.build}/gensrc/classes/net/java/games/joal/AL.java,joal/${rootrel.build}/gensrc/classes/net/java/games/joal/ALC.java,joal/${rootrel.build}/gensrc/classes/net/java/games/joal/ALCConstants.java,joal/${rootrel.build}/gensrc/classes/net/java/games/joal/ALCcontext.java,joal/${rootrel.build}/gensrc/classes/net/java/games/joal/ALCdevice.java,joal/${rootrel.build}/gensrc/classes/net/java/games/joal/ALConstants.java"
+	     includes="gluegen/LICENSE.txt,gluegen/doc/**,gluegen/make/**,gluegen/src/**,joal/README.txt,joal/LICENSE.txt,joal/make/**,joal/src/**,joal/${rootrel.build}/gensrc/classes/com/jogamp/openal/**"
 	     excludes="**/*.class,**/*~"
 	     />
     </target>
@@ -709,9 +708,7 @@
       -->
 
     <target name="test" depends="all">
-        <ant dir="../test" target="compile"/>
-    	<ant dir="../test" target="runOpenALTest"/>
-    	<ant dir="../test" target="runSound3DTest"/>
+    	<ant dir="../test" target="test"/>
     </target>
 
 </project>

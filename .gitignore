@@ -1,4 +1,5 @@
 build
 test/classes
+test/results
 nbproject/private
 javadoc_public/

@@ -86,7 +86,7 @@
             <compilation-unit>
                 <package-root>test/src</package-root>
                 <unit-tests/>
-                <classpath mode="compile">../gluegen/build/gluegen-rt.jar:build/classes:test/lib/junit.jar</classpath>
+                <classpath mode="compile">../gluegen/build/gluegen-rt.jar:build/classes:../gluegen/make/lib/junit.jar</classpath>
                 <source-level>1.5</source-level>
             </compilation-unit>
         </java-data>
