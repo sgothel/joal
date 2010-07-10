@@ -39,19 +39,34 @@ import java.lang.reflect.Field;
 
 import com.jogamp.openal.*;
 import com.jogamp.gluegen.runtime.*;
-import com.jogamp.openal.impl.ALCProcAddressTable;
-import com.jogamp.openal.impl.ALImpl;
-import com.jogamp.openal.impl.ALProcAddressTable;
 
 /** Helper class for managing OpenAL-related proc address tables. */
 
 public class ALProcAddressLookup {
-  private static final ALProcAddressTable  alTable  = new ALProcAddressTable();
-  private static volatile boolean          alTableInitialized = false;
-  private static final ALCProcAddressTable alcTable = new ALCProcAddressTable();
-  private static volatile boolean          alcTableInitialized = false;
-  private static final DynamicLookup       lookup   = new DynamicLookup();
-  private static volatile NativeLibrary    openAL   = null;
+
+    private static final ALProcAddressTable alTable;
+    private static final ALCProcAddressTable alcTable;
+
+    private static volatile boolean alTableInitialized = false;
+    private static volatile boolean alcTableInitialized = false;
+
+    private static final DynamicLookup lookup;
+    private static volatile NativeLibrary openAL;
+
+    static {
+        //workaround: map renamed fooImpl back to the real function name
+        FunctionAddressResolver resolver = new FunctionAddressResolver() {
+            public long resolve(String string, DynamicLookupHelper dlh) {
+                if (string.endsWith("Impl")) {
+                    string = string.substring(0, string.length() - 4);
+                }
+                return dlh.dynamicLookupFunction(string);
+            }
+        };
+        alcTable = new ALCProcAddressTable(resolver);
+        alTable = new ALProcAddressTable();
+        lookup = new DynamicLookup();
+    }
 
   static class DynamicLookup implements DynamicLookupHelper {
     public long dynamicLookupFunction(String functionName) {

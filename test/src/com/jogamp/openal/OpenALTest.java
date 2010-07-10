@@ -52,6 +52,18 @@ public class OpenALTest {
         ALCcontext context = alc.alcCreateContext(device, null);
         alc.alcMakeContextCurrent(context);
         AL al = ALFactory.getAL();
+        
+        System.out.println("devices:");
+        String[] devices = alc.alcGetDeviceSpecifiers();
+        for (String name : devices) {
+            System.out.println("    "+name);
+        }
+        System.out.println("capture devices:");
+        devices = alc.alcGetCaptureDeviceSpecifiers();
+        for (String name : devices) {
+            System.out.println("    "+name);
+        }
+
 
         boolean eaxPresent = al.alIsExtensionPresent("EAX2.0");
         System.out.println("EAX present:" + eaxPresent);
