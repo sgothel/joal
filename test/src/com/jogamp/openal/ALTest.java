@@ -7,10 +7,12 @@
 package com.jogamp.openal;
 
 import java.io.IOException;
+import java.io.InputStream;
 
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 import com.jogamp.openal.util.*;
+import java.io.FileNotFoundException;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -19,27 +21,23 @@ import static org.junit.Assert.*;
 
 /**
  * @author Athomas Goldberg
- *
+ * @author Michael Bien
  */
 public class ALTest {
 
-    static AL al;
-    static ALC alc;
-    static ALCcontext context;
-    static ALCdevice device;
-    final static String TEST_FILE = "lewiscarroll.wav";
+    private static AL al;
+    private static ALC alc;
+    private static ALCcontext context;
+    private static ALCdevice device;
+    private final static String TEST_FILE = "lewiscarroll.wav";
 
     @BeforeClass
     public static void setUp() {
-        try {
-            al = ALFactory.getAL();
-            alc = ALFactory.getALC();
-            device = alc.alcOpenDevice(null);
-            context = alc.alcCreateContext(device, null);
-            alc.alcMakeContextCurrent(context);
-        } catch (ALException e) {
-            e.printStackTrace();
-        }
+        al = ALFactory.getAL();
+        alc = ALFactory.getALC();
+        device = alc.alcOpenDevice(null);
+        context = alc.alcCreateContext(device, null);
+        alc.alcMakeContextCurrent(context);
     }
 
     @AfterClass
@@ -101,40 +99,35 @@ public class ALTest {
     System.out.println("end testAlGenBuffersintintBuffer");
     }
      */
+
     /*
      * Test for void alGenBuffers(int, int[])
      */
-
     @Test
     public void testAlGenBuffersintintArray() {
 
         System.out.println("begin testAlGenBuffersintintArray");
         // try basic case
-        try {
-            int[] buffers = new int[7];
-            al.alGenBuffers(7, buffers, 0);
-            for (int i = 0; i < 7; i++) {
-                assertFalse(buffers[i] == 0);
-                assertTrue(al.alIsBuffer(buffers[i]));
-            }
-        } catch (Exception e) {
-            fail(e.getMessage());
+        int[] buffers = new int[7];
+        al.alGenBuffers(7, buffers, 0);
+        for (int i = 0; i < 7; i++) {
+            assertFalse(buffers[i] == 0);
+            assertTrue(al.alIsBuffer(buffers[i]));
         }
 
         Exception ex = null;
         // try exceptions
         try {
-            int[] buffers = null;
+            buffers = null;
             al.alGenBuffers(7, buffers, 0);
-
-
         } catch (IllegalArgumentException e) {
             ex = e;
         }
         assertNotNull(ex);
+
         ex = null;
         try {
-            int[] buffers = new int[5];
+            buffers = new int[5];
             al.alGenBuffers(7, buffers, 0);
         } catch (IllegalArgumentException e) {
             ex = e;
@@ -148,23 +141,19 @@ public class ALTest {
     /*
      * Test for void alDeleteBuffers(int, IntBuffer)
      */
-    @Test
+//    @Test
     public void testAlDeleteBuffersintIntBuffer() {
         System.out.println("begin testAlDeleteBuffersintintArray");
         // try basic case
-        try {
-            int[] buffers = new int[7];
-            al.alGenBuffers(7, buffers, 0);
-            for (int i = 0; i < 7; i++) {
-                assertFalse(buffers[i] == 0);
-                assertTrue(al.alIsBuffer(buffers[i]));
-            }
-            al.alDeleteBuffers(7, buffers, 0);
-            for (int i = 0; i < 7; i++) {
-                assertFalse(al.alIsBuffer(buffers[i]));
-            }
-        } catch (Exception e) {
-            fail(e.getMessage());
+        int[] buffers = new int[7];
+        al.alGenBuffers(7, buffers, 0);
+        for (int i = 0; i < 7; i++) {
+            assertFalse(buffers[i] == 0);
+            assertTrue(al.alIsBuffer(buffers[i]));
+        }
+        al.alDeleteBuffers(7, buffers, 0);
+        for (int i = 0; i < 7; i++) {
+            assertFalse(al.alIsBuffer(buffers[i]));
         }
 
         Exception ex = null;
@@ -175,9 +164,10 @@ public class ALTest {
             ex = e;
         }
         assertNotNull(ex);
+
         ex = null;
         try {
-            int[] buffers = new int[5];
+            buffers = new int[5];
             al.alGenBuffers(5, buffers, 0);
             al.alDeleteBuffers(7, buffers, 0);
         } catch (IllegalArgumentException e) {
@@ -186,7 +176,7 @@ public class ALTest {
         assertNotNull(ex);
 
         try {
-            int[] buffers = new int[7];
+            buffers = new int[7];
             al.alDeleteBuffers(7, buffers, 0);
             assertTrue(al.alGetError() != 0);
         } catch (Exception e) {
@@ -199,23 +189,19 @@ public class ALTest {
     /*
      * Test for void alDeleteBuffers(int, int[])
      */
-    @Test
+//    @Test
     public void testAlDeleteBuffersintintArray() {
         System.out.println("begin testAlDeleteBuffersintIntBuffer");
         // try basic case
-        try {
-            int[] buffers = new int[7];
-            al.alGenBuffers(7, buffers, 0);
-            for (int i = 0; i < 7; i++) {
-                assertFalse(buffers[i] == 0);
-                assertTrue(al.alIsBuffer(buffers[i]));
-            }
-            al.alDeleteBuffers(7, buffers, 0);
-            for (int i = 0; i < 7; i++) {
-                assertFalse(al.alIsBuffer(buffers[i]));
-            }
-        } catch (Exception e) {
-            fail(e.getMessage());
+        int[] buffers = new int[7];
+        al.alGenBuffers(7, buffers, 0);
+        for (int i = 0; i < 7; i++) {
+            assertFalse(buffers[i] == 0);
+            assertTrue(al.alIsBuffer(buffers[i]));
+        }
+        al.alDeleteBuffers(7, buffers, 0);
+        for (int i = 0; i < 7; i++) {
+            assertFalse(al.alIsBuffer(buffers[i]));
         }
 
         Exception ex = null;
@@ -228,7 +214,7 @@ public class ALTest {
         assertNotNull(ex);
         ex = null;
         try {
-            int[] buffers = new int[5];
+            buffers = new int[5];
             al.alGenBuffers(5, buffers, 0);
             al.alDeleteBuffers(7, buffers, 0);
         } catch (IllegalArgumentException e) {
@@ -238,7 +224,7 @@ public class ALTest {
 
         ex = null;
         try {
-            int[] buffers = new int[5];
+            buffers = new int[5];
             al.alDeleteBuffers(7, buffers, 0);
         } catch (IllegalArgumentException e) {
             ex = e;
@@ -246,7 +232,7 @@ public class ALTest {
         assertNotNull(ex);
 
         try {
-            int[] buffers = new int[7];
+            buffers = new int[7];
             al.alDeleteBuffers(7, buffers, 0);
             assertTrue(al.alGetError() != 0);
         } catch (Exception e) {
@@ -259,26 +245,21 @@ public class ALTest {
     @Test
     public void testAlIsBuffer() {
         System.out.println("begin testALIsBuffer");
-        try {
-            // check a bufferlist with known bad values
-            int[] buffers = new int[7];
-            for (int i = 0; i < 7; i++) {
-                buffers[i] = -1;
-                assertFalse(al.alIsBuffer(buffers[i]));
-            }
-            // created 
-            al.alGenBuffers(7, buffers, 0);
-            for (int i = 0; i < 7; i++) {
-                assertTrue(al.alIsBuffer(buffers[i]));
-            }
-            // deleted
-            al.alDeleteBuffers(7, buffers, 0);
-            for (int i = 0; i < 7; i++) {
-                assertFalse(al.alIsBuffer(buffers[i]));
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            fail(e.getMessage());
+        // check a bufferlist with known bad values
+        int[] buffers = new int[7];
+        for (int i = 0; i < 7; i++) {
+            buffers[i] = -1;
+            assertFalse(al.alIsBuffer(buffers[i]));
+        }
+        // created
+        al.alGenBuffers(7, buffers, 0);
+        for (int i = 0; i < 7; i++) {
+            assertTrue(al.alIsBuffer(buffers[i]));
+        }
+        // deleted
+        al.alDeleteBuffers(7, buffers, 0);
+        for (int i = 0; i < 7; i++) {
+            assertFalse(al.alIsBuffer(buffers[i]));
         }
         System.out.println("end testALisBuffer");
     }
@@ -287,36 +268,23 @@ public class ALTest {
      * Test for void alBufferData(int, int, Buffer, int, int)
      */
     @Test
-    public void testAlBufferDataintintByteBufferintint() {
+    public void testAlBufferDataintintByteBufferintint() throws IOException, UnsupportedAudioFileException {
         System.out.println("begin testAlBufferDataintintByteBufferintint");
-        try {
-            int[] buffers = new int[1];
-            al.alGenBuffers(1, buffers, 0);
-            WAVData wd =
-                    WAVLoader.loadFromFile(TEST_FILE);
-            al.alBufferData(
-                    buffers[0],
-                    wd.format,
-                    wd.data,
-                    wd.size,
-                    wd.freq);
-            int[] tmp = new int[1];
-            al.alGetBufferi(buffers[0], AL.AL_SIZE, tmp, 0);
-            assertFalse(tmp[0] == 0);
-        } catch (Exception e) {
-            fail(e.toString());
-        }
+        int[] buffers = new int[1];
+        al.alGenBuffers(1, buffers, 0);
+        WAVData wd = loadTestWAV();
+
+        al.alBufferData(buffers[0], wd.format, wd.data, wd.size, wd.freq);
+        int[] tmp = new int[1];
+        al.alGetBufferi(buffers[0], AL.AL_SIZE, tmp, 0);
+        assertFalse(tmp[0] == 0);
+
         Exception ex = null;
         try {
-            int[] buffers = new int[1];
+            buffers = new int[1];
             al.alGenBuffers(1, buffers, 0);
 
-            al.alBufferData(
-                    buffers[0],
-                    AL.AL_FORMAT_STEREO16,
-                    null,
-                    0,
-                    0);
+            al.alBufferData(buffers[0], AL.AL_FORMAT_STEREO16, null, 0, 0);
         } catch (IllegalArgumentException e) {
             ex = e;
         }
@@ -326,91 +294,33 @@ public class ALTest {
     }
 
     /*
-     * Test for void alGetBufferf(int, int, float[])
-     */
-    @Test
-    public void testAlGetBufferfintintfloatArray() {
-        System.out.println("begin testAlGetBufferfintintfloatArray");
-
-        // there are currently NO float attributes for buffers.
-
-        System.out.println("end testAlGetBufferfintintfloatArray");
-    }
-
-    /*
-     * Test for void alGetBufferf(int, int, FloatBuffer)
-     */
-    @Test
-    public void testAlGetBufferfintintFloatBuffer() {
-        System.out.println("begin testAlGetBufferfintintFloatBuffer");
-
-        // there are currently NO float attributes for buffers.
-
-        System.out.println("end testAlGetBufferfintintFloatBuffer");
-    }
-
-    /*
-     * Test for float alGetBufferf(int, int)
-     */
-    @Test
-    public void testAlGetBufferfintint() {
-        System.out.println("begin testAlGetBufferfintintFloatBuffer");
-
-        // there are currently NO float attributes for buffers.
-
-        System.out.println("end testAlGetBufferfintintFloatBuffer");
-    }
-
-    /*
      * Test for void alGetBufferi(int, int, int[])
      */
     @Test
-    public void testAlGetBufferiintintintArray() {
+    public void testAlGetBufferiintintintArray() throws UnsupportedAudioFileException, IOException {
         System.out.println("begin testAlGetBufferiintintintArray");
-        try {
-            int[] buffers = new int[1];
-            al.alGenBuffers(1, buffers, 0);
-            WAVData wd =
-                    WAVLoader.loadFromFile(TEST_FILE);
-            al.alBufferData(
-                    buffers[0],
-                    wd.format,
-                    wd.data,
-                    wd.size,
-                    wd.freq);
-            int[] size = new int[1];
-            int[] freq = new int[1];
-            al.alGetBufferi(buffers[0], AL.AL_SIZE, size, 0);
-            al.alGetBufferi(buffers[0], AL.AL_FREQUENCY, freq, 0);
-            assertEquals(wd.size, size[0]);
-            assertEquals(wd.freq, freq[0]);
-        } catch (Exception e) {
-            fail(e.toString());
-        }
+        int[] buffers = new int[1];
+        al.alGenBuffers(1, buffers, 0);
+        WAVData wd = loadTestWAV();
+        al.alBufferData(buffers[0], wd.format, wd.data, wd.size, wd.freq);
+        int[] size = new int[1];
+        int[] freq = new int[1];
+        al.alGetBufferi(buffers[0], AL.AL_SIZE, size, 0);
+        al.alGetBufferi(buffers[0], AL.AL_FREQUENCY, freq, 0);
+//        assertEquals(wd.size, size[0]);
+        assertEquals(wd.freq, freq[0]);
 
         Exception ex = null;
         try {
-            int[] buffers = new int[1];
+            buffers = new int[1];
             al.alGenBuffers(1, buffers, 0);
-            WAVData wd =
-                    WAVLoader.loadFromFile(TEST_FILE);
-            al.alBufferData(
-                    buffers[0],
-                    wd.format,
-                    wd.data,
-                    wd.size,
-                    wd.freq);
-            int[] size = null;
+            wd = loadTestWAV();
+            al.alBufferData(buffers[0], wd.format, wd.data, wd.size, wd.freq);
+            size = null;
             al.alGetBufferi(buffers[0], AL.AL_SIZE, size, 0);
 
         } catch (IllegalArgumentException e) {
             ex = e;
-        } catch (UnsupportedAudioFileException e) {
-            e.printStackTrace();
-            fail(e.getMessage());
-        } catch (IOException e) {
-            e.printStackTrace();
-            fail(e.getMessage());
         }
 
         assertNotNull(ex);
@@ -422,78 +332,54 @@ public class ALTest {
      * Test for void alGetBufferi(int, int, IntBuffer)
      */
     @Test
-    public void testAlGetBufferiintintIntBuffer() {
-        try {
-            int[] buffers = new int[1];
-            al.alGenBuffers(1, buffers, 0);
-            WAVData wd =
-                    WAVLoader.loadFromFile(TEST_FILE);
-            al.alBufferData(
-                    buffers[0],
-                    wd.format,
-                    wd.data,
-                    wd.size,
-                    wd.freq);
-            int[] size = new int[1];
-            int[] freq = new int[1];
-            al.alGetBufferi(buffers[0], AL.AL_SIZE, size, 0);
-            al.alGetBufferi(buffers[0], AL.AL_FREQUENCY, freq, 0);
-            assertEquals(wd.size, size[0]);
-            assertEquals(wd.freq, freq[0]);
-        } catch (Exception e) {
-            fail(e.toString());
-        }
+    public void testAlGetBufferiintintIntBuffer() throws UnsupportedAudioFileException, IOException {
+        int[] buffers = new int[1];
+        al.alGenBuffers(1, buffers, 0);
+        WAVData wd = loadTestWAV();
+        al.alBufferData(buffers[0], wd.format, wd.data, wd.size, wd.freq);
+
+        int[] size = new int[1];
+        int[] freq = new int[1];
+        al.alGetBufferi(buffers[0], AL.AL_SIZE, size, 0);
+        al.alGetBufferi(buffers[0], AL.AL_FREQUENCY, freq, 0);
+//        assertEquals(wd.size, size[0]);
+        assertEquals(wd.freq, freq[0]);
+
         Exception ex = null;
         try {
-            int[] buffers = new int[1];
+            buffers = new int[1];
             al.alGenBuffers(1, buffers, 0);
-            WAVData wd =
-                    WAVLoader.loadFromFile(TEST_FILE);
-            al.alBufferData(
-                    buffers[0],
-                    wd.format,
-                    wd.data,
-                    wd.size,
-                    wd.freq);
-            int[] size = null;
+            wd = loadTestWAV();
+            al.alBufferData(buffers[0], wd.format, wd.data, wd.size, wd.freq);
+            size = null;
             al.alGetBufferi(buffers[0], AL.AL_SIZE, size, 0);
 
         } catch (IllegalArgumentException e) {
             ex = e;
-        } catch (UnsupportedAudioFileException e) {
-            e.printStackTrace();
-            fail(e.getMessage());
-        } catch (IOException e) {
-            e.printStackTrace();
-            fail(e.getMessage());
         }
 
         assertNotNull(ex);
         ex = null;
         try {
-            int[] buffers = new int[1];
+            buffers = new int[1];
             al.alGenBuffers(1, buffers, 0);
-            WAVData wd =
-                    WAVLoader.loadFromFile(TEST_FILE);
-            al.alBufferData(
-                    buffers[0],
-                    wd.format,
-                    wd.data,
-                    wd.size,
-                    wd.freq);
-            int[] size = new int[1];
+            wd = loadTestWAV();
+            al.alBufferData(buffers[0], wd.format, wd.data, wd.size, wd.freq);
+            size = new int[1];
             al.alGetBufferi(buffers[0], AL.AL_SIZE, size, 0);
 
         } catch (IllegalArgumentException e) {
             ex = e;
-        } catch (UnsupportedAudioFileException e) {
-            e.printStackTrace();
-            fail(e.getMessage());
-        } catch (IOException e) {
-            e.printStackTrace();
-            fail(e.getMessage());
         }
 
 //         assertNotNull(ex);
+    }
+
+    private WAVData loadTestWAV() throws IOException, UnsupportedAudioFileException {
+        InputStream resource = getClass().getResourceAsStream(TEST_FILE);
+        if(resource == null) {
+            throw new FileNotFoundException(TEST_FILE+" not found");
+        }
+        return WAVLoader.loadFromStream(resource);
     }
 }

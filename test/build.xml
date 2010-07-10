@@ -35,15 +35,18 @@
 
 <project name="tests" basedir="." default="all">
 
+    <property name="junit.path" value="${basedir}/${gluegen.root}/make/lib/junit.jar"/>
+
     <target name="init">
         <mkdir dir="classes"/>
     </target>
 
-    <property name="junit.path" value="${basedir}/${gluegen.root}/make/lib/junit.jar"/>
-
     <target name="compile" depends="init">
         <javac debug="true" srcdir="./src" destdir="classes" includeantruntime="false"
             classpath="${gluegen.root}/build/gluegen-rt.jar;../build/joal.jar;${junit.path}"/>
+        <copy todir="classes">
+            <fileset dir="src" includes="**/*.wav"/>
+        </copy>
     </target>
     
     <target name="clean">
@@ -54,6 +57,7 @@
         <mkdir dir="${basedir}/results"/>
         <junit forkmode="once" showoutput="true" fork="true" includeAntRuntime="true">
             <jvmarg value="-Djava.library.path=${basedir}/${gluegen.root}/build/obj:${basedir}/../build/obj"/>
+            <jvmarg value="-Djogamp.debug.NativeLibrary=true"/>
             <batchtest todir="${basedir}/results">
                 <fileset dir="${basedir}/classes">
                     <include name="com/jogamp/openal/**Test*"/>
