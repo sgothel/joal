@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project basedir=".." name="JOAL-IDE">
+    <!-- TODO: edit the following target according to your needs -->
+    <!-- (more info: http://www.netbeans.org/kb/articles/freeform-config.html#runsingle) -->
+    <target name="run-selected-file-in-src">
+        <fail unless="run.class">Must set property 'run.class'</fail>
+        <java classname="${run.class}" failonerror="true" fork="true">
+            <jvmarg value="-Djava.library.path=${basedir}/../gluegen/build/obj:${basedir}/build/obj"/>
+            <jvmarg value="-Djogamp.debug.NativeLibrary=true"/>
+            <classpath>
+                <pathelement path="../gluegen/build/gluegen-rt.jar:build/classes:test/classes:../gluegen/make/lib/junit.jar"/>
+            </classpath>
+        </java>
+    </target>
+    <!-- TODO: edit the following target according to your needs -->
+    <!-- (more info: http://www.netbeans.org/kb/articles/freeform-config.html#compilesingle) -->
+    <target name="compile-selected-files-in-src">
+        <fail unless="files">Must set property 'files'</fail>
+        <!-- TODO decide on and define some value for ${build.classes.dir} -->
+        <javac destdir="test/classes" includes="${files}" source="1.5" srcdir="test/src" includeantruntime="false">
+            <classpath path="../gluegen/build/gluegen-rt.jar:build/classes:../gluegen/make/lib/junit.jar"/>
+        </javac>
+    </target>
+</project>
