@@ -504,26 +504,26 @@
     <target name="c.rename.joal.lib.mingw" if="isMingw">
       <!-- FIXME: this is a hack; the cpptask should have an option to change the
            suffix or at least understand the override from .so to .dll -->
-      <move file="${obj}/libjoal_native.so" tofile="${obj}/joal_native.dll" failonerror="false" />
+      <move file="${obj}/libjoal.so" tofile="${obj}/joal.dll" failonerror="false" />
     </target>
 
     <target name="c.rename.joal.lib.macosx" if="isOSX">
       <!-- FIXME: this is a hack; the cpptask should have an option to change the
            suffix or at least understand the override from dylib to jnilib -->
-      <move file="${obj}/libjoal_native.dylib" tofile="${obj}/libjoal_native.jnilib" />
+      <move file="${obj}/libjoal.dylib" tofile="${obj}/libjoal.jnilib" />
     </target>
 
     <target name="c.build.joal">
       <antcall target="c.build" inheritRefs="true">
         <param name="c.compiler.src.files" value="c.src.files.joal"/>
-        <param name="output.lib.name" value="joal_native"/>
+        <param name="output.lib.name" value="joal"/>
       </antcall>
       <antcall target="c.rename.joal.lib.mingw" inheritRefs="true" />
       <antcall target="c.rename.joal.lib.macosx" inheritRefs="true" />
       <!-- Create Java Web Start jar file from built file -->
       <jar destfile="../${rootrel.build}/joal-natives-${os.and.arch}.jar">
         <fileset dir="../${rootrel.build}/obj">
-          <include name="*joal_native.${native.library.suffix}" />
+          <include name="*joal.${native.library.suffix}" />
         </fileset>
         <fileset dir="lib/${os.and.arch}">
           <include name="*.${native.library.suffix}" />
@@ -624,7 +624,7 @@
        - "ant -Djoal.dist.dir=../dist dist"); directories named joal-linux,
        - joal-win32, and joal-macosx need to be inside that directory and each
        - of those directories needs to contain the native code for that platform
-       - (libjoal_native.so, joal_native.dll, or libjoal_native.jnilib).
+       - (libjoal.so, joal.dll, or libjoal.jnilib).
       -->
     <target name="dist.check" unless="joal.dist.dir">
         <fail>

@@ -68,7 +68,7 @@ public class NativeLibLoader {
                 // implementations like nvopenal.dll and "*oal.dll".
                 // joal.dll matches this wildcard and a bug in OpenAL32.dll
                 // causes a call through a null function pointer.
-                loadLibraryInternal("joal_native");
+                loadLibraryInternal("joal");
 
                 // Workaround for 4845371.
                 // Make sure the first reference to the JNI GetDirectBufferAddress is done
