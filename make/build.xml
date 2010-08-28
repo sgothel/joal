@@ -201,27 +201,21 @@
       -->
     <target name="c.configure.win.mingw32" if="isMingW32">
         <echo message="Win.Ming32W" />
-        <linker id="linker.cfg.win32.mingw.joal" extends="linker.cfg.win32.mingw">
-            <linkerarg value="-Wl,--kill-at" /> <!-- remove @ from function names -->
-        </linker>
+        <property name="java.includes.dir.platform" value="${java.includes.dir.win32}" />
 
         <property name="compiler.cfg.id"  value="compiler.cfg.win32.mingw" />
-        <property name="linker.cfg.id"    value="linker.cfg.win32.mingw.joal" />
+        <property name="linker.cfg.id"    value="linker.cfg.win32.mingw" />
     </target>
 
     <target name="c.configure.win.mingw64" if="isMingW64">
-        <echo message="Win.Ming64W" />
-        <linker id="linker.cfg.win64.mingw.joal" extends="linker.cfg.win64.mingw">
-            <linkerarg value="-Wl,--kill-at" /> <!-- remove @ from function names -->
-        </linker>
+        <echo message="Win.Ming64W" />      
+        <property name="java.includes.dir.platform" value="${java.includes.dir.win64}" />
         
         <property name="compiler.cfg.id"  value="compiler.cfg.win64.mingw" />
-        <property name="linker.cfg.id"    value="linker.cfg.win64.mingw.joal" />
+        <property name="linker.cfg.id"    value="linker.cfg.win64.mingw" />
     </target>
 
-    <target name="declare.win32" depends="c.configure.win.mingw32,c.configure.win.mingw64" if="isWindows">
-      <property name="java.includes.dir.platform"           value="${java.includes.dir.win32}" />
-    </target>
+    <target name="declare.win32" depends="c.configure.win.mingw32,c.configure.win.mingw64" if="isWindows"/>
 
     <target name="declare.linux.x86" if="isLinux" unless="isLinuxAMD64">
       <echo message="Linux.x86" />
