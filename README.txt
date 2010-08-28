@@ -153,16 +153,7 @@ is used during the glue code generation process.
 Copy the joal.properties file from the make/ subdirectory into your
 home directory, or in particular where the Java system property
 user.home points to (on Windows, this is C:\Documents and
-Settings\username\). Edit the joal.lib.dir property to point to the
-lib directory of your current OpenAL installation. For Windows this
-might be "C:/Program Files/OpenAL 1.1 SDK/libs/Win32".
-
-Under Linux set the property to the toplevel directory of your OpenAL CVS version.
-If OpenAl came with your distribution and the header files are in /usr/include/AL,
-set the property to '/usr'.
-
-Under OSX the default distribution will install to "/Library/Frameworks/OpenAL.framework ".
-
+Settings\username\). 
 On Windows, you may want to edit the win32.c.compiler property to
 indicate the C compiler you prefer to use (vc6, vc7 or mingw).
 

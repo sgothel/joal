@@ -78,8 +78,6 @@
       -->
     <target name="base.init" depends="load.user.properties,gluegen.properties.load.user,gluegen.cpptasks.detect.os">
 
-        <fail message="joal.lib.dir was not specified in joal.properties (and not defined elsewhere)." unless="joal.lib.dir"/>
-
         <!-- Set the project root directory to be up one directory. -->
         <property name="project.root" value=".." />
 
