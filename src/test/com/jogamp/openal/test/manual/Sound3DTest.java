@@ -35,6 +35,7 @@ package com.jogamp.openal;
 import java.io.*;
 import javax.sound.sampled.*;
 import com.jogamp.openal.sound3d.*;
+import com.jogamp.openal.test.resources.ResourceLocation;
 
 /**
  * @author Athomas Goldberg
@@ -62,7 +63,7 @@ public class Sound3DTest {
         listener.setPosition(0, 0, 0);
 
         // load a source and play it
-        Source source1 = AudioSystem3D.loadSource(Sound3DTest.class.getResourceAsStream("lewiscarroll.wav"));
+        Source source1 = AudioSystem3D.loadSource(ResourceLocation.class.getResourceAsStream("lewiscarroll.wav"));
         source1.setPosition(0, 0, 0);
         source1.setLooping(true);
         source1.play();

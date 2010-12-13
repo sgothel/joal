@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-   - Ant build for JOAL.  This build has been tested with ANT 1.7.1.  The
+   - Ant build for JOAL.  This build has been tested with ANT 1.8.0.  The
    - optional.jar that contains the optional ANT tasks must be in the ANT
    - classpath (typically the ant/lib directory).
    -
@@ -31,36 +31,31 @@
    -->
 <project name="JOAL" basedir="." default="all">
 
-  <!-- This is the version of JOAL you are building -->
-  <property name="base_version" value="1.1.3"/>
+    <!-- This is the version of JOAL you are building -->
+    <property name="joal_base_version" value="2.0"/>
+    <tstamp>
+       <format property="version.timestamp" pattern="yyyyMMddHHmm"/>
+    </tstamp>
+    <property name="joal.version" value="${joal_base_version}-${version.timestamp}" />
 
-  <condition property="rootrel.build" value="build">
+    <property name="project.root"  value=".." />
+    <property name="gluegen.root" value="${project.root}/../gluegen" />
+
+    <condition property="rootrel.build" value="build">
       <not>
           <isset property="rootrel.build"/>
       </not>
-  </condition>
+    </condition>
+    <property name="build" location="${project.root}/${rootrel.build}" />
 
-  <!-- Uncomment this property to perform a full release build -->
-  <!-- property name="release-build" value="true" / -->
+    <property file="${build}/artifact.properties"/>
+    <property name="joal.build.number" value="manual-build"/>
+    <property name="joal.build.id"     value="${version.timestamp}"/>
+    <property name="joal.build.branch" value="master"/>
+    <property name="joal.build.commit" value="manual"/>
 
-  <!-- Pull in GlueGen cpptasks build file -->
-  <property name="gluegen.root" value="../../gluegen" />
-  <import file="${gluegen.root}/make/gluegen-cpptasks.xml" />
-
-  <!-- Set up version string (used in several places) based on whether we're
-       doing a release build or not -->
-  <target name="setup-version-string-release" if="release-build">
-      <property name="version-string" value="${base_version}" />
-  </target>
-
-  <target name="setup-version-string-prerelease" unless="release-build">
-      <tstamp>
-           <format property="timestamp" pattern="yyyyMMdd"/>
-      </tstamp>
-      <property name="version-string" value="${base_version}-pre-${timestamp}" />
-  </target>
-
-    <target name="setup-version-string" depends="setup-version-string-release,setup-version-string-prerelease" />
+    <!-- Pull in GlueGen cpptasks build file -->
+    <import file="${gluegen.root}/make/gluegen-cpptasks.xml" />
 
     <!-- ================================================================== -->
     <!--
@@ -315,6 +310,9 @@
         <mkdir dir="${classes}" />
         <mkdir dir="${obj}" />
         <mkdir dir="${obj.joal}" />
+
+        <property name="archive.name"        value="joal-${joal.version}" />
+        <property name="archive"             value="${build}/${archive.name}" />
     </target>
 
     <target name="declare" depends="init,declare.win32,declare.linux,declare.solaris32,declare.macosx,declare.freebsd" />
@@ -365,7 +363,7 @@
       -->
     <target name="java.generate" depends="build.gluegen, java.generate.check" unless="java.generate.skip">
         <!-- Add the GlueGen task to ANT -->
-        <taskdef name="gluegen" classname="com.sun.gluegen.ant.GlueGenTask"
+        <taskdef name="gluegen" classname="com.jogamp.gluegen.ant.GlueGenTask"
                  classpathref="gluegen.classpath" />
 
         <!-- Use the GlueGen task to generate the Java files -->
@@ -375,7 +373,7 @@
                  outputRootDir="${build}"
                  config="${joal.cfg}"
                  includeRefid="stub.includes.fileset.all"
-                 emitter="com.sun.gluegen.procaddress.ProcAddressEmitter">
+                 emitter="com.jogamp.gluegen.procaddress.ProcAddressEmitter">
             <classpath refid="gluegen.classpath" />
         </gluegen>
 
@@ -384,7 +382,7 @@
                  outputRootDir="${build}"
                  config="${joal.constants.cfg}"
                  includeRefid="stub.includes.fileset.all"
-                 emitter="com.sun.gluegen.JavaEmitter">
+                 emitter="com.jogamp.gluegen.JavaEmitter">
             <classpath refid="gluegen.classpath" />
         </gluegen>
 
@@ -393,7 +391,7 @@
                  outputRootDir="${build}"
                  config="${joal.alc.cfg}"
                  includeRefid="stub.includes.fileset.all"
-                 emitter="com.sun.gluegen.procaddress.ProcAddressEmitter">
+                 emitter="com.jogamp.gluegen.procaddress.ProcAddressEmitter">
             <classpath refid="gluegen.classpath" />
         </gluegen>
 
@@ -402,7 +400,7 @@
                  outputRootDir="${build}"
                  config="${joal.alc.constants.cfg}"
                  includeRefid="stub.includes.fileset.all"
-                 emitter="com.sun.gluegen.JavaEmitter">
+                 emitter="com.jogamp.gluegen.JavaEmitter">
             <classpath refid="gluegen.classpath" />
         </gluegen>
 
@@ -517,14 +515,16 @@
     <!--
        - Build the joal.jar file.
       -->
-    <target name="jar" depends="java.compile,setup-version-string">
+    <target name="jar" depends="java.compile">
         <!-- Prepare the manifest -->
         <copy file="joalversion"
           tofile="tempversion"
           overwrite="true">
           <filterset>
-              <filter token="VERSION" value="${version-string}"/>
-              <filter token="BASEVERSION" value="${base_version}"/>
+              <filter token="VERSION" value="${joal.version}"/>
+              <filter token="SCM_BRANCH" value="${joal.build.branch}"/>
+              <filter token="SCM_COMMIT" value="${joal.build.commit}"/>
+              <filter token="BASEVERSION" value="${joal_base_version}"/>
           </filterset>
         </copy>
 
@@ -561,99 +561,36 @@
                  linkoffline="${javadoc.link} 142-packages" />
     </target>
 
-    <!-- Build zip archives for developers, both source and binaries -->
-    <target name="zip" depends="setup-version-string">
+    <!-- Build binary zip archives for developers -->
+    <target name="developer-zip-archive" depends="init" unless="build.noarchives">
         <!-- Clean up and create temporary directory -->
-        <delete dir="../${rootrel.build}/tmp" failonerror="false" />
-        <delete>
-            <fileset dir="../${rootrel.build}">
-                <include name="*.zip" />
-            </fileset>
-        </delete>
-        <property name="joal.tmp.version" value="joal-${version-string}-${os.and.arch}" />
-        <mkdir dir="../${rootrel.build}/tmp/${joal.tmp.version}/lib" />
-        <copy file="../${rootrel.build}/joal.jar" todir="../${rootrel.build}/tmp/${joal.tmp.version}/lib" />
-        <copy file="${gluegen-rt.jar}" todir="../${rootrel.build}/tmp/${joal.tmp.version}/lib" />
-        <copy todir="../${rootrel.build}/tmp/${joal.tmp.version}/lib">
-            <fileset dir="../${rootrel.build}/obj">
-                <include name="*.${native.library.suffix}" />
-            </fileset>
+        <delete includeEmptyDirs="true" quiet="true" dir="${archive}" failonerror="false" />
+        <mkdir dir="${archive}" />
+        <copy file="${build}/artifact.properties" todir="${archive}"/>
+        <mkdir dir="${archive}/jar" />
+        <copy todir="${archive}/jar">
+            <fileset dir="${build}" includes="joal*.jar"/>
         </copy>
-        <copy todir="../${rootrel.build}/tmp/${joal.tmp.version}/lib">
-            <fileset dir="${gluegen.root}/${rootrel.build}/obj">
-                <include name="*.${native.library.suffix}" />
-            </fileset>
+        <mkdir dir="${archive}/lib" />
+        <copy todir="${archive}/lib">
+            <fileset dir="${build}/obj" includes="*.${native.library.suffix}"/>
         </copy>
-        <copy file="../README.txt" todir="../${rootrel.build}/tmp/${joal.tmp.version}" />
-        <copy file="../LICENSE.txt" todir="../${rootrel.build}/tmp/${joal.tmp.version}" />
-        <zip destfile="../${rootrel.build}/${joal.tmp.version}.zip"
-             basedir="../${rootrel.build}/tmp"
-             includes="${joal.tmp.version}/**" />
-	<!-- Build a source archive as well -->
-        <delete file="../${rootrel.build}/joal-${version-string}-src.zip" />
-        <zip destfile="../${rootrel.build}/joal-${version-string}-src.zip"
-	     basedir="../.."
-	     includes="gluegen/LICENSE.txt,gluegen/doc/**,gluegen/make/**,gluegen/src/**,joal/README.txt,joal/LICENSE.txt,joal/make/**,joal/src/**,joal/${rootrel.build}/gensrc/classes/com/jogamp/openal/**"
-	     excludes="**/*.class,**/*~"
-	     />
-    </target>
-
-    <!-- ================================================================== -->
-    <!--
-       - Build the Java Web Start binaries out of native library builds for
-       - each individual platform. To run this target, you need to
-       - specify the property joal.dist.dir as a System property (i.e.,
-       - "ant -Djoal.dist.dir=../dist dist"); directories named joal-linux,
-       - joal-win32, and joal-macosx need to be inside that directory and each
-       - of those directories needs to contain the native code for that platform
-       - (libjoal.so, joal.dll, or libjoal.jnilib).
-      -->
-    <target name="dist.check" unless="joal.dist.dir">
-        <fail>
-
-    ******************************************************************
-    ** To build the Joal distribution out of the platform-specific  **
-    ** component jars and native code, the property joal.dist.dir   **
-    ** needs to be specified on the command line. Please read the   **
-    ** comments associated with the "dist" target in the build.xml. **
-    ******************************************************************
-        </fail>
-    </target>
-
-    <target name="dist" depends="dist.check,setup-version-string">
-        <delete>
-            <fileset dir="${joal.dist.dir}" includes="*.jar" />
-            <fileset dir="${joal.dist.dir}" includes="*.zip" />
-        </delete>
-        <!-- Copy Java Web Start jar files, source archive(s) and binary zip archives -->
-        <copy todir="${joal.dist.dir}">
-           <fileset dir="${joal.dist.dir}/joal-win/32">
-             <include name="*.jar" />
-             <include name="*.zip" />
-           </fileset>
-           <fileset dir="${joal.dist.dir}/joal-linux/32">
-             <include name="*.jar" />
-             <!-- Pick up source archive from Linux build as well -->
-             <include name="*.zip" />
-           </fileset>
-           <fileset dir="${joal.dist.dir}/joal-macosx/ppc">
-             <include name="*.jar" />
-             <include name="*.zip" />
-           </fileset>
-           <fileset dir="${joal.dist.dir}/joal-macosx/fat">
-             <include name="*.jar" />
-             <include name="*.zip" />
-           </fileset>
-           <!-- NOTE: No OpenAL for Windows/AMD64, Linux/AMD64 or Solaris at the moment -->
+        <mkdir dir="${archive}/jnlp-files" />
+        <copy todir="${archive}/jnlp-files">
+            <fileset dir="${project.root}/jnlp-files" includes="*" />
         </copy>
-        <!-- Build one archive containing all jars related to Java Web Start -->
-        <tstamp>
-             <format property="timestamp" pattern="yyyyMMdd"/>
-        </tstamp>
-        <zip destfile="${joal.dist.dir}/joal-${version-string}-webstart.zip"
-	     basedir="${joal.dist.dir}"
-	     includes="*.jar"
-	     />
+        <mkdir dir="${archive}/www" />
+        <copy todir="${archive}/www">
+            <fileset dir="${project.root}/www" includes="*" />
+        </copy>
+        <copy file="../README.txt" todir="${archive}"/>
+        <copy file="../LICENSE.txt" todir="${archive}"/>
+        <delete quiet="true" file="${build}/${archive.name}.zip"/>
+        <zip destfile="${build}/${archive.name}.zip"
+             basedir="${build}"
+             includes="${archive.name}/**" />
+        <!-- Clean up after ourselves -->
+        <delete includeEmptyDirs="true" quiet="true" dir="${archive}" failonerror="false" />
     </target>
 
     <!-- ================================================================== -->
@@ -666,31 +603,50 @@
             <fileset dir="${javadoc}" />
             <fileset dir="${javadoc.dev}" />
         </delete>
-        <ant dir="../test" target="clean"/>
+        <ant antfile="build-test.xml" target="clean"/>
     </target>
 
     <!-- ================================================================== -->
     <!--
        - Build everything.
       -->
-    <target name="all" depends="init,declare">
+    <target name="all" depends="joal.compile, test.compile, tag.build, developer-zip-archive"/>
+
+    <target name="joal.compile" depends="init, declare">
         <!-- Generate, compile, and build the jar for the Java sources. -->
         <antcall target="jar" inheritRefs="true" />
 
         <!-- Compile the native C sources . -->
         <antcall target="c.build.joal" inheritRefs="true" />
+    </target>
 
-        <!-- Build zip archives. -->
-        <antcall target="zip" inheritRefs="true" />
+    <target name="tag.build">
+        <copy file="${gluegen.root}/${rootrel.build}/artifact.properties" todir="${build}" overwrite="true"/>
+        <echo message='joal.build.number=${joal.build.number}${line.separator}' file="${build}/artifact.properties" append="true"/>
+        <echo message='joal.build.id=${joal.build.id}${line.separator}'         file="${build}/artifact.properties" append="true"/>
+        <echo message='joal.build.branch=${joal.build.branch}${line.separator}' file="${build}/artifact.properties" append="true"/>
+        <echo message='joal.build.commit=${joal.build.commit}${line.separator}' file="${build}/artifact.properties" append="true"/>
     </target>
 
     <!-- ================================================================== -->
     <!--
-       - Build and run tests.
+       - unit tests
       -->
 
-    <target name="test" depends="all">
-    	<ant dir="../test" target="test"/>
+    <target name="test.compile" depends="joal.compile">
+        <ant antfile="build-test.xml" target="test.compile" inheritRefs="true" inheritAll="true"/>
+    </target>
+
+    <target name="test.auto.run" depends="test.compile">
+        <ant antfile="build-test.xml" target="test.auto.run" inheritRefs="true" inheritAll="true"/>
+    </target>
+
+    <target name="junit.run" depends="test.compile">
+        <ant antfile="build-test.xml" target="junit.run" inheritRefs="true" inheritAll="true"/>
+    </target>
+
+    <target name="test.manual.run" depends="test.compile">
+        <ant antfile="build-test.xml" target="test.manual.run" inheritRefs="true" inheritAll="true"/>
     </target>
 
 </project>

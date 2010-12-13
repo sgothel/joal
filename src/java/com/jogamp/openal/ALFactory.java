@@ -53,7 +53,9 @@ public class ALFactory {
   private static synchronized void initialize() throws ALException {
     try {
       if (!initialized) {
-        NativeLibLoader.load();
+        if(null == ALImpl.getALProcAddressTable()) {
+            throw new RuntimeException("AL not initialized (ProcAddressTable null)");
+        }
         initialized = true;
       }
     } catch (UnsatisfiedLinkError e) {

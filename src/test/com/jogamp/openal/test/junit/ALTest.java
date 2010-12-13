@@ -4,13 +4,19 @@
  * Copyright 2003 Sun Microsystems, Inc. All rights reserved.
  * SUN PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  */
-package com.jogamp.openal;
+package com.jogamp.openal.test.junit;
 
+import com.jogamp.openal.AL;
+import com.jogamp.openal.ALC;
+import com.jogamp.openal.ALCcontext;
+import com.jogamp.openal.ALCdevice;
+import com.jogamp.openal.ALFactory;
 import java.io.IOException;
 import java.io.InputStream;
 
 import javax.sound.sampled.UnsupportedAudioFileException;
 
+import com.jogamp.openal.test.resources.ResourceLocation;
 import com.jogamp.openal.util.*;
 import java.io.FileNotFoundException;
 import org.junit.AfterClass;
@@ -376,7 +382,7 @@ public class ALTest {
     }
 
     private WAVData loadTestWAV() throws IOException, UnsupportedAudioFileException {
-        InputStream resource = getClass().getResourceAsStream(TEST_FILE);
+        InputStream resource = ResourceLocation.class.getResourceAsStream(TEST_FILE);
         if(resource == null) {
             throw new FileNotFoundException(TEST_FILE+" not found");
         }

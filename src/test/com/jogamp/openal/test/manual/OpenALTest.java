@@ -1,4 +1,4 @@
-package com.jogamp.openal;
+package com.jogamp.openal.test.manual;
 
 /**
  * Copyright (c) 2003 Sun Microsystems, Inc. All  Rights Reserved.
@@ -33,6 +33,11 @@ package com.jogamp.openal;
  * design, construction, operation or maintenance of any nuclear facility.
  */
 import com.jogamp.common.nio.Buffers;
+import com.jogamp.openal.AL;
+import com.jogamp.openal.ALC;
+import com.jogamp.openal.ALCcontext;
+import com.jogamp.openal.ALCdevice;
+import com.jogamp.openal.ALFactory;
 import java.io.IOException;
 import java.nio.*;
 

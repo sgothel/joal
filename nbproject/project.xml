@@ -9,7 +9,7 @@
             <!-- Do not use Project Properties customizer when editing this file manually. -->
             <name>JOAL</name>
             <properties>
-                <property name="ant.script">/home/mbien/NetBeansProjects/JOGAMP/joal/make/build.xml</property>
+                <property name="ant.script">make/build.xml</property>
             </properties>
             <folders>
                 <source-folder>
@@ -24,9 +24,15 @@
                     <encoding>UTF-8</encoding>
                 </source-folder>
                 <source-folder>
-                    <label>test/src</label>
+                    <label>src/test</label>
                     <type>java</type>
-                    <location>test/src</location>
+                    <location>src/test</location>
+                    <encoding>UTF-8</encoding>
+                </source-folder>
+                <source-folder>
+                    <label>build/gensrc/classes</label>
+                    <type>java</type>
+                    <location>build/gensrc/classes</location>
                     <encoding>UTF-8</encoding>
                 </source-folder>
             </folders>
@@ -86,8 +92,12 @@
                         <location>src/java</location>
                     </source-folder>
                     <source-folder style="packages">
-                        <label>test/src</label>
-                        <location>test/src</location>
+                        <label>src/test</label>
+                        <location>src/test</location>
+                    </source-folder>
+                    <source-folder style="packages">
+                        <label>build/gensrc/classes</label>
+                        <location>build/gensrc/classes</location>
                     </source-folder>
                     <source-file>
                         <location>${ant.script}</location>
@@ -110,9 +120,13 @@
                 <source-level>1.5</source-level>
             </compilation-unit>
             <compilation-unit>
-                <package-root>test/src</package-root>
+                <package-root>src/test</package-root>
                 <unit-tests/>
-                <classpath mode="compile">../gluegen/build/gluegen-rt.jar:build/classes:../gluegen/make/lib/junit.jar</classpath>
+                <classpath mode="compile">build/classes</classpath>
+                <source-level>1.5</source-level>
+            </compilation-unit>
+            <compilation-unit>
+                <package-root>build/gensrc/classes</package-root>
                 <source-level>1.5</source-level>
             </compilation-unit>
         </java-data>

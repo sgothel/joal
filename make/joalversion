@@ -1,8 +1,12 @@
-Specification-Title: Java Binding for OpenAL
+Specification-Title: Java Bindings for OpenAL API Specification
 Specification-Version: @BASEVERSION@
-Specification-Vendor: JogAmp.org
-Implementation-Title: Java Bindings for the OpenAL API
+Specification-Vendor: JogAmp Community
+Implementation-Title: Java Bindings for OpenAL Runtime Environment
 Implementation-Version: @VERSION@
-Implementation-Vendor: JogAmp.org
+Implementation-Branch: @SCM_BRANCH@
+Implementation-Commit: @SCM_COMMIT@
+Implementation-Vendor: JogAmp Community
+Implementation-URL: http://jogamp.org/
 Extension-Name: com.jogamp.openal
-Implementation-Vendor-Id: JogAmp.org
+Implementation-Vendor-Id: com.jogamp
+Trusted-Library: true

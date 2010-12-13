@@ -3,6 +3,7 @@
  */
 package com.jogamp.openal.impl;
 
+import com.jogamp.common.nio.Buffers;
 import com.jogamp.openal.ALException;
 import com.jogamp.openal.ALCdevice;
 import java.io.UnsupportedEncodingException;
@@ -32,6 +33,23 @@ public class ALCImpl extends ALCAbstractImpl {
             throw new ALException(e);
         }
     }
+
+    /** Entry point (through function pointer) to C language function: <br> <code> const ALCchar *  alcGetString(ALCdevice *  device, ALCenum param); </code>    */
+    public ByteBuffer alcGetStringImpl(ALCdevice device, int param) {
+
+        final long __addr_ = getALCProcAddressTable()._addressof_alcGetString;
+        if (__addr_ == 0) {
+            throw new UnsupportedOperationException("Method \"alcGetStringImpl\" not available");
+        }
+        ByteBuffer _res;
+        _res = dispatch_alcGetStringImpl1(((device == null) ? null : device.getBuffer()), param, __addr_);
+        if (_res == null) {
+            return null;
+        }
+        Buffers.nativeOrder(_res);
+        return _res;
+    }
+    private native java.nio.ByteBuffer dispatch_alcGetStringImpl1(ByteBuffer deviceBuffer, int param, long addr);
 
     /**
      * Fetches the names of the available ALC device specifiers.
