@@ -39,7 +39,9 @@
     <property name="joal.version" value="${joal_base_version}-${version.timestamp}" />
 
     <property name="project.root"  value=".." />
-    <property name="gluegen.root" value="${project.root}/../gluegen" />
+
+    <property name="gluegen.root"  value="${project.root}/../gluegen" />
+    <property name="gluegen.build" value="${gluegen.root}/${rootrel.build}" />
 
     <condition property="rootrel.build" value="build">
       <not>
@@ -65,39 +67,17 @@
         <property name="user.properties.file" value="${user.home}/joal.properties" />
         <property file="${user.properties.file}" />
         <echo message="Loaded ${user.properties.file}. (optionally)" />
-    </target>
 
-    <!-- ================================================================== -->
-    <!--
-       - Base initialization and detection of operating system.
-      -->
-    <target name="base.init" depends="load.user.properties,gluegen.properties.load.user,gluegen.cpptasks.detect.os">
-
-        <!-- Set the project root directory to be up one directory. -->
-        <property name="project.root" value=".." />
-
-        <!-- Set the configuration and build files to this directory. -->
-        <property name="make" value="." />
+        <property file="${user.home}/gluegen.properties" />
+        <echo message="Loaded ${user.home}/gluegen.properties." />
     </target>
-
-    <!-- ================================================================== -->
-    <!--
-       - Set up java.home.dir appropriately on all platforms.
-      -->
-    <target name="setup.java.home.dir.nonmacosx" depends="base.init" unless="isOSX">
-      <!-- java home dir is up one directory as java.home points to '<java-install-dir>/jre' -->
-      <property name="java.home.dir" value="${java.home}/.." />
-    </target>
-    <target name="setup.java.home.dir.macosx" depends="base.init" if="isOSX">
-      <property name="java.home.dir" value="/System/Library/Frameworks/JavaVM.framework/Home" />
-    </target>
-    <target name="setup.java.home.dir" depends="setup.java.home.dir.nonmacosx,setup.java.home.dir.macosx"/>
 
     <!-- ================================================================== -->
     <!--
        - Declare all paths and user defined variables.
       -->
-    <target name="declare.common" description="Declare properties" depends="setup.java.home.dir, gluegen.cpptasks.detect.compiler">
+    <target name="init" depends="gluegen.cpptasks.detect.os">
+
         <!-- The location and name of the configuration ANT file that will
            - validate to ensure that all user-define variables are set. -->
         <property name="validate.user.properties" value="${make}/validate-properties.xml" />
@@ -107,8 +87,8 @@
         <!-- sibling of the JOAL workspace. -->
         <property name="gluegen.make.dir" value="${gluegen.root}/make" />
         <property name="gluegen.build.xml" value="${gluegen.make.dir}/build.xml" />
-        <property name="gluegen.jar" value="${gluegen.root}/${rootrel.build}/gluegen.jar" />
-        <property name="gluegen-rt.jar" value="${gluegen.root}/${rootrel.build}/gluegen-rt.jar" />
+        <property name="gluegen.jar" value="${gluegen.build}/gluegen.jar" />
+        <property name="gluegen-rt.jar" value="${gluegen.build}/gluegen-rt.jar" />
 
         <!-- Create the classpath that includes GlueGen and
            - ANTLR. This requires the user-defined "antlr.jar"
@@ -165,14 +145,6 @@
             <include name="*.c" />
         </fileset>
 
-        <property name="java.includes.dir" value="${java.home.dir}/include" /> <!-- NOTE:  this MUST be relative for FileSet -->
-        <property name="java.includes.dir.win32" value="${java.includes.dir}/win32" />
-        <property name="java.includes.dir.linux" value="${java.includes.dir}/linux" />
-        <property name="java.includes.dir.solaris" value="${java.includes.dir}/solaris" />
-        <property name="java.includes.dir.macosx" value="/System/Library/Frameworks/JavaVM.framework/Versions/CurrentJDK/Headers" />
-        <property name="java.includes.dir.freebsd" value="${java.includes.dir}/freebsd" />
-        <property name="java.includes.dir.hpux" value="${java.includes.dir}/hp-ux" />
-
         <!-- The resulting joal.jar. -->
         <property name="joal.jar" value="${build}/joal.jar" />
 
@@ -186,121 +158,6 @@
         <property name="joal.constants.cfg" value="${config}/joal-constants.cfg" />
         <property name="joal.alc.cfg" value="${config}/joal-alc.cfg" />
         <property name="joal.alc.constants.cfg" value="${config}/joal-alc-constants.cfg" />
-    </target>
-
-    <!-- ================================================================== -->
-    <!--
-       - Platform specific declares.
-      -->
-    <target name="c.configure.win.mingw32" if="isMingW32">
-        <echo message="Win.Ming32W" />
-        <property name="java.includes.dir.platform" value="${java.includes.dir.win32}" />
-
-        <property name="compiler.cfg.id"  value="compiler.cfg.win32.mingw" />
-        <property name="linker.cfg.id"    value="linker.cfg.win32.mingw" />
-    </target>
-
-    <target name="c.configure.win.mingw64" if="isMingW64">
-        <echo message="Win.Ming64W" />      
-        <property name="java.includes.dir.platform" value="${java.includes.dir.win64}" />
-        
-        <property name="compiler.cfg.id"  value="compiler.cfg.win64.mingw" />
-        <property name="linker.cfg.id"    value="linker.cfg.win64.mingw" />
-    </target>
-
-    <target name="declare.win32" depends="c.configure.win.mingw32,c.configure.win.mingw64" if="isWindows"/>
-
-    <target name="declare.linux.x86" if="isLinux" unless="isLinuxAMD64">
-      <echo message="Linux.x86" />
-      <property name="java.includes.dir.platform"           value="${java.includes.dir.linux}" />
-
-      <property name="compiler.cfg.id"                      value="compiler.cfg.linux" />
-      <property name="linker.cfg.id"                        value="linker.cfg.linux" />
-    </target>
-
-    <target name="declare.linux.amd64" if="isLinuxAMD64">
-      <echo message="Linux.AMD64" />
-      <property name="java.includes.dir.platform"           value="${java.includes.dir.linux}" />
-
-      <property name="compiler.cfg.id"                      value="compiler.cfg.linux.amd64" />
-      <property name="linker.cfg.id"                        value="linker.cfg.linux.amd64" />
-    </target>
-
-    <target name="declare.linux.ia64" if="isLinuxIA64">
-      <echo message="Linux.IA64" />
-      <property name="java.includes.dir.platform"           value="${java.includes.dir.linux}" />
-
-      <property name="compiler.cfg.id"                      value="compiler.cfg.linux" />
-      <property name="linker.cfg.id"                        value="linker.cfg.linux" />
-    </target>
-
-    <target name="declare.linux" depends="declare.linux.x86,declare.linux.amd64,declare.linux.ia64" if="isLinux" />
-
-    <target name="declare.solaris32" if="isSolaris32Bit">
-      <echo message="Solaris" />
-      <property name="java.includes.dir.platform"           value="${java.includes.dir.solaris}" />
-
-      <property name="compiler.cfg.id"                      value="compiler.cfg.solaris" />
-      <property name="linker.cfg.id"                        value="linker.cfg.solaris" />
-    </target>
-
-    <target name="declare.solaris.sparcv9" if="isSolarisSparcv9">
-      <echo message="SolarisSparcv9" />
-      <property name="java.includes.dir.platform"           value="${java.includes.dir.solaris}" />
-
-      <property name="compiler.cfg.id"                      value="compiler.cfg.solaris.sparcv9" />
-      <property name="linker.cfg.id"                        value="linker.cfg.solaris.sparcv9" />
-    </target>
-
-
-    <target name="declare.solaris.amd64" if="isSolarisAMD64">
-      <echo message="SolarisAMD64" />
-      <property name="java.includes.dir.platform"           value="${java.includes.dir.solaris}" />
-
-      <property name="compiler.cfg.id"                      value="compiler.cfg.solaris.amd64" />
-      <property name="linker.cfg.id.core"                   value="linker.cfg.solaris.amd64" />
-    </target>
-
-    <target name="declare.macosx.ppc" if="isOSXPPC">
-      <echo message="MacOSX PPC" />
-    </target>
-
-    <target name="declare.macosx.universal" if="isOSXUniversal">
-      <echo message="MacOSX Universal" />
-    </target>
-
-    <target name="declare.macosx" if="isOSX" depends="declare.macosx.ppc,declare.macosx.universal">
-      <echo message="MacOSX" />
-      <property name="java.includes.dir.platform"           value="${java.includes.dir.macosx}" />
-
-      <property name="compiler.cfg.id"                      value="compiler.cfg.macosx" />
-      <property name="linker.cfg.id"                        value="linker.cfg.macosx" />
-    </target>
-
-    <target name="declare.freebsd" if="isFreeBSD">
-      <echo message="FreeBSD" />
-      <property name="java.includes.dir.platform"           value="${java.includes.dir.freebsd}" />
-
-      <property name="compiler.cfg.id"                      value="compiler.cfg.freebsd" />
-      <property name="linker.cfg.id"                        value="linker.cfg.linux" />
-    </target>
-
-    <target name="declare.hpux" if="isHPUX">
-      <echo message="HP-UX" />
-      <property name="java.includes.dir.platform"           value="${java.includes.dir.hpux}" />
-
-      <property name="compiler.cfg.id"                      value="compiler.cfg.hpux" />
-      <property name="linker.cfg.id"                        value="linker.cfg.hpux" />
-    </target>
-
-    <!-- ================================================================== -->
-    <!--
-       - Initialize all parameters required for the build and create any
-       - required directories.
-      -->
-    <target name="init" depends="declare.common">
-        <!-- Call the external config validator script to make sure the config is ok and consistent -->
-        <ant antfile="${validate.user.properties}" inheritall="true"/>
 
         <!-- Create the required output directories. -->
         <mkdir dir="${src.generated.java}" />
@@ -312,8 +169,6 @@
         <property name="archive.name"        value="joal-${joal.version}" />
         <property name="archive"             value="${build}/${archive.name}" />
     </target>
-
-    <target name="declare" depends="init,declare.win32,declare.linux,declare.solaris32,declare.macosx,declare.freebsd" />
 
     <!-- ================================================================== -->
     <!-- GlueGen and BuildStaticGLInfo creation, task setup and Java file generation -->
@@ -425,79 +280,84 @@
        - Compile the native C code for JOAL.
       -->
 
-    <target name="c.configure" depends="gluegen.cpptasks.configure.compiler">
-      <!-- linker configuration -->
-
-      <patternset id="c.src.files.joal">
-        <include name="${rootrel.src.c}/*.c"/>
-        <include name="${rootrel.generated.c.joal}/*.c"/>
-      </patternset>
-
+    <target name="rename.mingw.dll" if="isMingW">
+        <move file="${src}" tofile="${dest}" />
     </target>
 
-    <target name="c.build" depends="c.configure">
-      <fail message="Requires '${c.compiler.src.files}'" unless="c.compiler.src.files"/>
-      <fail message="Requires '${compiler.cfg.id}'"      unless="compiler.cfg.id"/>
-      <fail message="Requires '${linker.cfg.id}'"        unless="linker.cfg.id"/>
-      <fail message="Requires '${output.lib.name}'"      unless="output.lib.name"/>
-
-      <echo message="Output lib name = ${output.lib.name}" />
-
-      <!-- NOTE: the value of the debug and optimise attributes will not be overridden if already set externally -->
-      <property name="c.compiler.debug"     value="false" />
-      <!-- Optimise flags one of { none, size, speed, minimal, full, aggressive, extreme, unsafe } -->
-      <property name="c.compiler.optimise"  value="none" />
-
-      <condition property="c.compiler.use-debug"><istrue value="${c.compiler.debug}"/></condition>
-
-      <cc outtype="shared"
-          objdir="${obj.joal}"
-          outfile="${obj}/${output.lib.name}"
-          optimize="${c.compiler.optimise}"
-          debug="${c.compiler.debug}"
-          multithreaded="true"
-          exceptions="false"
-          rtti="false">
-
-        <!-- TODO: versioninfo  companyname="java.net"
-                      legalcopyright="Copyright"
-                      productname="JOAL"
-                      productversion="x.y.z"
-                      description="Description"
-                      fileversion="x.y.z"
-                      filecomments="File Comment" /-->
-
-        <fileset dir="${project.root}"><patternset refid="${c.compiler.src.files}"/></fileset>
-
-        <compiler extends="${compiler.cfg.id}" >
-          <sysincludepath path="${java.includes.dir}"/>
-          <sysincludepath path="${java.includes.dir.platform}"/>
-          <includepath path="stub_includes/openal"/>
-        </compiler>
-
-        <linker extends="${linker.cfg.id}" />
-      </cc>
+    <target name="rename.dylib" if="isOSX">
+        <move file="${src}" tofile="${dest}" />
     </target>
 
-    <target name="c.rename.joal.lib.mingw" if="isMingw">
-      <!-- FIXME: this is a hack; the cpptask should have an option to change the
-           suffix or at least understand the override from .so to .dll -->
-      <move file="${obj}/libjoal.so" tofile="${obj}/joal.dll" failonerror="false" />
-    </target>
+    <macrodef name="c.build">
+      <attribute name="compiler.cfg.id" />
+      <attribute name="linker.cfg.id" />
+      <attribute name="output.lib.name" />
+      <attribute name="c.compiler.use-jawt" default="false"/>
+      <sequential>
+        <echo message="Output lib name = @{output.lib.name}" />
 
-    <target name="c.rename.joal.lib.macosx" if="isOSX">
-      <!-- FIXME: this is a hack; the cpptask should have an option to change the
-           suffix or at least understand the override from dylib to jnilib -->
-      <move file="${obj}/libjoal.dylib" tofile="${obj}/libjoal.jnilib" />
-    </target>
+        <echo message="compiler.cfg.id.base: @{compiler.cfg.id}"/>
+        <echo message="linker.cfg.id.base: @{linker.cfg.id}"/>
 
-    <target name="c.build.joal">
-      <antcall target="c.build" inheritRefs="true">
-        <param name="c.compiler.src.files" value="c.src.files.joal"/>
-        <param name="output.lib.name" value="joal"/>
-      </antcall>
-      <antcall target="c.rename.joal.lib.mingw" inheritRefs="true" />
-      <antcall target="c.rename.joal.lib.macosx" inheritRefs="true" />
+        <!-- NOTE: the value of the debug and optimise attributes will not be overridden if already set externally -->
+        <property name="c.compiler.debug"     value="false" /> 
+        <!-- Optimise flags one of { none, size, speed, minimal, full, aggressive, extreme, unsafe } --> 
+        <property name="c.compiler.optimise"  value="none" /> 
+
+        <condition property="c.compiler.use-debug"><istrue value="${c.compiler.debug}"/></condition>
+
+        <patternset id="c.src.files">
+            <include name="${rootrel.src.c}/*.c"/>
+            <include name="${rootrel.generated.c.joal}/*.c"/>
+        </patternset>
+
+        <echo message="Compiling @{output.lib.name}" />
+
+        <cc outtype="shared" 
+            objdir="${obj}" 
+            outfile="${obj}/@{output.lib.name}"
+            optimize="${c.compiler.optimise}" 
+            debug="${c.compiler.debug}"
+            multithreaded="true" 
+            exceptions="false" 
+            rtti="false">   
+  
+          <fileset dir="${project.root}"><patternset refid="c.src.files"/></fileset>
+  
+          <compiler extends="@{compiler.cfg.id}" >
+            <sysincludepath path="${java.includes.dir}"/>
+            <sysincludepath path="${java.includes.dir.platform}"/>
+            <includepath path="stub_includes/openal"/>
+            <!-- This is for the generated headers for handwritten C code -->
+            <includepath path="${src.generated.c}" />
+            <includepath path="${src.c}"/>
+  
+            <!-- This must come last to not override real include paths -->
+            <!-- includepath path="stub_includes/macosx" if="isOSX" / -->
+          </compiler>
+  
+          <linker extends="@{linker.cfg.id}" />
+        </cc>
+
+        <antcall target="rename.dylib" inheritRefs="true">
+            <param name="src"  value="${obj}/lib@{output.lib.name}.dylib" />
+            <param name="dest" value="${obj}/lib@{output.lib.name}.jnilib" />
+        </antcall>
+
+        <antcall target="rename.mingw.dll" inheritRefs="true">
+            <param name="src"  value="${obj}/lib@{output.lib.name}.so" />
+            <param name="dest" value="${obj}/@{output.lib.name}.dll" />
+        </antcall>
+      </sequential>
+    </macrodef>  
+
+    <target name="c.build.joal" depends="init, gluegen.cpptasks.detect.os, gluegen.cpptasks.setup.compiler">
+      <echo message="compiler.cfg.id.base: ${compiler.cfg.id.base}"/>
+      <echo message="linker.cfg.id.base: ${linker.cfg.id.base}"/>
+      <c.build compiler.cfg.id="${compiler.cfg.id.base}"
+               output.lib.name="joal"
+               linker.cfg.id="${linker.cfg.id.base}"/>
+
       <!-- Create Java Web Start jar file from built file -->
       <jar destfile="${build}/joal-natives-${os.and.arch}.jar">
         <fileset dir="../${rootrel.build}/obj">
@@ -593,10 +453,10 @@
 
         <!-- if gluegen-javadoc.path is not set, check in default location, 
              ${gluegen.root}/${rootrel.build}/javadoc/gluegen -->
-        <available file="${gluegen.root}/${rootrel.build}/javadoc/gluegen/javadoc/package-list" 
+        <available file="${gluegen.build}/javadoc/gluegen/javadoc/package-list" 
                    type="file"
                    property="gluegen-javadoc.path"
-                   value="${gluegen.root}/${rootrel.build}/javadoc/gluegen" />
+                   value="${gluegen.build}/javadoc/gluegen" />
         <antcall target="javadoc.gluegen" inheritRefs="true" />
     </target>
 
@@ -606,7 +466,7 @@
              includes="joal/**" />
     </target>
 
-    <target name="javadoc.public" depends="setup.java.home.dir,init">
+    <target name="javadoc.public" depends="javadoc.init">
         <javadoc packagenames="${javadoc.packagenames}"
                  sourcepath="${src.java};${src.generated.java}"
                  destdir="${javadoc.joal.public.path}" windowtitle="JOAL API"
@@ -617,7 +477,7 @@
         </javadoc>
     </target>
 
-    <target name="javadoc.dev" depends="init">
+    <target name="javadoc.dev" depends="javadoc.init">
         <!-- Build the internal developer Javadoc -->
         <javadoc packagenames="${javadoc.dev.packagenames},${javadoc.dev.packagenames.platform}"
                  sourcepath="${src.java};${src.generated.java}"
@@ -665,7 +525,7 @@
     <!--
        - Clean up all that is built.
       -->
-    <target name="clean" depends="declare.common">
+    <target name="clean" depends="init">
         <delete includeEmptyDirs="true" quiet="true">
             <fileset dir="${build}" />
             <fileset dir="${javadoc}" />
@@ -680,7 +540,7 @@
       -->
     <target name="all" depends="joal.compile, test.compile, tag.build, developer-zip-archive"/>
 
-    <target name="joal.compile" depends="init, declare">
+    <target name="joal.compile" depends="init">
         <!-- Generate, compile, and build the jar for the Java sources. -->
         <antcall target="jar" inheritRefs="true" />
 
@@ -689,7 +549,7 @@
     </target>
 
     <target name="tag.build">
-        <copy file="${gluegen.root}/${rootrel.build}/artifact.properties" todir="${build}" overwrite="true"/>
+        <copy file="${gluegen.build}/artifact.properties" todir="${build}" overwrite="true"/>
         <echo message='joal.build.number=${joal.build.number}${line.separator}' file="${build}/artifact.properties" append="true"/>
         <echo message='joal.build.id=${joal.build.id}${line.separator}'         file="${build}/artifact.properties" append="true"/>
         <echo message='joal.build.branch=${joal.build.branch}${line.separator}' file="${build}/artifact.properties" append="true"/>

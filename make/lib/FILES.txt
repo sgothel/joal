@@ -1,0 +1,9 @@
+
+Windows x32 and x64:
+    oalinst: 
+        http://connect.creativelabs.com/openal/Downloads/oalinst.zip
+        LICENSE: oalinst-license.txt
+
+        Summer 2009 : Version 2.0.7.0 
+        * OpenAL32.dll version 6.14.357.24
+        * wrap_oal.dll version 2.2.0.5 

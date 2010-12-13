@@ -39,20 +39,33 @@ import com.jogamp.openal.ALFactory;
  *
  */
 public final class EAXFactory {
+    public static final boolean DEBUG;
 
     static {
         //initializes JOAL
         ALFactory.getAL();
+        DEBUG = ALFactory.DEBUG;
     }
     
-    private static EAX eax;
+    private static EAX eax = null;
+    private static boolean eaxTried = false;
 
     private static native void init();
 
-    public static EAX getEAX() {
-        if (eax == null) {
-            init();
-            eax = new EAX(EAX.SOURCE, EAX.LISTENER);
+    public static synchronized EAX getEAX() {
+        try {
+            if (!eaxTried) {
+                eaxTried = true;
+                init();
+                eax = new EAX(EAX.SOURCE, EAX.LISTENER);
+                if(DEBUG) {
+                    System.err.println("EAX initialized");
+                }
+            }
+        } catch (UnsatisfiedLinkError e) {
+            if(DEBUG) {
+                e.printStackTrace();
+            }
         }
         return eax;
     }

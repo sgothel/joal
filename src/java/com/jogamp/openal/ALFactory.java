@@ -44,6 +44,8 @@ import com.jogamp.openal.impl.*;
  * @author Kenneth Russell
  */
 public class ALFactory {
+  public static final boolean DEBUG = Debug.debug("Factory");
+
   private static boolean initialized = false;
   private static AL al;
   private static ALC alc;
@@ -54,9 +56,12 @@ public class ALFactory {
     try {
       if (!initialized) {
         if(null == ALImpl.getALProcAddressTable()) {
-            throw new RuntimeException("AL not initialized (ProcAddressTable null)");
+            throw new ALException("AL not initialized (ProcAddressTable null)");
         }
         initialized = true;
+        if(DEBUG) {
+            System.err.println("AL initialized");
+        }
       }
     } catch (UnsatisfiedLinkError e) {
       throw new ALException(e);
@@ -72,7 +77,7 @@ public class ALFactory {
   public static AL getAL() throws ALException {
     initialize();
     if (al == null) {
-      al = new ALImpl();
+        al = new ALImpl();
     }
     return al;
   }
@@ -86,7 +91,7 @@ public class ALFactory {
   public static ALC getALC() throws ALException{
     initialize();
     if (alc == null) {
-      alc = new ALCImpl();
+        alc = new ALCImpl();
     }
     return alc;
   }

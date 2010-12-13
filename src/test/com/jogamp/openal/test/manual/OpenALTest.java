@@ -72,7 +72,8 @@ public class OpenALTest {
 
 
         boolean eaxPresent = al.alIsExtensionPresent("EAX2.0");
-        System.out.println("EAX present:" + eaxPresent);
+        EAX eax = ( eaxPresent ) ? EAXFactory.getEAX() : null;
+        System.err.println("EAX present:" + eaxPresent + ", EAX retrieved: "+ (null != eax));
 
         int[] buffers = new int[1];
         al.alGenBuffers(1, buffers, 0);
@@ -86,14 +87,13 @@ public class OpenALTest {
 
         int[] loopArray = new int[1];
         al.alGetSourcei(sources[0], AL.AL_LOOPING, loopArray, 0);
-        System.out.println("Looping 1: " + (loopArray[0] == AL.AL_TRUE));
+        System.err.println("Looping 1: " + (loopArray[0] == AL.AL_TRUE));
 
         int[] loopBuffer = new int[1];
         al.alGetSourcei(sources[0], AL.AL_LOOPING, loopBuffer, 0);
-        System.out.println("Looping 2: " + (loopBuffer[0] == AL.AL_TRUE));
+        System.err.println("Looping 2: " + (loopBuffer[0] == AL.AL_TRUE));
 
-        if (eaxPresent) {
-            EAX eax = EAXFactory.getEAX();
+        if (eaxPresent && null!=eax) {
             IntBuffer env = Buffers.newDirectIntBuffer(1);
             env.put(EAX.EAX_ENVIRONMENT_BATHROOM);
             eax.setListenerProperty(EAX.DSPROPERTY_EAXLISTENER_ENVIRONMENT, env);

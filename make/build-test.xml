@@ -59,15 +59,15 @@
         <property name="java.dir.junit"       value="${java.dir.test}/junit"/>
         <property name="java.dir.manual"      value="${java.dir.test}/manual"/>
 
-        <property name="obj.all.paths"        value="${gluegen.root}/build/obj${path.separator}${obj}"/>
-        <property name="classpath.test"        value="${gluegen.root}/build/gluegen-rt.jar${path.separator}${build}/joal.jar${path.separator}${build}/joal-test.jar${path.separator}${junit.path}"/>
+        <property name="obj.all.paths"        value="${gluegen.build}/obj${path.separator}${obj}${path.separator}lib/${os.and.arch}"/>
+        <property name="classpath.test"       value="${gluegen-rt.jar}${path.separator}${build}/joal.jar${path.separator}${build}/joal-test.jar${path.separator}${junit.path}"/>
 
         <property name="batchtest.timeout"    value="1800000"/> <!-- 30 min -->
     </target>
     
     <target name="test.compile" depends="test.init">
         <javac debug="true" srcdir="${src.test}" destdir="${classes}" includeantruntime="false"
-            classpath="${gluegen.root}/build/gluegen-rt.jar;../build/joal.jar;${junit.path}"/>
+            classpath="${gluegen-rt.jar};../build/joal.jar;${junit.path}"/>
         <copy todir="${classes}">
             <fileset dir="${src.test}" includes="**/*.wav"/>
         </copy>
@@ -93,6 +93,7 @@
             <jvmarg value="-Djogamp.debug.NativeLibrary=true"/>
             <jvmarg value="-Djogamp.debug.NativeLibrary.Lookup=true"/>
             <jvmarg value="-Djogamp.debug.ProcAddressHelper=true"/> -->
+            <jvmarg value="-Djoal.debug.Factory"/>
             <batchtest todir="${results.test}">
                 <fileset dir="${classes}">
                     <include name="${java.dir.junit}/**/*Test*"/>
@@ -139,6 +140,7 @@
                 <arg line="-Djogamp.debug.NativeLibrary=true"/>
                 <arg line="-Djogamp.debug.NativeLibrary.Lookup=true"/>
                 <arg line="-Djogamp.debug.ProcAddressHelper=true"/> -->
+                <arg line="-Djoal.debug.Factory"/>
                 <srcfile/>
                 <mappedresources>
                     <fileset dir="${classes}" includes="${test.class.path}"/>
