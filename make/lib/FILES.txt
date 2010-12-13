@@ -1,4 +1,8 @@
+Software OpenAL bundled libs ..
 
+Linux x32 and x64:
+    ubuntu 10.10 1:1.12.854-2
+    
 Windows x32 and x64:
     oalinst: 
         http://connect.creativelabs.com/openal/Downloads/oalinst.zip
