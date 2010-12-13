@@ -40,15 +40,15 @@
 
     <property name="project.root"  value=".." />
 
-    <property name="gluegen.root"  value="${project.root}/../gluegen" />
-    <property name="gluegen.build" value="${gluegen.root}/${rootrel.build}" />
-
     <condition property="rootrel.build" value="build">
       <not>
           <isset property="rootrel.build"/>
       </not>
     </condition>
     <property name="build" location="${project.root}/${rootrel.build}" />
+
+    <property name="gluegen.root"  value="${project.root}/../gluegen" />
+    <property name="gluegen.build" value="${gluegen.root}/${rootrel.build}" />
 
     <property file="${build}/artifact.properties"/>
     <property name="joal.build.number" value="manual-build"/>
