@@ -60,7 +60,7 @@
         <property name="java.dir.manual"      value="${java.dir.test}/manual"/>
 
         <property name="obj.all.paths"        value="${gluegen.root}/build/obj${path.separator}${obj}"/>
-        <property name="classpath.all"        value="${gluegen.root}/build/gluegen-rt.jar${path.separator}${build}/joal.jar${path.separator}${build}/joal-test.jar${path.separator}${junit.path}"/>
+        <property name="classpath.test"        value="${gluegen.root}/build/gluegen-rt.jar${path.separator}${build}/joal.jar${path.separator}${build}/joal-test.jar${path.separator}${junit.path}"/>
 
         <property name="batchtest.timeout"    value="1800000"/> <!-- 30 min -->
     </target>
@@ -101,7 +101,7 @@
                 <formatter usefile="true" type="xml"/>
             </batchtest>
             <classpath>
-                <path path="${classpath.all}"/>
+                <path path="${classpath.test}"/>
             </classpath>
         </junit>
     </target>
@@ -133,7 +133,7 @@
                  relative="true"
                  failonerror="false">
                 <env key="${system.env.library.path}" path="${obj.all.paths}"/>
-                <env key="CLASSPATH" value="${classpath.all}"/>
+                <env key="CLASSPATH" value="${classpath.test}"/>
                 <arg value="-Djava.library.path=${obj.all.paths}"/>
                 <!--
                 <arg line="-Djogamp.debug.NativeLibrary=true"/>

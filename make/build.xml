@@ -176,14 +176,12 @@
         <!-- The resulting joal.jar. -->
         <property name="joal.jar" value="${build}/joal.jar" />
 
-        <!-- The javadoc dirs. -->
-        <property name="javadoc" value="${project.root}/javadoc_public" />
-        <property name="javadoc.dev" value="${project.root}/javadoc_joal_dev" />
-        <property name="javadoc.link" value="http://java.sun.com/j2se/1.4.2/docs/api/" />
-        <property name="javadoc.packagenames" value="com.jogamp.openal,com.jogamp.openal.util,com.jogamp.openal.sound3d" />
-        <property name="javadoc.dev.packagenames" value="${javadoc.packagenames},com.jogamp.openal.impl" />
+        <path id="joal_all.classpath">
+          <pathelement location="${gluegen-rt.jar}" />
+          <pathelement location="${joal.jar}" />
+        </path>
 
-	<!-- Names of configuration files used during glue code generation. -->
+        <!-- Names of configuration files used during glue code generation. -->
         <property name="joal.cfg" value="${config}/joal.cfg" />
         <property name="joal.constants.cfg" value="${config}/joal-constants.cfg" />
         <property name="joal.alc.cfg" value="${config}/joal-alc.cfg" />
@@ -544,21 +542,91 @@
        -        on the platform specific build targets.  To circumvent any
        -        errors, ensure that the source is built first.
       -->
-    <target name="javadoc" depends="setup.java.home.dir,init">
+    <target name="javadoc" depends="init, javadoc.init, javadoc.public, javadoc.dev, javadoc.zip"/>
+
+    <!-- copies ${gluegen-javadoc.path}/** to ${javadoc.root.path}/gluegen/ 
+         gluegen-javadoc.path is the parent folder of package-list:
+            gluegen-javadoc.path := build/javadoc/gluegen 
+            with build/javadoc/gluegen/javadoc/package-list
+      -->
+    <target name="javadoc.gluegen" depends="init" if="gluegen-javadoc.path">
+        <delete dir="${javadoc.root.path}/gluegen" includeEmptyDirs="true" quiet="true" failonerror="false" />
+        <mkdir dir="${javadoc.root.path}/gluegen" />
+
+        <copy todir="${javadoc.root.path}/gluegen" failonerror="false">
+            <fileset dir="${gluegen-javadoc.path}" includes="**" />
+        </copy>
+    </target>
+
+    <target name="javadoc.init" depends="init">
+        <property name="javadoc.link" value="http://java.sun.com/j2se/1.4.2/docs/api/" />
+        <!--property name="javadoc.link" value="http://download.oracle.com/javase/1.4.2/docs/api/"/-->
+
+        <!-- Link offline with relative URLs does not work.
+             Link online with relative URLs works, 
+             so we have to assume the same relative online folder structure:
+
+                 http://jogamp.org/deployment/jogamp-next/javadoc/gluegen/javadoc/
+                 http://jogamp.org/deployment/jogamp-next/javadoc/jogl/javadoc/
+                 http://jogamp.org/deployment/jogamp-next/javadoc/jogl/javadoc_dev/
+                 http://jogamp.org/deployment/jogamp-next/javadoc/jogl/javadoc_jogl_spec/
+                 http://jogamp.org/deployment/jogamp-next/javadoc/jogl/javadoc_nativewindow_spec/
+
+             gluegen rel URL: ../../gluegen/javadoc
+
+             build structure:
+
+                 jogl.root:    build/javadoc/jogl/<javadoc-type>  (we have javadoc, javadoc_dev and javadoc_jogl_spec, ..)
+                 gluegen.root: build/javadoc/gluegen/javadoc
+
+            to match the online gluegen rel URL, we need:
+
+                 jogl.root:    build/javadoc/gluegen/javadoc
+          -->
+        <property name="gluegen.link" value="../../gluegen/javadoc" /> 
+        <property name="javadoc.root.path" value="${build}/javadoc" />
+        <property name="javadoc.joal.public.path" value="${javadoc.root.path}/joal/javadoc" />
+        <property name="javadoc.joal.dev.path"    value="${javadoc.root.path}/joal/javadoc_dev" />
+
+        <property name="javadoc.packagenames" value="com.jogamp.openal,com.jogamp.openal.util,com.jogamp.openal.sound3d" />
+        <property name="javadoc.dev.packagenames" value="${javadoc.packagenames},com.jogamp.openal.impl" />
+
+        <!-- if gluegen-javadoc.path is not set, check in default location, 
+             ${gluegen.root}/${rootrel.build}/javadoc/gluegen -->
+        <available file="${gluegen.root}/${rootrel.build}/javadoc/gluegen/javadoc/package-list" 
+                   type="file"
+                   property="gluegen-javadoc.path"
+                   value="${gluegen.root}/${rootrel.build}/javadoc/gluegen" />
+        <antcall target="javadoc.gluegen" inheritRefs="true" />
+    </target>
+
+    <target name="javadoc.zip" depends="javadoc.init">
+        <zip destfile="${build}/javadoc.zip"
+             basedir="${javadoc.root.path}"
+             includes="joal/**" />
+    </target>
+
+    <target name="javadoc.public" depends="setup.java.home.dir,init">
         <javadoc packagenames="${javadoc.packagenames}"
                  sourcepath="${src.java};${src.generated.java}"
-                 destdir="${javadoc}" windowtitle="JOAL API"
-                 source="1.4"
-                 linkoffline="${javadoc.link} 142-packages" />
+                 destdir="${javadoc.joal.public.path}" windowtitle="JOAL API"
+                 source="1.4">
+            <classpath refid="joal_all.classpath"/>
+            <link offline="true" href="${javadoc.link}" packagelistLoc="${gluegen.root}/make/142-packages" />
+            <link offline="false" href="${gluegen.link}" />
+        </javadoc>
     </target>
 
     <target name="javadoc.dev" depends="init">
         <!-- Build the internal developer Javadoc -->
         <javadoc packagenames="${javadoc.dev.packagenames},${javadoc.dev.packagenames.platform}"
                  sourcepath="${src.java};${src.generated.java}"
-                 destdir="${javadoc.dev}" windowtitle="JOAL API"
-                 source="1.4"
-                 linkoffline="${javadoc.link} 142-packages" />
+                 destdir="${javadoc.joal.dev.path}" windowtitle="JOAL API"
+                 source="1.4">
+            <classpath refid="joal_all.classpath"/>
+            <link offline="true" href="${javadoc.link}" packagelistLoc="${gluegen.root}/make/142-packages" />
+            <link offline="false" href="${gluegen.link}" />
+        </javadoc>
     </target>
 
     <!-- Build binary zip archives for developers -->
