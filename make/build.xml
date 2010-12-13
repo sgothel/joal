@@ -34,7 +34,7 @@
     <!-- This is the version of JOAL you are building -->
     <property name="joal_base_version" value="2.0"/>
     <tstamp>
-       <format property="version.timestamp" pattern="yyyyMMddHHmm"/>
+       <format property="version.timestamp" pattern="yyyyMMdd"/>
     </tstamp>
     <property name="joal.version" value="${joal_base_version}-${version.timestamp}" />
 
@@ -166,7 +166,7 @@
         <mkdir dir="${obj}" />
         <mkdir dir="${obj.joal}" />
 
-        <property name="archive.name"        value="joal-${joal.version}" />
+        <property name="archive.name"        value="joal-${joal.version}-${os.and.arch}" />
         <property name="archive"             value="${build}/${archive.name}" />
     </target>
 
