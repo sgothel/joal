@@ -42,7 +42,9 @@ import java.io.IOException;
 import java.nio.*;
 
 import com.jogamp.openal.eax.*;
+import com.jogamp.openal.test.resources.ResourceLocation;
 import com.jogamp.openal.util.*;
+import java.io.InputStream;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 /**
@@ -50,7 +52,6 @@ import javax.sound.sampled.UnsupportedAudioFileException;
  * @author Michael Bien
  */
 public class OpenALTest {
-
     public static void main(String[] args) throws InterruptedException, UnsupportedAudioFileException, IOException {
         ALC alc = ALFactory.getALC();
         ALCdevice device = alc.alcOpenDevice(null);
@@ -76,7 +77,7 @@ public class OpenALTest {
         int[] buffers = new int[1];
         al.alGenBuffers(1, buffers, 0);
 
-        WAVData wd = WAVLoader.loadFromStream(OpenALTest.class.getResourceAsStream("lewiscarroll.wav"));
+        WAVData wd = WAVLoader.loadFromStream(ResourceLocation.getTestStream0());
         al.alBufferData(buffers[0], wd.format, wd.data, wd.size, wd.freq);
 
         int[] sources = new int[1];

@@ -382,10 +382,7 @@ public class ALTest {
     }
 
     private WAVData loadTestWAV() throws IOException, UnsupportedAudioFileException {
-        InputStream resource = ResourceLocation.class.getResourceAsStream(TEST_FILE);
-        if(resource == null) {
-            throw new FileNotFoundException(TEST_FILE+" not found");
-        }
+        InputStream resource = ResourceLocation.getInputStream(TEST_FILE, true);
         return WAVLoader.loadFromStream(resource);
     }
 }

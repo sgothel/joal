@@ -60,7 +60,7 @@
         <property name="java.dir.manual"      value="${java.dir.test}/manual"/>
 
         <property name="obj.all.paths"        value="${gluegen.root}/build/obj${path.separator}${obj}"/>
-        <property name="classpath.all"        value="${gluegen.root}/build/gluegen-rt.jar${path.separator}${build}/joal.jar${path.separator}${classes}${path.separator}${junit.path}"/>
+        <property name="classpath.all"        value="${gluegen.root}/build/gluegen-rt.jar${path.separator}${build}/joal.jar${path.separator}${build}/joal-test.jar${path.separator}${junit.path}"/>
 
         <property name="batchtest.timeout"    value="1800000"/> <!-- 30 min -->
     </target>
@@ -71,6 +71,11 @@
         <copy todir="${classes}">
             <fileset dir="${src.test}" includes="**/*.wav"/>
         </copy>
+        <jar destfile="${build}/joal-test.jar">
+            <fileset dir="${classes}">
+              <include name="**" />
+            </fileset>
+        </jar>
     </target>
     
     <target name="clean">
@@ -84,9 +89,10 @@
         <junit forkmode="once" showoutput="true" fork="true" includeAntRuntime="true">
             <env key="${system.env.library.path}" path="${obj.all.paths}"/>
             <jvmarg value="-Djava.library.path=${obj.all.paths}"/>
+            <!--
             <jvmarg value="-Djogamp.debug.NativeLibrary=true"/>
             <jvmarg value="-Djogamp.debug.NativeLibrary.Lookup=true"/>
-            <jvmarg value="-Djogamp.debug.ProcAddressHelper=true"/>
+            <jvmarg value="-Djogamp.debug.ProcAddressHelper=true"/> -->
             <batchtest todir="${results.test}">
                 <fileset dir="${classes}">
                     <include name="${java.dir.junit}/**/*Test*"/>
@@ -129,9 +135,10 @@
                 <env key="${system.env.library.path}" path="${obj.all.paths}"/>
                 <env key="CLASSPATH" value="${classpath.all}"/>
                 <arg value="-Djava.library.path=${obj.all.paths}"/>
+                <!--
                 <arg line="-Djogamp.debug.NativeLibrary=true"/>
                 <arg line="-Djogamp.debug.NativeLibrary.Lookup=true"/>
-                <arg line="-Djogamp.debug.ProcAddressHelper=true"/>
+                <arg line="-Djogamp.debug.ProcAddressHelper=true"/> -->
                 <srcfile/>
                 <mappedresources>
                     <fileset dir="${classes}" includes="${test.class.path}"/>

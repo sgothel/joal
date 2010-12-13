@@ -501,7 +501,7 @@
       <antcall target="c.rename.joal.lib.mingw" inheritRefs="true" />
       <antcall target="c.rename.joal.lib.macosx" inheritRefs="true" />
       <!-- Create Java Web Start jar file from built file -->
-      <jar destfile="../${rootrel.build}/joal-natives-${os.and.arch}.jar">
+      <jar destfile="${build}/joal-natives-${os.and.arch}.jar">
         <fileset dir="../${rootrel.build}/obj">
           <include name="*joal.${native.library.suffix}" />
         </fileset>
