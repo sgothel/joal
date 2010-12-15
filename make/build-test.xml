@@ -42,7 +42,7 @@
       <classpath> <pathelement location="${ant-contrib.jar}"/> </classpath>
     </taskdef>
 
-    <target name="test.init">
+    <target name="declare.common">
         <mkdir dir="classes"/>
         <property name="rootrel.src.test"     value="src/test" />
         <property name="src.test"             value="${project.root}/${rootrel.src.test}" />
@@ -62,7 +62,17 @@
         <property name="obj.all.paths"        value="${gluegen.build}/obj${path.separator}${obj}${path.separator}lib/${os.and.arch}"/>
         <property name="classpath.test"       value="${gluegen-rt.jar}${path.separator}${build}/joal.jar${path.separator}${build}/joal-test.jar${path.separator}${junit.path}"/>
 
+        <property name="test.archive.name"    value="${archive.name}-test-results"/>
+
         <property name="batchtest.timeout"    value="1800000"/> <!-- 30 min -->
+    </target>
+
+    <target name="test.init" depends="declare.common">
+        <delete quiet="true">
+            <fileset dir="${results.test}" includes="**"/>
+            <fileset file="${build}/${test.archive.name}.zip"/>
+        </delete>
+        <mkdir dir="${results.test}"/>
     </target>
     
     <target name="test.compile" depends="test.init">
@@ -85,7 +95,6 @@
     <target name="test.auto.run" depends="junit.run"/>
 
     <target name="junit.run" depends="test.compile">
-        <mkdir dir="${results.test}"/>
         <junit forkmode="once" showoutput="true" fork="true" includeAntRuntime="true">
             <env key="${system.env.library.path}" path="${obj.all.paths}"/>
             <jvmarg value="-Djava.library.path=${obj.all.paths}"/>
@@ -105,6 +114,7 @@
                 <path path="${classpath.test}"/>
             </classpath>
         </junit>
+        <antcall target="test-zip-archive" inheritRefs="true" />
     </target>
     
     <target name="test.manual.run" depends="test.compile">
@@ -132,7 +142,8 @@
                  timeout="${batchtest.timeout}"
                  vmlauncher="false"
                  relative="true"
-                 failonerror="false">
+                 failonerror="false"
+                 output="${test.class.result.file}">
                 <env key="${system.env.library.path}" path="${obj.all.paths}"/>
                 <env key="CLASSPATH" value="${classpath.test}"/>
                 <arg value="-Djava.library.path=${obj.all.paths}"/>
@@ -149,6 +160,14 @@
             </apply>
           </sequential>
         </for>
+        <antcall target="test-zip-archive" inheritRefs="true" />
+    </target>
+
+    <!-- updates / create the test results zip file -->
+    <target name="test-zip-archive" depends="declare.common">
+        <zip destfile="${build}/${test.archive.name}.zip" update="true">
+            <zipfileset dir="${results.test}" prefix="${archive.name}/test-results"/>
+        </zip>
     </target>
 
 </project>
