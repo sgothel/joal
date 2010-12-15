@@ -67,15 +67,14 @@
         <property name="batchtest.timeout"    value="1800000"/> <!-- 30 min -->
     </target>
 
-    <target name="test.init" depends="declare.common">
+    <target name="test.compile" depends="declare.common">
+        <!-- Clean the results -->
         <delete quiet="true">
             <fileset dir="${results.test}" includes="**"/>
             <fileset file="${build}/${test.archive.name}.zip"/>
         </delete>
         <mkdir dir="${results.test}"/>
-    </target>
     
-    <target name="test.compile" depends="test.init">
         <javac debug="true" srcdir="${src.test}" destdir="${classes}" includeantruntime="false"
             classpath="${gluegen-rt.jar};../build/joal.jar;${junit.path}"/>
         <copy todir="${classes}">
