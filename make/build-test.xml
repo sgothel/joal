@@ -114,7 +114,7 @@
                 <path path="${classpath.test}"/>
             </classpath>
         </junit>
-        <antcall target="test-zip-archive" inheritRefs="true" />
+        <antcall target="test-zip-archive" inheritRefs="true" inheritAll="true"/>
     </target>
     
     <target name="test.manual.run" depends="test.compile">
@@ -160,7 +160,7 @@
             </apply>
           </sequential>
         </for>
-        <antcall target="test-zip-archive" inheritRefs="true" />
+        <antcall target="test-zip-archive" inheritRefs="true" inheritAll="true"/>
     </target>
 
     <!-- updates / create the test results zip file -->
