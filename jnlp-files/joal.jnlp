@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <jnlp codebase="JOAL_CODEBASE_TAG/"
-      href="joal.jnlp">
+      href="joal.jnlp" version="JOGAMP_VERSION">
   <information>
     <title>Java(tm) Binding to the OpenAL(r) API</title>
     <vendor>JogAmp Community</vendor>
@@ -16,7 +16,7 @@
     <resources>
       <jar href="joal.jar" main="true"/>
 
-      <extension name="gluegen-rt"   href="GLUEGEN_CODEBASE_TAG/gluegen-rt.jnlp" />
+      <extension name="gluegen-rt"   href="GLUEGEN_CODEBASE_TAG/gluegen-rt.jnlp" version="JOGAMP_VERSION"/>
     </resources>
 
     <resources os="Windows" arch="x86">
