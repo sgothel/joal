@@ -23,12 +23,12 @@
 
 
 /*   Java->C glue code:
- *   Java package: com.jogamp.openal.impl.ALImpl
+ *   Java package: jogamp.openal.ALImpl
  *    Java method: long dispatch_alGetProcAddressStatic(java.lang.String fname)
  *     C function: ALproc alGetProcAddress(const ALchar *  fname);
  */
 JNIEXPORT jlong JNICALL 
-Java_com_jogamp_openal_impl_ALImpl_dispatch_1alGetProcAddressStatic(JNIEnv *env, jclass _unused, jstring fname, jlong procAddress) {
+Java_jogamp_openal_ALImpl_dispatch_1alGetProcAddressStatic(JNIEnv *env, jclass _unused, jstring fname, jlong procAddress) {
   LPALGETPROCADDRESS ptr_alGetProcAddress;
   const char* _strchars_fname = NULL;
   ALproc _res;
@@ -50,12 +50,12 @@ Java_com_jogamp_openal_impl_ALImpl_dispatch_1alGetProcAddressStatic(JNIEnv *env,
 }
 
 /*   Java->C glue code:
- *   Java package: com.jogamp.openal.impl.ALCAbstractImpl
+ *   Java package: jogamp.openal.ALCAbstractImpl
  *    Java method: java.nio.ByteBuffer dispatch_alcGetStringImpl(ALCdevice device, int param)
  *     C function: const ALCchar *  alcGetString(ALCdevice *  device, ALCenum param);
  */
 JNIEXPORT jobject JNICALL 
-Java_com_jogamp_openal_impl_ALCImpl_dispatch_1alcGetStringImpl1(JNIEnv *env, jobject _unused, jobject device, jint param, jlong procAddress) {
+Java_jogamp_openal_ALCImpl_dispatch_1alcGetStringImpl1(JNIEnv *env, jobject _unused, jobject device, jint param, jlong procAddress) {
   LPALCGETSTRING ptr_alcGetString;
   ALCdevice * _device_ptr = NULL;
   const ALCchar *  _res;

@@ -35,7 +35,7 @@ package com.jogamp.openal;
 
 import com.jogamp.openal.AL;
 import com.jogamp.openal.ALC;
-import com.jogamp.openal.impl.*;
+import jogamp.openal.*;
 
 /**
  * This class provides factory methods for generating AL and ALC objects.

@@ -1,7 +1,7 @@
 /*
  * Created on Saturday, July 10 2010 17:08
  */
-package com.jogamp.openal.impl;
+package jogamp.openal;
 
 import com.jogamp.common.nio.Buffers;
 import com.jogamp.openal.ALException;

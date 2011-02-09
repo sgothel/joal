@@ -37,7 +37,7 @@
  * and developed by Kenneth Bradley Russell and Christopher John Kline.
  */
 
-package com.jogamp.openal.impl;
+package jogamp.openal;
 
 import java.security.*;
 

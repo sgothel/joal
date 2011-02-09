@@ -390,6 +390,7 @@
         <jar manifest="tempversion" destfile="${joal.jar}">
             <fileset dir="${classes}">
                 <include name="com/jogamp/openal/**" />
+                <include name="jogamp/openal/**" />
             </fileset>
         </jar>
         <delete file="tempversion"/>
@@ -449,7 +450,7 @@
         <property name="javadoc.joal.dev.path"    value="${javadoc.root.path}/joal/javadoc_dev" />
 
         <property name="javadoc.packagenames" value="com.jogamp.openal,com.jogamp.openal.util,com.jogamp.openal.sound3d" />
-        <property name="javadoc.dev.packagenames" value="${javadoc.packagenames},com.jogamp.openal.impl" />
+        <property name="javadoc.dev.packagenames" value="${javadoc.packagenames},jogamp.openal" />
 
         <!-- if gluegen-javadoc.path is not set, check in default location, 
              ${gluegen.root}/${rootrel.build}/javadoc/gluegen -->

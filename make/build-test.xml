@@ -43,7 +43,6 @@
     </taskdef>
 
     <target name="declare.common">
-        <mkdir dir="classes"/>
         <property name="rootrel.src.test"     value="src/test" />
         <property name="src.test"             value="${project.root}/${rootrel.src.test}" />
 
@@ -51,8 +50,8 @@
         <property name="build.test"           value="${build}/test/build" />
         <property name="obj.test"             value="${build.test}/obj"/>
 
-        <property name="classes"              value="${build.test}/classes" />
-        <property name="classes.path"         location="${classes}"/> <!-- absolute path -->
+        <property name="classes.test"         value="${build.test}/classes" />
+        <property name="classes.test.path"    location="${classes.test}"/> <!-- absolute path -->
 
         <property name="java.dir.test"        value="com/jogamp/openal/test"/>
         <property name="java.part.test"       value="${java.dir.test}/**"/>
@@ -65,6 +64,8 @@
         <property name="test.archive.name"    value="${archive.name}-test-results"/>
 
         <property name="batchtest.timeout"    value="1800000"/> <!-- 30 min -->
+
+        <mkdir dir="${classes.test}"/>
     </target>
 
     <target name="test.compile" depends="declare.common">
@@ -75,13 +76,13 @@
         </delete>
         <mkdir dir="${results.test}"/>
     
-        <javac debug="true" srcdir="${src.test}" destdir="${classes}" includeantruntime="false"
+        <javac debug="true" srcdir="${src.test}" destdir="${classes.test}" includeantruntime="false"
             classpath="${gluegen-rt.jar};../build/joal.jar;${junit.path}"/>
-        <copy todir="${classes}">
+        <copy todir="${classes.test}">
             <fileset dir="${src.test}" includes="**/*.wav"/>
         </copy>
         <jar destfile="${build}/joal-test.jar">
-            <fileset dir="${classes}">
+            <fileset dir="${classes.test}">
               <include name="**" />
             </fileset>
         </jar>
@@ -103,7 +104,7 @@
             <jvmarg value="-Djogamp.debug.ProcAddressHelper=true"/> -->
             <jvmarg value="-Djoal.debug.Factory"/>
             <batchtest todir="${results.test}">
-                <fileset dir="${classes}">
+                <fileset dir="${classes.test}">
                     <include name="${java.dir.junit}/**/*Test*"/>
                 </fileset>
                 <formatter usefile="false" type="plain"/>
@@ -119,18 +120,18 @@
     <target name="test.manual.run" depends="test.compile">
         <for param="test.class.path.m" keepgoing="true">
             <!-- results in absolute path -->
-            <fileset dir="${classes}">
+            <fileset dir="${classes.test}">
                 <include name="${java.dir.manual}/**/*Test*"/>
                 <exclude name="**/*$$*"/>
             </fileset>
           <sequential>
             <var name="test.class.path" unset="true"/>
-            <property name="test.class.path" basedir="${classes}" relative="true" location="@{test.class.path.m}"/>
+            <property name="test.class.path" basedir="${classes.test}" relative="true" location="@{test.class.path.m}"/>
             <var name="test.class.fqn" unset="true"/>
             <pathconvert property="test.class.fqn">
-              <fileset file="${classes}${file.separator}${test.class.path}"/>
+              <fileset file="${classes.test}${file.separator}${test.class.path}"/>
               <chainedmapper>
-                  <globmapper    from="${classes.path}${file.separator}*" to="*"/> <!-- rel. -->
+                  <globmapper    from="${classes.test.path}${file.separator}*" to="*"/> <!-- rel. -->
                   <packagemapper from="*.class"           to="*"/> <!-- FQCN -->
               </chainedmapper>
             </pathconvert>
@@ -153,7 +154,7 @@
                 <arg line="-Djoal.debug.Factory"/>
                 <srcfile/>
                 <mappedresources>
-                    <fileset dir="${classes}" includes="${test.class.path}"/>
+                    <fileset dir="${classes.test}" includes="${test.class.path}"/>
                     <packagemapper from="*.class" to="*"/>
                 </mappedresources>
             </apply>

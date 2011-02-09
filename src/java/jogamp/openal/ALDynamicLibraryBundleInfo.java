@@ -26,7 +26,7 @@
  * or implied, of JogAmp Community.
  */
  
-package com.jogamp.openal.impl;
+package jogamp.openal;
 
 import com.jogamp.common.os.DynamicLibraryBundleInfo;
 import java.util.*;
