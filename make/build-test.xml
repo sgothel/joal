@@ -77,7 +77,7 @@
         <mkdir dir="${results.test}"/>
     
         <javac debug="true" srcdir="${src.test}" destdir="${classes.test}" includeantruntime="false"
-            classpath="${gluegen-rt.jar};../build/joal.jar;${junit.path}"/>
+            classpath="${gluegen-rt.jar};${build}/joal.jar;${junit.path}"/>
         <copy todir="${classes.test}">
             <fileset dir="${src.test}" includes="**/*.wav"/>
         </copy>
