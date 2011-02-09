@@ -2,27 +2,27 @@ static final DynamicLibraryBundle alDynamicLookupHelper;
 private static final ALProcAddressTable alProcAddressTable;
 
 static {
-	alProcAddressTable = new ALProcAddressTable();
-	if(null==alProcAddressTable) {
-	  throw new RuntimeException("Couldn't instantiate ALProcAddressTable");
-	}
+    alProcAddressTable = new ALProcAddressTable();
+    if(null==alProcAddressTable) {
+      throw new RuntimeException("Couldn't instantiate ALProcAddressTable");
+    }
 
-	alDynamicLookupHelper = (DynamicLibraryBundle) 
-		AccessController.doPrivileged(new PrivilegedAction() {
-			public Object run() {
-				return new DynamicLibraryBundle(new ALDynamicLibraryBundleInfo());
-			}
-		});
-	if(null==alDynamicLookupHelper) {
-	  throw new RuntimeException("Null ALDynamicLookupHelper");
-	}
-	if(!alDynamicLookupHelper.isToolLibLoaded()) {
-	  throw new RuntimeException("Couln't load native AL library");
-	}
-	if(!alDynamicLookupHelper.isLibComplete()) {
-	  throw new RuntimeException("Couln't load native AL/JNI glue library");
-	}
-	alProcAddressTable.reset(alDynamicLookupHelper);
+    alDynamicLookupHelper = (DynamicLibraryBundle) 
+        AccessController.doPrivileged(new PrivilegedAction() {
+            public Object run() {
+                return new DynamicLibraryBundle(new ALDynamicLibraryBundleInfo());
+            }
+        });
+    if(null==alDynamicLookupHelper) {
+      throw new RuntimeException("Null ALDynamicLookupHelper");
+    }
+    if(!alDynamicLookupHelper.isToolLibLoaded()) {
+      throw new RuntimeException("Couln't load native AL library");
+    }
+    if(!alDynamicLookupHelper.isLibComplete()) {
+      throw new RuntimeException("Couln't load native AL/JNI glue library");
+    }
+    alProcAddressTable.reset(alDynamicLookupHelper);
 }
 
 public static ALProcAddressTable getALProcAddressTable() { return alProcAddressTable; }
