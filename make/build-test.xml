@@ -61,7 +61,7 @@
         <property name="obj.all.paths"        value="${gluegen.build}/obj${path.separator}${obj}${path.separator}lib/${os.and.arch}"/>
         <property name="classpath.test"       value="${gluegen-rt.jar}${path.separator}${build}/joal.jar${path.separator}${build}/joal-test.jar${path.separator}${junit.path}"/>
 
-        <property name="test.archive.name"    value="${archive.name}-test-results"/>
+        <property name="test.archive.name"    value="${archive.name}-test-results-${env.NODE_NAME}"/>
 
         <property name="batchtest.timeout"    value="1800000"/> <!-- 30 min -->
 

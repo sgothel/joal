@@ -38,6 +38,7 @@
     </tstamp>
     <property name="joal.version" value="${joal_base_version}-${version.timestamp}" />
 
+    <property environment="env" />
     <property name="project.root"  value=".." />
 
     <condition property="rootrel.build" value="build">
