@@ -50,11 +50,23 @@
     <property name="gluegen.root"  value="${project.root}/../gluegen" />
     <property name="gluegen.build" value="${gluegen.root}/${rootrel.build}" />
 
-    <property file="${build}/artifact.properties"/>
     <property name="joal.build.number" value="manual-build"/>
     <property name="joal.build.id"     value="${version.timestamp}"/>
-    <property name="joal.build.branch" value="master"/>
-    <property name="joal.build.commit" value="manual"/>
+    <mkdir dir="${build}" />
+    <exec dir="." executable="git" logError="true" failonerror="false" failifexecutionfails="false"
+              output="${build}/localbranch.raw">
+        <arg line="branch --no-color"/>
+    </exec>
+    <exec dir="." executable="sed" logError="true" failonerror="false" failifexecutionfails="false"
+              outputproperty="joal.build.branch">
+        <arg line="-e '/^[^*]/d' -e 's/* \(.*\)/\1/' ${build}/localbranch.raw"/>
+    </exec>
+    <property name="joal.build.branch" value="manual"/> <!-- fallback -->
+    <exec dir="${project.root}" executable="git" logError="true" failonerror="false" failifexecutionfails="false"
+              outputproperty="joal.build.commit">
+        <arg line="rev-parse HEAD"/>
+    </exec>
+    <property name="joal.build.commit" value="manual"/> <!-- fallback -->
 
     <!-- Pull in GlueGen cpptasks build file -->
     <import file="${gluegen.root}/make/gluegen-cpptasks.xml" />
@@ -492,8 +504,18 @@
         </javadoc>
     </target>
 
+    <target name="developer-src-zip" depends="init">
+        <!--delete includeEmptyDirs="true" quiet="true" failonerror="false">
+            <fileset dir="${build}" includes="joal-java-src.zip" />
+        </delete-->
+        <zip destfile="${build}/joal-java-src.zip">
+            <fileset dir="${src.java}"/>
+            <fileset dir="${build}/gensrc/classes"/>
+        </zip>
+    </target>
+
     <!-- Build binary zip archives for developers -->
-    <target name="developer-zip-archive" depends="init" if="build.archiveon">
+    <target name="developer-zip-archive" depends="init,developer-src-zip" if="build.archiveon">
         <!-- Clean up and create temporary directory -->
         <delete includeEmptyDirs="true" quiet="true" dir="${archive}" failonerror="false" />
         <mkdir dir="${archive}" />
@@ -516,6 +538,7 @@
         </copy>
         <copy file="../README.txt" todir="${archive}"/>
         <copy file="../LICENSE.txt" todir="${archive}"/>
+        <copy todir="${archive}" file="${build}/joal-java-src.zip"/>
         <archive.7z destfile="${build}/${archive.name}.7z"
              basedir="${build}"
              includes="${archive.name}/**" />
