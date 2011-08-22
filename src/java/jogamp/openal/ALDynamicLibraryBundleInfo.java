@@ -82,8 +82,12 @@ public class ALDynamicLibraryBundleInfo implements DynamicLibraryBundleInfo  {
         return res;
     }
 
-    public final long toolDynamicLookupFunction(long toolGetProcAddressHandle, String funcName) {
+    public final long toolGetProcAddress(long toolGetProcAddressHandle, String funcName) {
         return ALImpl.alGetProcAddress(toolGetProcAddressHandle, funcName);
+    }
+
+    public boolean useToolGetProcAdressFirst(String funcName) {
+        return true;
     }
 
 }
