@@ -43,6 +43,7 @@
     </taskdef>
 
     <import file="${gluegen.root}/make/jogamp-env.xml" />
+    <import file="${gluegen.root}/make/gluegen-cpptasks.xml" />
 
     <target name="declare.common" depends="jogamp.env.init, gluegen.cpptasks.detect.os">
         <property name="rootrel.src.test"     value="src/test" />
