@@ -21,5 +21,5 @@ fi
 #    -Drootrel.build=build-x86_64 \
 
 ant  \
-    -Drootrel.build=build-x86_64 \
-    $* 2>&1 | tee make.joal.all.linux-x86_64.log
+    -Drootrel.build=build-solaris-x86_64 \
+    $* 2>&1 | tee make.joal.all.solaris-x86_64.log
