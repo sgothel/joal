@@ -44,7 +44,7 @@
 
     <import file="${gluegen.root}/make/jogamp-env.xml" />
 
-    <target name="declare.common" depends="jogamp.env.init">
+    <target name="declare.common" depends="jogamp.env.init, gluegen.cpptasks.detect.os">
         <property name="rootrel.src.test"     value="src/test" />
         <property name="src.test"             value="${project.root}/${rootrel.src.test}" />
 
@@ -99,6 +99,7 @@
     <target name="junit.run" depends="test.compile">
         <junit forkmode="once" showoutput="true" fork="true" includeAntRuntime="true">
             <env key="${system.env.library.path}" path="${obj.all.paths}"/>
+            <jvmarg value="${jvmDataModel.arg}"/>
             <jvmarg value="-Djava.library.path=${obj.all.paths}"/>
             <!--
             <jvmarg value="-Djogamp.debug.NativeLibrary=true"/>
@@ -148,6 +149,7 @@
                  output="${test.class.result.file}">
                 <env key="${system.env.library.path}" path="${obj.all.paths}"/>
                 <env key="CLASSPATH" value="${classpath.test}"/>
+                <arg line="${jvmDataModel.arg}"/>
                 <arg value="-Djava.library.path=${obj.all.paths}"/>
                 <!--
                 <arg line="-Djogamp.debug.NativeLibrary=true"/>
