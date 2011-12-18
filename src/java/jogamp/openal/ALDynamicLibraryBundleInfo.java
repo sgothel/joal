@@ -28,14 +28,30 @@
  
 package jogamp.openal;
 
+import com.jogamp.common.jvm.JNILibLoaderBase;
 import com.jogamp.common.os.DynamicLibraryBundleInfo;
+import com.jogamp.common.os.Platform;
+import com.jogamp.common.util.cache.TempJarCache;
+
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.*;
 
 public class ALDynamicLibraryBundleInfo implements DynamicLibraryBundleInfo  {
-    private static List/*<String>*/ glueLibNames;
+    private static List<String> glueLibNames;
     static {
-        glueLibNames = new ArrayList();
-
+        AccessController.doPrivileged(new PrivilegedAction<Object>() {
+            public Object run() {
+                Platform.initSingleton();
+                
+                if(TempJarCache.isInitialized()) {
+                   JNILibLoaderBase.addNativeJarLibs(ALDynamicLibraryBundleInfo.class, "joal", null);
+                }
+                return null;
+            }
+        });
+                
+        glueLibNames = new ArrayList<String>();
         glueLibNames.add("joal");
     }
 
@@ -48,14 +64,14 @@ public class ALDynamicLibraryBundleInfo implements DynamicLibraryBundleInfo  {
     /** default **/
     public boolean shallLookupGlobal() { return false; }
 
-    public final List/*<String>*/ getGlueLibNames() {
+    public final List<String> getGlueLibNames() {
         return glueLibNames;
     }
 
-    public List getToolLibNames() {
-        List/*<List>*/ libNamesList = new ArrayList();
+    public List<List<String>> getToolLibNames() {
+        List<List<String>> libNamesList = new ArrayList<List<String>>();
 
-        List/*<String>*/ alLibNames = new ArrayList();
+        List<String> alLibNames = new ArrayList<String>();
 
         // this is the default AL lib name, according to the spec
         alLibNames.add("libopenal.so.1"); // unix
@@ -76,8 +92,8 @@ public class ALDynamicLibraryBundleInfo implements DynamicLibraryBundleInfo  {
         return libNamesList;
     }
 
-    public final List getToolGetProcAddressFuncNameList() {
-        List res = new ArrayList();
+    public final List<String> getToolGetProcAddressFuncNameList() {
+        List<String> res = new ArrayList<String>();
         res.add("alGetProcAddress");
         return res;
     }

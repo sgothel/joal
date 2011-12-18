@@ -98,11 +98,12 @@
     <target name="test.auto.run" depends="junit.run"/>
 
     <target name="junit.run" depends="test.compile">
-        <junit forkmode="once" showoutput="true" fork="true" includeAntRuntime="true">
+        <junit forkmode="perTest" showoutput="true" fork="true" haltonerror="off" includeAntRuntime="true">
             <env key="${system.env.library.path}" path="${obj.all.paths}"/>
             <jvmarg value="${jvmDataModel.arg}"/>
             <jvmarg value="-Djava.library.path=${obj.all.paths}"/>
             <!--
+            <jvmarg value="-Djogamp.debug=all"/>
             <jvmarg value="-Djogamp.debug.NativeLibrary=true"/>
             <jvmarg value="-Djogamp.debug.NativeLibrary.Lookup=true"/>
             <jvmarg value="-Djogamp.debug.ProcAddressHelper=true"/> -->
@@ -153,6 +154,7 @@
                 <arg line="${jvmDataModel.arg}"/>
                 <arg value="-Djava.library.path=${obj.all.paths}"/>
                 <!--
+                <arg line="-Djogamp.debug=all"/>
                 <arg line="-Djogamp.debug.NativeLibrary=true"/>
                 <arg line="-Djogamp.debug.NativeLibrary.Lookup=true"/>
                 <arg line="-Djogamp.debug.ProcAddressHelper=true"/> -->
