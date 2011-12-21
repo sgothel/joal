@@ -1,5 +1,5 @@
-set J2RE_HOME=c:\jre1.6.0_22_x64
-set JAVA_HOME=c:\jdk1.6.0_22_x64
+set J2RE_HOME=c:\jre1.6.0_30_x64
+set JAVA_HOME=c:\jdk1.6.0_30_x64
 set ANT_PATH=C:\apache-ant-1.8.0
 
 set PATH=%JAVA_HOME%\bin;%ANT_PATH%\bin;c:\mingw64\bin;c:\mingw\bin;%PATH%
