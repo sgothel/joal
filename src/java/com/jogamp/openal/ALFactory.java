@@ -33,6 +33,7 @@
 
 package com.jogamp.openal;
 
+import com.jogamp.common.os.Platform;
 import com.jogamp.openal.AL;
 import com.jogamp.openal.ALC;
 import jogamp.openal.*;
@@ -55,6 +56,7 @@ public class ALFactory {
   private static synchronized void initialize() throws ALException {
     try {
       if (!initialized) {
+        Platform.initSingleton();
         if(null == ALImpl.getALProcAddressTable()) {
             throw new ALException("AL not initialized (ProcAddressTable null)");
         }
