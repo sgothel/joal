@@ -19,7 +19,13 @@ if [ -z "$ANT_PATH" ] ; then
 fi
 
 #    -Drootrel.build=build-x86_64 \
+#    -Dtarget.sourcelevel=1.6 \
+#    -Dtarget.targetlevel=1.6 \
+#    -Dtarget.rt.jar=/opt-share/jre1.6.0_30/lib/rt.jar \
 
 ant  \
+    -Dtarget.sourcelevel=1.6 \
+    -Dtarget.targetlevel=1.6 \
+    -Dtarget.rt.jar=/opt-share/jre1.6.0_30/lib/rt.jar \
     -Drootrel.build=build-x86_64 \
     $* 2>&1 | tee make.joal.all.linux-x86_64.log

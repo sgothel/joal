@@ -283,7 +283,14 @@
        - Compile the original and generated source.
       -->
     <target name="java.compile" depends="java.generate">
-        <javac destdir="${classes}" classpath="${gluegen-rt.jar}" source="1.5" debug="true" debuglevel="source,lines" includeantruntime="false">
+        <javac destdir="${classes}" 
+               includeantruntime="false"
+               classpath="${gluegen-rt.jar}" 
+               memoryMaximumSize="${javac.memorymax}"
+               source="${target.sourcelevel}" 
+               target="${target.targetlevel}" 
+               bootclasspath="${target.rt.jar}"
+               debug="${javacdebug}" debuglevel="${javacdebuglevel}">
             <src path="${src.java}" />
             <src path="${src.generated.java}" />
         </javac>
@@ -435,7 +442,8 @@
 
     <target name="javadoc.init" depends="init">
         <!-- property name="javadoc.link" value="http://java.sun.com/j2se/1.4.2/docs/api/" /-->
-        <property name="javadoc.link" value="http://download.oracle.com/javase/1.5.0/docs/api/" />
+        <!-- property name="javadoc.link" value="http://download.oracle.com/javase/1.5.0/docs/api/" /-->
+        <property name="javadoc.link" value="http://docs.oracle.com/javase/6/docs/api/" />
 
         <!-- Link offline with relative URLs does not work.
              Link online with relative URLs works, 
@@ -485,7 +493,8 @@
         <javadoc packagenames="${javadoc.packagenames}"
                  sourcepath="${src.java};${src.generated.java}"
                  destdir="${javadoc.joal.public.path}" windowtitle="JOAL API"
-                 source="1.5">
+                 source="${target.sourcelevel}"
+                 maxmemory="${javac.memorymax}" >
             <classpath refid="joal_all.classpath"/>
             <link offline="true" href="${javadoc.link}" packagelistLoc="${gluegen.root}/make/142-packages" />
             <link offline="false" href="${gluegen.link}" />
@@ -497,7 +506,8 @@
         <javadoc packagenames="${javadoc.dev.packagenames},${javadoc.dev.packagenames.platform}"
                  sourcepath="${src.java};${src.generated.java}"
                  destdir="${javadoc.joal.dev.path}" windowtitle="JOAL API"
-                 source="1.5">
+                 source="${target.sourcelevel}"
+                 maxmemory="${javac.memorymax}" >
             <classpath refid="joal_all.classpath"/>
             <link offline="true" href="${javadoc.link}" packagelistLoc="${gluegen.root}/make/142-packages" />
             <link offline="false" href="${gluegen.link}" />

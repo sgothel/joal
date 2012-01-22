@@ -79,8 +79,15 @@
         </delete>
         <mkdir dir="${results.test}"/>
     
-        <javac debug="true" srcdir="${src.test}" destdir="${classes.test}" includeantruntime="false"
-            classpath="${gluegen-rt.jar};${build}/joal.jar;${junit.path}"/>
+        <javac destdir="${classes.test}" 
+               includeantruntime="false"
+               srcdir="${src.test}" 
+               classpath="${gluegen-rt.jar};${build}/joal.jar;${junit.path}"
+               memoryMaximumSize="${javac.memorymax}"
+               source="${target.sourcelevel}" 
+               target="${target.targetlevel}" 
+               bootclasspath="${target.rt.jar}"
+               debug="${javacdebug}" debuglevel="${javacdebuglevel}"/>
         <copy todir="${classes.test}">
             <fileset dir="${src.test}" includes="**/*.wav"/>
         </copy>
