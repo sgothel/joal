@@ -287,6 +287,7 @@
                includeantruntime="false"
                classpath="${gluegen-rt.jar}" 
                memoryMaximumSize="${javac.memorymax}"
+               encoding="UTF-8"
                source="${target.sourcelevel}" 
                target="${target.targetlevel}" 
                bootclasspath="${target.rt.jar}"
@@ -493,6 +494,7 @@
         <javadoc packagenames="${javadoc.packagenames}"
                  sourcepath="${src.java};${src.generated.java}"
                  destdir="${javadoc.joal.public.path}" windowtitle="JOAL API"
+                 encoding="UTF-8"
                  source="${target.sourcelevel}"
                  maxmemory="${javac.memorymax}" >
             <classpath refid="joal_all.classpath"/>
@@ -506,6 +508,7 @@
         <javadoc packagenames="${javadoc.dev.packagenames},${javadoc.dev.packagenames.platform}"
                  sourcepath="${src.java};${src.generated.java}"
                  destdir="${javadoc.joal.dev.path}" windowtitle="JOAL API"
+                 encoding="UTF-8"
                  source="${target.sourcelevel}"
                  maxmemory="${javac.memorymax}" >
             <classpath refid="joal_all.classpath"/>

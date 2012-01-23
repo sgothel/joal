@@ -84,6 +84,7 @@
                srcdir="${src.test}" 
                classpath="${gluegen-rt.jar};${build}/joal.jar;${junit.path}"
                memoryMaximumSize="${javac.memorymax}"
+               encoding="UTF-8"
                source="${target.sourcelevel}" 
                target="${target.targetlevel}" 
                bootclasspath="${target.rt.jar}"
