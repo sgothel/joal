@@ -2,6 +2,9 @@ Software OpenAL bundled libs ..
 
 Linux x32 and x64:
     ubuntu 10.10 1:1.12.854-2
+
+Linux armv7:
+    ubuntu 1:1.13-2
     
 Windows x32 and x64:
     oalinst: 

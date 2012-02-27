@@ -3,14 +3,8 @@
 	<classpathentry kind="src" path="build/gensrc/classes"/>
 	<classpathentry kind="src" path="src/java"/>
 	<classpathentry kind="src" path="src/test"/>
-	<classpathentry kind="lib" path="build-x86_64/joal-natives-linux-amd64.jar"/>
-	<classpathentry kind="lib" path="build-x86_64/joal-test.jar"/>
-	<classpathentry kind="lib" path="build-x86_64/joal.jar"/>
-	<classpathentry kind="lib" path="build/joal-natives-linux-amd64.jar"/>
-	<classpathentry kind="lib" path="build/joal-test.jar"/>
-	<classpathentry kind="lib" path="build/joal.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/gluegen"/>
-	<classpathentry kind="lib" path="/gluegen/build/gluegen-rt.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="output" path="build/test/build/classes"/>
 </classpath>

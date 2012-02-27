@@ -45,7 +45,7 @@
           <isset property="rootrel.build"/>
       </not>
     </condition>
-    <property name="build" location="${project.root}/${rootrel.build}" />
+    <property name="build"                value="${project.root}/${rootrel.build}" />
 
     <property name="gluegen.root"  value="${project.root}/../gluegen" />
     <property name="gluegen.build" value="${gluegen.root}/${rootrel.build}" />
@@ -189,7 +189,9 @@
     <!--
        - Build GlueGen
       -->
-    <target name="build.gluegen" depends="init">
+    <target name="build.gluegen" depends="init" unless="common.gluegen.build.done">
+        <property name="common.gluegen.build.done" value="true" />
+
         <!-- Run the GlueGen build to ensure that the GlueGen ANT task
            - has been built. -->
         <ant antfile="${gluegen.build.xml}" dir="${gluegen.make.dir}" target="base.compile" inheritAll="false" />
