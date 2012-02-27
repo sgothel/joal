@@ -315,7 +315,7 @@ ${line.separator}
         <copy todir="${results.test}" file="${gluegen.root}/make/lib/TEST-com.jogamp.junit.DisabledTest.xml"/>
     </target>
 
-    <target name="junit.run" depends="junit.run.if.enabled, junit.run.if.disabled">
+    <target name="junit.run" depends="declare.common,junit.run.if.enabled, junit.run.if.disabled">
         <antcall target="test-zip-archive" inheritRefs="true" inheritAll="true"/>
     </target>
 
