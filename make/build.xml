@@ -387,7 +387,7 @@
         <fileset dir="../${rootrel.build}/obj">
           <include name="*joal.${native.library.suffix}" />
         </fileset>
-        <fileset dir="lib/${os.and.arch}">
+        <fileset dir="lib/${os.and.arch}" erroronmissingdir="false">
           <include name="*.${native.library.suffix}" />
         </fileset>
       </jar>
