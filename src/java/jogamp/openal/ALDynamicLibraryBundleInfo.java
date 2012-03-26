@@ -29,8 +29,10 @@
 package jogamp.openal;
 
 import com.jogamp.common.jvm.JNILibLoaderBase;
+import com.jogamp.common.os.DynamicLibraryBundle;
 import com.jogamp.common.os.DynamicLibraryBundleInfo;
 import com.jogamp.common.os.Platform;
+import com.jogamp.common.util.RunnableExecutor;
 import com.jogamp.common.util.cache.TempJarCache;
 
 import java.security.AccessController;
@@ -59,15 +61,19 @@ public class ALDynamicLibraryBundleInfo implements DynamicLibraryBundleInfo  {
     }
 
     /** FIXME: not default, maybe local ? **/
+    @Override
     public boolean shallLinkGlobal() { return true; }
 
     /** default **/
+    @Override
     public boolean shallLookupGlobal() { return false; }
-
+    
+    @Override
     public final List<String> getGlueLibNames() {
         return glueLibNames;
     }
 
+    @Override
     public List<List<String>> getToolLibNames() {
         List<List<String>> libNamesList = new ArrayList<List<String>>();
 
@@ -92,20 +98,27 @@ public class ALDynamicLibraryBundleInfo implements DynamicLibraryBundleInfo  {
         return libNamesList;
     }
 
+    @Override
     public final List<String> getToolGetProcAddressFuncNameList() {
         List<String> res = new ArrayList<String>();
         res.add("alGetProcAddress");
         return res;
     }
 
+    @Override
     public final long toolGetProcAddress(long toolGetProcAddressHandle, String funcName) {
         return ALImpl.alGetProcAddress(toolGetProcAddressHandle, funcName);
     }
 
+    @Override
     public boolean useToolGetProcAdressFirst(String funcName) {
         return true;
     }
 
+    @Override
+    public RunnableExecutor getLibLoaderExecutor() {
+        return DynamicLibraryBundle.getDefaultRunnableExecutor();
+    }    
 }
 
 
