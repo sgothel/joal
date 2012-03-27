@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="hello">Joal Library</string>
+    <string name="app_name">JogAmp\'s Joal Library</string>
+    <string name="app_descr">Contains Dalvik and native code, supporting native bindings.</string>
+    <string name="activity_v_name">Joal</string>
+    <string name="activity_v_descr">The Joal Library.</string>
+</resources>

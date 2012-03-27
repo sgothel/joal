@@ -31,13 +31,6 @@
    -->
 <project name="JOAL" basedir="." default="all">
 
-    <!-- This is the version of JOAL you are building -->
-    <property name="joal_base_version" value="2.0"/>
-    <tstamp>
-       <format property="version.timestamp" pattern="yyyyMMdd"/>
-    </tstamp>
-    <property name="joal.version" value="${joal_base_version}-${version.timestamp}" />
-
     <property name="project.root"  value=".." />
 
     <condition property="rootrel.build" value="build">
@@ -50,6 +43,12 @@
     <property name="gluegen.root"  value="${project.root}/../gluegen" />
     <property name="gluegen.build" value="${gluegen.root}/${rootrel.build}" />
 
+    <!-- This is the version of JOAL you are building -->
+    <property name="joal_base_version" value="2.0"/>
+    <property name="joal_int_version"  value="2"/>
+    <tstamp>
+       <format property="version.timestamp" pattern="yyyyMMdd"/>
+    </tstamp>
     <property name="joal.build.number" value="manual-build"/>
     <property name="joal.build.id"     value="${version.timestamp}"/>
     <mkdir dir="${build}" />
@@ -67,10 +66,13 @@
         <arg line="rev-parse HEAD"/>
     </exec>
     <property name="joal.build.commit" value="manual"/> <!-- fallback -->
+    <property name="joal.version"      value="${joal_base_version}-${version.timestamp}" />
+    <property name="joal.version.plus" value="${joal_base_version}-${joal.build.branch}-b${joal.build.number}-${joal.build.commit}-${version.timestamp}" />
 
     <!-- Pull in GlueGen cpptasks build file -->
     <import file="${gluegen.root}/make/gluegen-cpptasks.xml" />
     <import file="${gluegen.root}/make/jogamp-archivetasks.xml" />
+    <import file="${gluegen.root}/make/jogamp-androidtasks.xml" />
     <import file="${gluegen.root}/make/jogamp-env.xml" />
 
     <!-- ================================================================== -->
@@ -161,6 +163,7 @@
 
         <!-- The resulting joal.jar. -->
         <property name="joal.jar" value="${build}/joal.jar" />
+        <property name="joal.apk" value="${build}/joal.apk" />
 
         <path id="joal_all.classpath">
           <pathelement location="${gluegen-rt.jar}" />
@@ -397,7 +400,7 @@
     <!--
        - Build the joal.jar file.
       -->
-    <target name="jar" depends="java.compile">
+    <target name="jar">
         <!-- Prepare the manifest -->
         <copy file="joalversion"
           tofile="tempversion"
@@ -417,6 +420,20 @@
                 <include name="jogamp/openal/**" />
             </fileset>
         </jar>
+
+        <aapt.signed 
+            jarsrcdir="${src.java}"
+            jarbuilddir="${build}"
+            jarbasename="joal"
+            nativebuilddir="../${rootrel.build}/obj"
+            nativebasename=""
+            android.abi="${android.abi}"
+            androidmanifest.path="resources/android/AndroidManifest-joal.xml"
+            androidresources.path="resources/android/res-joal"
+            jarmanifest.path="tempversion"
+            version.code="${joal_int_version}"
+            version.name="${joal.version.plus}" />
+
         <delete file="tempversion"/>
     </target>
 
@@ -538,6 +555,7 @@
         <mkdir dir="${archive}/jar" />
         <copy todir="${archive}/jar">
             <fileset dir="${build}" includes="joal*.jar"/>
+            <fileset dir="${build}" includes="joal*.apk"/>
         </copy>
         <mkdir dir="${archive}/lib" />
         <copy todir="${archive}/lib">
@@ -578,14 +596,17 @@
     <!--
        - Build everything.
       -->
-    <target name="all" depends="joal.compile, test.compile, tag.build, developer-zip-archive"/>
+    <target name="all" depends="joal.build, test.compile, tag.build, developer-zip-archive"/>
 
-    <target name="joal.compile" depends="init">
-        <!-- Generate, compile, and build the jar for the Java sources. -->
-        <antcall target="jar" inheritRefs="true" />
+    <target name="joal.build" depends="init">
+        <!-- Generate and compile the Java sources. -->
+        <antcall target="java.compile" inheritRefs="true" />
 
         <!-- Compile the native C sources . -->
         <antcall target="c.build.joal" inheritRefs="true" />
+
+        <!-- build the jar/apk -->
+        <antcall target="jar" inheritRefs="true" />
     </target>
 
     <target name="tag.build">
@@ -601,7 +622,7 @@
        - unit tests
       -->
 
-    <target name="test.compile" depends="joal.compile">
+    <target name="test.compile" depends="joal.build">
         <ant antfile="build-test.xml" target="test.compile" inheritRefs="true" inheritAll="true"/>
     </target>
 
