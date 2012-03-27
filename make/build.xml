@@ -421,6 +421,12 @@
             </fileset>
         </jar>
 
+        <antcall target="android.package" inheritRefs="true" />
+
+        <delete file="tempversion"/>
+    </target>
+
+    <target name="android.package" if="isAndroid">
         <aapt.signed 
             jarsrcdir="${src.java}"
             jarbuilddir="${build}"
@@ -433,8 +439,6 @@
             jarmanifest.path="tempversion"
             version.code="${joal_int_version}"
             version.name="${joal.version.plus}" />
-
-        <delete file="tempversion"/>
     </target>
 
     <!-- ================================================================== -->
