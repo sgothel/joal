@@ -47,7 +47,8 @@ public class ALDynamicLibraryBundleInfo implements DynamicLibraryBundleInfo  {
                 Platform.initSingleton();
                 
                 if(TempJarCache.isInitialized()) {
-                   JNILibLoaderBase.addNativeJarLibs(ALDynamicLibraryBundleInfo.class, "joal", null);
+                   // only: joal.jar -> joal-natives-<os.and.arch>.jar
+                   JNILibLoaderBase.addNativeJarLibs(new Class<?>[] { ALDynamicLibraryBundleInfo.class }, null, null );
                 }
                 return null;
             }
