@@ -80,13 +80,13 @@ export TARGET_PLATFORM_ROOT=${NDK_ROOT}/platforms/android-${ANDROID_VERSION}/arc
 # Need to add toolchain bins to the PATH. 
 export PATH="$NDK_TOOLCHAIN_ROOT/$TARGET_TRIPLE/bin:$ANDROID_SDK_HOME/platform-tools:$PATH"
 
-export GLUEGEN_CPPTASKS_FILE=`pwd`/../../gluegen/make/lib/gluegen-cpptasks-android-armv7.xml
+export GLUEGEN_CPPTASKS_FILE=`pwd`/../../gluegen/make/lib/gluegen-cpptasks-android-armv6.xml
 
 #export JUNIT_DISABLED="true"
 #export JUNIT_RUN_ARG0="-Dnewt.test.Screen.disableScreenMode"
 
 # BUILD_ARCHIVE=true \
 ant \
-    -Drootrel.build=build-android-armv7 \
-    $* 2>&1 | tee -a make.joal-armv7-cross.log
+    -Drootrel.build=build-android-armv6 \
+    $* 2>&1 | tee -a make.joal-armv6-cross.log
 
