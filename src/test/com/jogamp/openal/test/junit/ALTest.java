@@ -13,6 +13,7 @@ import com.jogamp.openal.ALCdevice;
 import com.jogamp.openal.ALFactory;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.BufferedInputStream;
 
 import javax.sound.sampled.UnsupportedAudioFileException;
 
@@ -383,6 +384,8 @@ public class ALTest {
 
     private WAVData loadTestWAV() throws IOException, UnsupportedAudioFileException {
         InputStream resource = ResourceLocation.getInputStream(TEST_FILE, true);
-        return WAVLoader.loadFromStream(resource);
+        // Add buffer for mark/reset support as required by getAudioInputStream.
+        InputStream bufferResource = new BufferedInputStream(resource); 
+        return WAVLoader.loadFromStream(bufferResource);
     }
 }
