@@ -2,6 +2,7 @@
 package com.jogamp.openal.test.resources;
 
 import java.io.InputStream;
+import java.io.BufferedInputStream;
 
 /** just a tag to locate the resources */
 public class ResourceLocation {
@@ -23,7 +24,7 @@ public class ResourceLocation {
     }
 
     public static InputStream getInputStream(String fileName, boolean throwException) {
-        InputStream stream = rl.getClass().getResourceAsStream(fileName);
+        InputStream stream = new BufferedInputStream(rl.getClass().getResourceAsStream(fileName));
         if(throwException && null == stream) {
             throw new RuntimeException("File '"+fileName+"' not found");
         }
