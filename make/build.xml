@@ -378,7 +378,7 @@
       </sequential>
     </macrodef>  
 
-    <target name="c.build.joal" depends="init, gluegen.cpptasks.detect.os, gluegen.cpptasks.setup.compiler">
+    <target name="c.build.joal" depends="init, c.build.openal.soft, gluegen.cpptasks.detect.os, gluegen.cpptasks.setup.compiler">
       <echo message="compiler.cfg.id.base: ${compiler.cfg.id.base}"/>
       <echo message="linker.cfg.id.base: ${linker.cfg.id.base}"/>
       <c.build compiler.cfg.id="${compiler.cfg.id.base}"
@@ -393,7 +393,18 @@
         <fileset dir="lib/${os.and.arch}" erroronmissingdir="false">
           <include name="*.${native.library.suffix}" />
         </fileset>
+        <fileset dir="${build}/openal-soft" erroronmissingdir="false">
+          <include name="*.${native.library.suffix}" />
+        </fileset>
       </jar>
+    </target>
+
+    <target name="c.build.openal.soft" depends="init, gluegen.cpptasks.detect.os, gluegen.cpptasks.setup.compiler">
+      <mkdir dir="${build}/openal-soft" />
+      <exec dir="${build}/openal-soft" executable="cmake">
+        <arg value="../../../openal-soft"/>
+      </exec>
+      <exec dir="${build}/openal-soft" executable="make" />
     </target>
 
     <!-- ================================================================== -->
