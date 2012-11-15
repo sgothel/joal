@@ -404,7 +404,7 @@
       <exec dir="${build}/openal-soft" executable="cmake" logError="true" failonerror="false" failifexecutionfails="false">
         <arg value="../../../openal-soft"/>
       </exec>
-      <exec dir="${build}/openal-soft" executable="make" />
+      <exec dir="${build}/openal-soft" executable="make" logError="true" failonerror="false" failifexecutionfails="false" />
     </target>
 
     <!-- ================================================================== -->
