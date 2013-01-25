@@ -31,7 +31,7 @@ JNIEXPORT jlong JNICALL
 Java_jogamp_openal_ALImpl_dispatch_1alGetProcAddressStatic(JNIEnv *env, jclass _unused, jstring fname, jlong procAddress) {
   LPALGETPROCADDRESS ptr_alGetProcAddress;
   const char* _strchars_fname = NULL;
-  ALproc _res;
+  void *_res;
   if ( NULL != fname ) {
     _strchars_fname = (*env)->GetStringUTFChars(env, fname, (jboolean*)NULL);
   if ( NULL == _strchars_fname ) {

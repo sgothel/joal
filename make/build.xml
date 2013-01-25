@@ -175,6 +175,8 @@
         <property name="joal.constants.cfg" value="${config}/joal-constants.cfg" />
         <property name="joal.alc.cfg" value="${config}/joal-alc.cfg" />
         <property name="joal.alc.constants.cfg" value="${config}/joal-alc-constants.cfg" />
+        <property name="joal.alext.cfg" value="${config}/joal-alext.cfg" />
+        <property name="joal.alext.constants.cfg" value="${config}/joal-alext-constants.cfg" />
 
         <!-- Create the required output directories. -->
         <mkdir dir="${src.generated.java}" />
@@ -275,6 +277,25 @@
                  emitter="com.jogamp.gluegen.JavaEmitter">
             <classpath refid="gluegen.classpath" />
         </gluegen>
+
+    <!-- Generate the ALExt interface class and implementation -->
+        <gluegen src="${stub.includes.openal}/alext.h"
+                 outputRootDir="${build}"
+                 config="${joal.alext.cfg}"
+                 includeRefid="stub.includes.fileset.all"
+                 emitter="com.jogamp.gluegen.procaddress.ProcAddressEmitter">
+            <classpath refid="gluegen.classpath" />
+        </gluegen>
+
+    <!-- Generate the ALExt constants interface -->
+        <gluegen src="${stub.includes.openal}/alext.h"
+                 outputRootDir="${build}"
+                 config="${joal.alext.constants.cfg}"
+                 includeRefid="stub.includes.fileset.all"
+                 emitter="com.jogamp.gluegen.JavaEmitter">
+            <classpath refid="gluegen.classpath" />
+        </gluegen>
+
 
         <!-- Inform the user that the generators have successfully created
            - the necessary Java files -->

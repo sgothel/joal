@@ -36,6 +36,7 @@ package com.jogamp.openal;
 import com.jogamp.common.os.Platform;
 import com.jogamp.openal.AL;
 import com.jogamp.openal.ALC;
+import com.jogamp.openal.ALExt;
 import jogamp.openal.*;
 
 /**
@@ -50,6 +51,7 @@ public class ALFactory {
   private static boolean initialized = false;
   private static AL al;
   private static ALC alc;
+  private static ALExt alext;
 
   private ALFactory() {}
 
@@ -96,5 +98,19 @@ public class ALFactory {
         alc = new ALCImpl();
     }
     return alc;
+  }
+
+  /**
+   * Get the default ALExt object. This object is used to access most of the 
+   * OpenAL extension functionality.
+   *
+   * @return the ALExt object
+   */
+  public static ALExt getALExt() throws ALException{
+    initialize();
+    if (alext == null) {
+        alext = new ALExtImpl();
+    }
+    return alext;
   }
 }
