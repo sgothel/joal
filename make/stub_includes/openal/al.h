@@ -1,6 +1,12 @@
 #ifndef AL_AL_H
 #define AL_AL_H
 
+// joal: define prototypes, and disable ext_foldback (requires custom callback code)
+#define AL_ALEXT_PROTOTYPES
+#define AL_EXT_FOLDBACK
+#include "al-types.h"
+#include "alc-types.h"
+
 #if defined(__cplusplus)
 extern "C" {
 #endif
