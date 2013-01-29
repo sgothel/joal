@@ -79,6 +79,16 @@ typedef double ALCdouble;
 /** void type (for opaque pointers only) */
 typedef void ALCvoid;
 
+/** intptr_t */
+#if defined(_WIN64)
+        typedef __int64 intptr_t;
+#elif defined(__ia64__) || defined(__x86_64__)
+        typedef long int intptr_t;
+#else
+        typedef int intptr_t;
+#endif
+
+
 #if defined(__cplusplus)
 }  /* extern "C" */
 #endif

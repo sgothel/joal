@@ -77,6 +77,16 @@ typedef float ALfloat;
 /** 64-bit IEEE754 floating-point */
 typedef double ALdouble;
 
+/** uint64_t */
+#if defined(_WIN64)
+        typedef unsigned __int64 uint64_t;
+#elif defined(__ia64__) || defined(__x86_64__)
+        typedef unsigned long int uint64_t;
+#else
+        typedef unsigned int uint64_t;
+#endif
+
+
 /** void type (for opaque pointers only) */
 typedef void ALvoid;
 
