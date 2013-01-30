@@ -80,15 +80,17 @@ public class ALDynamicLibraryBundleInfo implements DynamicLibraryBundleInfo  {
 
         List<String> alLibNames = new ArrayList<String>();
 
-        // this is the default AL lib name, according to the spec
-        alLibNames.add("libopenal.so.1"); // unix
-        alLibNames.add("OpenAL32"); // windows
-        alLibNames.add("OpenAL"); // OSX
+        if(isPropertyDefined("joal.SystemOpenAL", true) {
+            // this is the default AL lib name, according to the spec
+            alLibNames.add("libopenal.so.1"); // unix
+            alLibNames.add("OpenAL32"); // windows
+            alLibNames.add("OpenAL"); // OSX
 
-        // try this one as well, if spec fails
-        alLibNames.add("libOpenAL.so.1");
-        alLibNames.add("libopenal.so");
-        alLibNames.add("libOpenAL.so");
+            // try this one as well, if spec fails
+            alLibNames.add("libOpenAL.so.1");
+            alLibNames.add("libopenal.so");
+            alLibNames.add("libOpenAL.so");
+        }
 
         // last but not least .. the generic one
         alLibNames.add("openal");
