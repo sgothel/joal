@@ -26,12 +26,16 @@ public class ALExtLoopbackDeviceSOFTTest {
     public void testAlCLoopbackDeviceSOFT() throws UnsupportedAudioFileException, IOException {
     	
     	ALC alc = ALFactory.getALC();
-        ALCdevice device = alc.alcOpenDevice(null);
+        ALCdevice dev = alc.alcOpenDevice(null);
+        ALCcontext context = alc.alcCreateContext(dev,null);
+        alc.alcMakeContextCurrent(context);
         AL al = ALFactory.getAL();
-        
-		boolean have = alc.alcIsExtensionPresent(null, "ALC_SOFT_loopback");
-			
-        ALCdevice dev;
+
+        System.out.println("Available null device OpenAL Extensions:"+alc.alcGetString(null, alc.ALC_EXTENSIONS));
+        System.out.println("Available device OpenAL Extensions:"+alc.alcGetString(dev, alc.ALC_EXTENSIONS));
+       
+	boolean have = alc.alcIsExtensionPresent(dev, "ALC_SOFT_loopback");
+
         Exception ex = null;
         ALExt alext = ALFactory.getALExt();
         
@@ -56,7 +60,6 @@ public class ALExtLoopbackDeviceSOFTTest {
         assertNotNull(dev);
 
         WAVData wd = null;
-        ALCcontext context = null;
 
         try {
             wd = WAVLoader.loadFromStream(ResourceLocation.getTestStream0());
