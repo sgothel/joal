@@ -80,7 +80,7 @@ public class ALDynamicLibraryBundleInfo implements DynamicLibraryBundleInfo  {
 
         List<String> alLibNames = new ArrayList<String>();
 
-        if(isPropertyDefined("joal.SystemOpenAL", true) {
+        if(Debug.isPropertyDefined("joal.SystemOpenAL", true)) {
             // this is the default AL lib name, according to the spec
             alLibNames.add("libopenal.so.1"); // unix
             alLibNames.add("OpenAL32"); // windows
