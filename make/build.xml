@@ -175,6 +175,8 @@
         <property name="joal.constants.cfg" value="${config}/joal-constants.cfg" />
         <property name="joal.alc.cfg" value="${config}/joal-alc.cfg" />
         <property name="joal.alc.constants.cfg" value="${config}/joal-alc-constants.cfg" />
+        <property name="joal.alext.cfg" value="${config}/joal-alext.cfg" />
+        <property name="joal.alext.constants.cfg" value="${config}/joal-alext-constants.cfg" />
 
         <!-- Create the required output directories. -->
         <mkdir dir="${src.generated.java}" />
@@ -241,7 +243,7 @@
         <!-- Use the GlueGen task to generate the Java files -->
 
     <!-- Generate the AL interface class and implementation -->
-        <gluegen src="${stub.includes.openal}/al.c"
+        <gluegen src="${stub.includes.openal}/al.h"
                  outputRootDir="${build}"
                  config="${joal.cfg}"
                  includeRefid="stub.includes.fileset.all"
@@ -250,7 +252,7 @@
         </gluegen>
 
     <!-- Generate the ALConstants interface class -->
-        <gluegen src="${stub.includes.openal}/al.c"
+        <gluegen src="${stub.includes.openal}/al.h"
                  outputRootDir="${build}"
                  config="${joal.constants.cfg}"
                  includeRefid="stub.includes.fileset.all"
@@ -275,6 +277,25 @@
                  emitter="com.jogamp.gluegen.JavaEmitter">
             <classpath refid="gluegen.classpath" />
         </gluegen>
+
+    <!-- Generate the ALExt interface class and implementation -->
+        <gluegen src="${stub.includes.openal}/alext.h"
+                 outputRootDir="${build}"
+                 config="${joal.alext.cfg}"
+                 includeRefid="stub.includes.fileset.all"
+                 emitter="com.jogamp.gluegen.procaddress.ProcAddressEmitter">
+            <classpath refid="gluegen.classpath" />
+        </gluegen>
+
+    <!-- Generate the ALExt constants interface -->
+        <gluegen src="${stub.includes.openal}/alext.h"
+                 outputRootDir="${build}"
+                 config="${joal.alext.constants.cfg}"
+                 includeRefid="stub.includes.fileset.all"
+                 emitter="com.jogamp.gluegen.JavaEmitter">
+            <classpath refid="gluegen.classpath" />
+        </gluegen>
+
 
         <!-- Inform the user that the generators have successfully created
            - the necessary Java files -->
@@ -625,7 +646,7 @@
     </target>
 
     <target name="tag.build">
-        <copy file="${gluegen.build}/artifact.properties" todir="${build}" overwrite="true"/>
+        <copy file="${gluegen.build}/artifact.properties" todir="${build}" overwrite="true" failonerror="false"/>
         <echo message='joal.build.number=${joal.build.number}${line.separator}' file="${build}/artifact.properties" append="true"/>
         <echo message='joal.build.id=${joal.build.id}${line.separator}'         file="${build}/artifact.properties" append="true"/>
         <echo message='joal.build.branch=${joal.build.branch}${line.separator}' file="${build}/artifact.properties" append="true"/>

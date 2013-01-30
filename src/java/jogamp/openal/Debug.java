@@ -68,6 +68,6 @@ public class Debug extends PropertyAccess {
   }
 
   public static boolean debug(String subcomponent) {
-    return debugAll() || isPropertyDefined("joal.debug." + subcomponent, true);
+	  return debugAll() || isPropertyDefined("joal.debug." + subcomponent, true, null);
   }
 }

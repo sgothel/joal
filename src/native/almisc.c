@@ -10,15 +10,6 @@
   #define __cdecl /* Trim non-standard keyword */
  #endif
  #include "efx.h"
-  #ifdef _MSC_VER /* Windows, Microsoft compilers */
-  /* This typedef is apparently needed for compilers before VC8 */
-  #if _MSC_VER < 1400
-  typedef int intptr_t;
-  #endif
-  #else
-  /* This header seems to be available on all other platforms */
-  #include <inttypes.h>
-  #endif
   #include <string.h>
 
 
@@ -31,7 +22,7 @@ JNIEXPORT jlong JNICALL
 Java_jogamp_openal_ALImpl_dispatch_1alGetProcAddressStatic(JNIEnv *env, jclass _unused, jstring fname, jlong procAddress) {
   LPALGETPROCADDRESS ptr_alGetProcAddress;
   const char* _strchars_fname = NULL;
-  ALproc _res;
+  void *_res;
   if ( NULL != fname ) {
     _strchars_fname = (*env)->GetStringUTFChars(env, fname, (jboolean*)NULL);
   if ( NULL == _strchars_fname ) {
