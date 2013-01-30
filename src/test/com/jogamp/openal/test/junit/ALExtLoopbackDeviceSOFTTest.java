@@ -79,7 +79,7 @@ public class ALExtLoopbackDeviceSOFTTest {
         } catch (Exception e) {
             ex = e;
         }
-        assertNotNull(ex);
+        assertNull(ex);
         ex = null;
 
         // queue the data
@@ -90,11 +90,11 @@ public class ALExtLoopbackDeviceSOFTTest {
 
         // render it to an output buffer
         try {
-            alext.alcRenderSamplesSOFT(dev, wd.data, wd.size);
+            alext.alcRenderSamplesSOFT(dev, bb, wd.size);
         } catch (Exception e) {
             ex = e;
         }
-        assertNotNull(ex);
+        assertNull(ex);
 
         // should the samples be bit identical?
         for (int i=0;i<wd.size;i++) {
