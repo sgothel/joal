@@ -66,9 +66,12 @@
         <property name="classes.test.path"    location="${classes.test}"/> <!-- absolute path -->
 
         <property name="java.dir.test"        value="com/jogamp/openal/test"/>
-        <property name="java.part.test"       value="${java.dir.test}/**"/>
+        <property name="java.part.test.all"   value="${java.dir.test}/**"/>
+        <property name="java.part.test.android" value="${java.dir.test}/android/**"/>
         <property name="java.dir.junit"       value="${java.dir.test}/junit"/>
         <property name="java.dir.manual"      value="${java.dir.test}/manual"/>
+
+        <property name="gluegen-rt-android.jar" value="${gluegen.build}/gluegen-rt-android.jar" />
 
         <property name="obj.all.paths"        value="${gluegen.build}/obj${path.separator}${obj}${path.separator}lib/${os.and.arch}"/>
         <property name="classpath.test"       value="${junit.jar}${path.separator}${gluegen-rt.jar}${path.separator}${build}/joal.jar${path.separator}${build}/joal-test.jar"/>
@@ -81,15 +84,10 @@
         <mkdir dir="${classes.test}"/>
     </target>
 
-    <target name="test.compile" depends="declare.common">
-        <!-- Clean the results -->
-        <delete quiet="true">
-            <fileset dir="${results.test}" includes="**"/>
-            <fileset file="${build}/${test.archive.name}.7z"/>
-        </delete>
-        <mkdir dir="${results.test}"/>
-    
+    <target name="test.compile.javase">
         <javac destdir="${classes.test}" 
+               excludes="${java.part.test.android}"
+               fork="yes"
                includeantruntime="false"
                srcdir="${src.test}" 
                classpath="${gluegen-rt.jar};${build}/joal.jar;${junit.jar}"
@@ -99,21 +97,100 @@
                target="${target.targetlevel}" 
                bootclasspath="${target.rt.jar}"
                debug="${javacdebug}" debuglevel="${javacdebuglevel}"/>
-        <copy todir="${classes.test}">
-            <fileset dir="${src.test}" includes="**/*.wav"/>
+        <copy file="joalversion-test"
+            tofile="${build.test}/manifest-test.mf"
+            overwrite="true">
+            <filterset>
+                <filter token="VERSION" value="${joal.version}"/>
+                <filter token="SCM_BRANCH" value="${joal.build.branch}"/>
+                <filter token="SCM_COMMIT" value="${joal.build.commit}"/>
+                <filter token="BASEVERSION" value="${joal_base_version}"/>
+            </filterset>
         </copy>
-        <jar destfile="${build}/joal-test.jar">
-            <fileset dir="${classes.test}">
-              <include name="**" />
-            </fileset>
+        <jar manifest="${build.test}/manifest-test.mf" destfile="${build}/joal-test.jar">
+            <!-- get all class files, but skip any resource files that external tools
+                 might have copied into the class directory (otherwise, it's possible
+                 to get the same resource file twice in the jar) -->
+            <fileset dir="${classes.test}"
+                     includes="${java.part.test.all}"
+                     excludes="${java.part.test.android}"/>
         </jar>
     </target>
     
+    <target name="test.compile.android" depends="declare.common" if="android-jars.available">
+        <!-- Perform the junit pass Java Android compile -->
+        <javac destdir="${classes.test}" 
+               fork="yes"
+               includeAntRuntime="false"
+               classpath="${android.jar};${gluegen-rt-android.jar};${build}/joal.jar;${junit.jar}"
+               memoryMaximumSize="${javac.memorymax}"
+               encoding="UTF-8"
+               source="${target.sourcelevel}" 
+               target="${target.targetlevel}" 
+               bootclasspath="${target.rt.jar}"
+               debug="${javacdebug}" debuglevel="${javacdebuglevel}">
+            <src path="${src.test}" />
+        </javac>
+        <copy file="joalversion-test-android"
+            tofile="${build.test}/manifest-test-android.mf"
+            overwrite="true">
+            <filterset>
+                <filter token="VERSION" value="${joal.version}"/>
+                <filter token="SCM_BRANCH" value="${joal.build.branch}"/>
+                <filter token="SCM_COMMIT" value="${joal.build.commit}"/>
+                <filter token="BASEVERSION" value="${joal_base_version}"/>
+            </filterset>
+        </copy>
+        <jar manifest="${build.test}/manifest-test-android.mf" destfile="${build}/joal-test-android.jar" filesonly="true">
+            <!-- get all class files, but skip any resource files that external tools
+                 might have copied into the class directory (otherwise, it's possible
+                 to get the same resource file twice in the jar) -->
+            <fileset dir="${classes.test}" 
+                     includes="${java.part.test.all}"/>
+        </jar>
+    </target>
+
+    <target name="test.package.android" depends="test.compile.android" if="isAndroid">
+        <aapt.signed 
+            assetsdir="resources/assets-test"
+            jarsrcdir="${src.test}"
+            jarbuilddir="${build}"
+            jarbasename="joal-test-android"
+            nativebuilddir="../${rootrel.build}/obj"
+            nativebasename="non-existing"
+            androidmanifest.path="resources/android/AndroidManifest-test.xml"
+            androidresources.path="resources/android/res-test"
+            jarmanifest.path="${build.test}/manifest-test-android.mf"
+            version.code="${joal_int_version}"
+            version.name="${joal.version.plus}" />
+    </target>
+
+    <target name="test.compile" depends="declare.common" unless="test.compile.skip">
+        <!-- include any resource files that tests may require -->
+        <copy todir="${classes.test}">
+            <fileset dir="${src.test}">
+                <include name="**/*.wav"/>
+                <exclude name="**/*.java"/>
+            </fileset>
+        </copy>
+        <antcall target="test.compile.javase" inheritRefs="true" inheritAll="true"/>
+        <antcall target="test.package.android" inheritRefs="true" inheritAll="true"/>
+    </target>
+
     <target name="clean">
         <delete dir="${build.test}"/>
     </target>
     
-    <target name="junit.run.local" depends="test.compile" unless="isCrosscompilation">
+    <target name="clean.results">
+        <!-- Clean the results -->
+        <delete quiet="true">
+            <fileset dir="${results.test}" includes="**"/>
+            <fileset file="${build}/${test.archive.name}.7z"/>
+        </delete>
+        <mkdir dir="${results.test}"/>
+    </target>
+
+    <target name="junit.run.local" depends="clean.results, test.compile" unless="isCrosscompilation">
         <junit forkmode="perTest" showoutput="true" fork="true" haltonerror="off" includeAntRuntime="true">
             <env key="${system.env.library.path}" path="${obj.all.paths}"/>
             <jvmarg value="${jvmDataModel.arg}"/>
@@ -137,7 +214,7 @@
         </junit>
     </target>
     
-    <target name="test.manual.run" depends="test.compile">
+    <target name="test.manual.run" depends="clean.results, test.compile">
         <for param="test.class.path.m" keepgoing="true">
             <!-- results in absolute path -->
             <fileset dir="${classes.test}">

@@ -1,5 +1,6 @@
 /**
 * Copyright (c) 2003 Sun Microsystems, Inc. All  Rights Reserved.
+* Copyright (c) 2011 JogAmp Community. All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
 * modification, are permitted provided that the following conditions are met:
@@ -33,13 +34,21 @@
 
 package com.jogamp.openal.util;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.channels.Channels;
+import java.nio.channels.ReadableByteChannel;
 
+import com.jogamp.openal.ALConstants;
+import com.jogamp.openal.UnsupportedAudioFileException;
 
 /**
- * This class is a holder for WAV (.wav )file Data returned from the WavLoader
+ * This class is a holder for WAV (.wav ) file Data returned from the WavLoader, 
+ * or directly via  {@link #loadFromStream(InputStream, int, int, int)}.
  *
- * @author Athomas Goldberg
+ * @author Athomas Goldberg, et.al.
  */
 public final class WAVData {
     /** The audio data */
@@ -65,11 +74,67 @@ public final class WAVData {
     /** flag indicating whether or not the sound in the data should loop */
     public final boolean loop;
 
-    WAVData(ByteBuffer data, int format, int size, int freq, boolean loop) {
+    public WAVData(ByteBuffer data, int format, int size, int freq, boolean loop) {
         this.data = data;
         this.format = format;
         this.size = size;
         this.freq = freq;
         this.loop = loop;
     }
+    
+    /**
+     * This method loads a (.wav) file into a WAVData object.
+     *
+     * @param stream An InputStream for the .WAV stream
+     * @param numChannels
+     * @param bits
+     * @param sampleRate
+     *
+     * @return a WAVData object containing the audio data 
+     *
+     * @throws UnsupportedAudioFileException if the format of the audio if not
+     *                                       supported. 
+     * @throws IOException If the file can no be found or some other IO error 
+     *                     occurs
+     */    
+    public static WAVData loadFromStream(InputStream aIn, int numChannels, int bits, int sampleRate)
+      throws IOException {
+        ReadableByteChannel aChannel = Channels.newChannel(aIn);
+        int format = ALConstants.AL_FORMAT_MONO8;
+
+        if ((bits == 8) && (numChannels == 1)) {
+            format = ALConstants.AL_FORMAT_MONO8;
+        } else if ((bits == 16) && (numChannels == 1)) {
+            format = ALConstants.AL_FORMAT_MONO16;
+        } else if ((bits == 8) && (numChannels == 2)) {
+            format = ALConstants.AL_FORMAT_STEREO8;
+        } else if ((bits == 16) && (numChannels == 2)) {
+            format = ALConstants.AL_FORMAT_STEREO16;
+        }
+
+        int size = aIn.available();
+        ByteBuffer buffer = ByteBuffer.allocateDirect(size);
+        while (buffer.remaining() > 0) {
+          aChannel.read(buffer);
+        }
+        buffer.rewind();
+
+        // Must byte swap on big endian platforms
+        // Thanks to swpalmer on javagaming.org forums for hint at fix
+        if ((bits == 16) && (ByteOrder.nativeOrder() == ByteOrder.BIG_ENDIAN)) {
+          int len = buffer.remaining();
+          for (int i = 0; i < len; i += 2) {
+            byte a = buffer.get(i);
+            byte b = buffer.get(i+1);
+            buffer.put(i, b);
+            buffer.put(i+1, a);
+          }
+        }
+
+        WAVData result = new WAVData(buffer, format, size, sampleRate, false);
+        aIn.close();
+
+        return result;
+    }
+    
 }

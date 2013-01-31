@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="hello">Joal Test</string>
+    <string name="app_name">Joal Tests</string>
+    <string name="app_descr">Launches Joal Tests.</string>
+    <string name="activity_openaltest1_name">OALTest1</string>
+    <string name="activity_openaltest1_descr">OALTest1</string>
+</resources>

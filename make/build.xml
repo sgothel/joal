@@ -167,7 +167,8 @@
 
         <!-- The resulting joal.jar. -->
         <property name="joal.jar" value="${build}/joal.jar" />
-        <property name="joal.apk" value="${build}/joal.apk" />
+        <property name="joal-android.jar" value="${build}/joal-android.jar" />
+        <property name="joal-android.apk" value="${build}/joal-android-${android.abi}.apk" />
 
         <path id="joal_all.classpath">
           <pathelement location="${gluegen-rt.jar}" />
@@ -497,6 +498,7 @@
                 <include name="jogamp/openal/**" />
             </fileset>
         </jar>
+        <copy file="${joal.jar}" tofile="${joal-android.jar}"/>
 
         <antcall target="android.package" inheritRefs="true" />
 
@@ -507,7 +509,7 @@
         <aapt.signed 
             jarsrcdir="${src.java}"
             jarbuilddir="${build}"
-            jarbasename="joal"
+            jarbasename="joal-android"
             nativebuilddir="../${rootrel.build}/obj"
             nativebasename=""
             android.abi="${android.abi}"

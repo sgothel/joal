@@ -33,14 +33,19 @@
 
 package com.jogamp.openal.sound3d;
 
-import com.jogamp.openal.*;
+import java.io.BufferedInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+
+import com.jogamp.openal.AL;
+import com.jogamp.openal.ALC;
+import com.jogamp.openal.ALCcontext;
+import com.jogamp.openal.ALCdevice;
+import com.jogamp.openal.ALException;
+import com.jogamp.openal.ALFactory;
+import com.jogamp.openal.UnsupportedAudioFileException;
 import com.jogamp.openal.util.WAVData;
 import com.jogamp.openal.util.WAVLoader;
-
-import java.io.*;
-
-import javax.sound.sampled.UnsupportedAudioFileException;
-
 
 /**
  * The AudioSystem3D class provides a set of methods for creating and
