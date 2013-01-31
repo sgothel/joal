@@ -435,22 +435,42 @@
       <jar destfile="${build}/joal-natives-${os.and.arch}.jar">
         <fileset dir="../${rootrel.build}/obj">
           <include name="*joal.${native.library.suffix}" />
+          <include name="*openal.${native.library.suffix}" />
         </fileset>
         <fileset dir="lib/${os.and.arch}" erroronmissingdir="false">
-          <include name="*.${native.library.suffix}" />
-        </fileset>
-        <fileset dir="${build}/openal-soft" erroronmissingdir="false">
           <include name="*.${native.library.suffix}" />
         </fileset>
       </jar>
     </target>
 
-    <target name="c.build.openal.soft" depends="init, gluegen.cpptasks.detect.os, gluegen.cpptasks.setup.compiler">
+    <target name="c.build.openal.soft.android" if="isAndroid">
+      <mkdir dir="${build}/openal-soft" />
+      <exec dir="${build}/openal-soft" executable="cmake" logError="true" failonerror="false" failifexecutionfails="false">
+        <env key="PATH" value="${env.PATH_VANILLA}"/>
+        <env key="ANDROID_TOOLCHAIN_VERSION" value="${env.GCC_VERSION}"/>
+        <env key="ANDROID_NDK" value="${env.NDK_ROOT}"/>
+        <arg value="../../openal-soft"/>
+        <arg value="-DCMAKE_TOOLCHAIN_FILE=../../openal-soft/cmake/toolchain.android.cmake"/>
+        <arg value="-DANDROID_API_LEVEL=${android.version}"/>
+      </exec>
+      <exec dir="${build}/openal-soft" executable="make" logError="true" failonerror="false" failifexecutionfails="false" />
+    </target>
+
+    <target name="c.build.openal.soft.default" unless="isAndroid">
       <mkdir dir="${build}/openal-soft" />
       <exec dir="${build}/openal-soft" executable="cmake" logError="true" failonerror="false" failifexecutionfails="false">
         <arg value="../../openal-soft"/>
       </exec>
       <exec dir="${build}/openal-soft" executable="make" logError="true" failonerror="false" failifexecutionfails="false" />
+    </target>
+
+    <target name="c.build.openal.soft" 
+            depends="init, gluegen.cpptasks.detect.os, gluegen.cpptasks.setup.compiler, c.build.openal.soft.default, c.build.openal.soft.android">
+        <copy todir="../${rootrel.build}/obj" failonerror="false">
+            <fileset dir="${build}/openal-soft" erroronmissingdir="false">
+              <include name="*openal.${native.library.suffix}" />
+            </fileset>
+        </copy>
     </target>
 
     <!-- ================================================================== -->

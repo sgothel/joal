@@ -1,4 +1,4 @@
-package com.jogamp.openal;
+package com.jogamp.openal.test.manual;
 
 /**
  * Copyright (c) 2003 Sun Microsystems, Inc. All  Rights Reserved.
