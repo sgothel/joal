@@ -32,9 +32,14 @@ package com.jogamp.openal.test.manual;
  * You acknowledge that this software is not designed or intended for use in the
  * design, construction, operation or maintenance of any nuclear facility.
  */
-import java.io.*;
-import javax.sound.sampled.*;
-import com.jogamp.openal.sound3d.*;
+import java.io.IOException;
+
+import com.jogamp.openal.UnsupportedAudioFileException;
+import com.jogamp.openal.sound3d.AudioSystem3D;
+import com.jogamp.openal.sound3d.Context;
+import com.jogamp.openal.sound3d.Device;
+import com.jogamp.openal.sound3d.Listener;
+import com.jogamp.openal.sound3d.Source;
 import com.jogamp.openal.test.resources.ResourceLocation;
 
 /**
