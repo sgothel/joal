@@ -5,7 +5,21 @@
 #define AL_ALEXT_PROTOTYPES
 #define AL_EXT_FOLDBACK
 #include "al-types.h"
-#include "alc-types.h"
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
+/* Enumerant values begin at column 50. No tabs. */
+
+/** "no distance model" or "no buffer" */
+#define AL_NONE                                  0
+
+/** Boolean False. */
+#define AL_FALSE                                 0
+
+/** Boolean True. */
+#define AL_TRUE                                  1
 
 /**
  * Relative source.
@@ -400,7 +414,7 @@ AL_API ALenum AL_APIENTRY alGetError(void);
  * pointers and enum values.
  */
 AL_API ALboolean AL_APIENTRY alIsExtensionPresent(const ALchar *extname);
-AL_API void* AL_APIENTRY alGetProcAddress(const ALchar *fname);
+AL_API ALproc AL_APIENTRY alGetProcAddress(const ALchar *fname);
 AL_API ALenum AL_APIENTRY alGetEnumValue(const ALchar *ename);
 
 

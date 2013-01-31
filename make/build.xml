@@ -132,6 +132,8 @@
         <property name="src.c" value="${project.root}/${rootrel.src.c}" />
         <property name="src.java" value="${project.root}/${rootrel.src.java}" />
         <property name="build" value="${project.root}/${rootrel.build}" />
+        <property name="tempdir" value="${project.root}/build-temp" />
+        <mkdir dir="${tempdir}" />
 
         <!-- The generated source directories. -->
         <property name="src.generated" value="${build}/gensrc" />
@@ -232,6 +234,13 @@
         </uptodate>
     </target>
 
+    <target name="java.generate.copy2temp">
+        <copy todir="${tempdir}">
+            <fileset dir="${build}"
+                     includes="gensrc/classes/**" />
+        </copy>
+    </target>
+
     <!--
        - Setup the generating ANT tasks and use it to generate the Java files
        - from the C AL headers.  This involves setting the taskdef and creating
@@ -244,66 +253,73 @@
 
         <!-- Use the GlueGen task to generate the Java files -->
 
-    <!-- Generate the AL interface class and implementation -->
+        <echo message="Generate the AL interface class and implementation" />
         <gluegen src="${stub.includes.openal}/al.h"
                  outputRootDir="${build}"
                  config="${joal.cfg}"
                  includeRefid="stub.includes.fileset.all"
                  literalInclude="${stub.includes.gluegen.gg}"
-                 emitter="com.jogamp.gluegen.procaddress.ProcAddressEmitter">
+                 emitter="com.jogamp.gluegen.procaddress.ProcAddressEmitter"
+                 debug="false">
             <classpath refid="gluegen.classpath" />
         </gluegen>
 
-    <!-- Generate the ALConstants interface class -->
+        <echo message="Generate the ALConstants interface class" />
         <gluegen src="${stub.includes.openal}/al.h"
                  outputRootDir="${build}"
                  config="${joal.constants.cfg}"
                  includeRefid="stub.includes.fileset.all"
                  literalInclude="${stub.includes.gluegen.gg}"
-                 emitter="com.jogamp.gluegen.JavaEmitter">
+                 emitter="com.jogamp.gluegen.JavaEmitter"
+                 debug="false">
             <classpath refid="gluegen.classpath" />
         </gluegen>
 
-    <!-- Generate the ALC interface class and implementation -->
+        <echo message="Generate the ALC interface class and implementation" />
         <gluegen src="${stub.includes.openal}/alc.h"
                  outputRootDir="${build}"
                  config="${joal.alc.cfg}"
                  includeRefid="stub.includes.fileset.all"
                  literalInclude="${stub.includes.gluegen.gg}"
-                 emitter="com.jogamp.gluegen.procaddress.ProcAddressEmitter">
+                 emitter="com.jogamp.gluegen.procaddress.ProcAddressEmitter"
+                 debug="false">
             <classpath refid="gluegen.classpath" />
         </gluegen>
 
-    <!-- Generate the ALCConstants interface class -->
+        <echo message="Generate the ALCConstants interface class" />
         <gluegen src="${stub.includes.openal}/alc.h"
                  outputRootDir="${build}"
                  config="${joal.alc.constants.cfg}"
                  includeRefid="stub.includes.fileset.all"
                  literalInclude="${stub.includes.gluegen.gg}"
-                 emitter="com.jogamp.gluegen.JavaEmitter">
+                 emitter="com.jogamp.gluegen.JavaEmitter"
+                 debug="false">
             <classpath refid="gluegen.classpath" />
         </gluegen>
 
-    <!-- Generate the ALExt interface class and implementation -->
+        <echo message="Generate the ALExt interface class and implementation" />
+        <antcall target="java.generate.copy2temp" inheritRefs="true" />
         <gluegen src="${stub.includes.openal}/alext.h"
                  outputRootDir="${build}"
                  config="${joal.alext.cfg}"
                  includeRefid="stub.includes.fileset.all"
                  literalInclude="${stub.includes.gluegen.gg}"
-                 emitter="com.jogamp.gluegen.procaddress.ProcAddressEmitter">
+                 emitter="com.jogamp.gluegen.procaddress.ProcAddressEmitter"
+                 debug="false">
             <classpath refid="gluegen.classpath" />
         </gluegen>
 
-    <!-- Generate the ALExt constants interface -->
+        <echo message="Generate the ALExt constants interface" />
+        <antcall target="java.generate.copy2temp" inheritRefs="true" />
         <gluegen src="${stub.includes.openal}/alext.h"
                  outputRootDir="${build}"
                  config="${joal.alext.constants.cfg}"
                  includeRefid="stub.includes.fileset.all"
                  literalInclude="${stub.includes.gluegen.gg}"
-                 emitter="com.jogamp.gluegen.JavaEmitter">
+                 emitter="com.jogamp.gluegen.JavaEmitter"
+                 debug="false">
             <classpath refid="gluegen.classpath" />
         </gluegen>
-
 
         <!-- Inform the user that the generators have successfully created
            - the necessary Java files -->

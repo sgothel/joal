@@ -29,16 +29,17 @@ extern "C" {
  * The ALCAPI, ALCAPIENTRY, and ALC_INVALID macros are deprecated, but are
  * included for applications porting code from AL 1.0
  */
-#define ALCAPI ALC_API
-#define ALCAPIENTRY ALC_APIENTRY
-#define ALC_INVALID 0
+#define ALCAPI                                   ALC_API
+#define ALCAPIENTRY                              ALC_APIENTRY
+#define ALC_INVALID                              0
 
+/** ALC Version */
+#define ALC_VERSION_0_1                          1
 
-#define ALC_VERSION_0_1         1
-
+/** Opaque device handle */
 typedef struct ALCdevice_struct ALCdevice;
+/** Opaque context handle */
 typedef struct ALCcontext_struct ALCcontext;
-
 
 /** 8-bit boolean */
 typedef char ALCboolean;
@@ -78,6 +79,9 @@ typedef double ALCdouble;
 
 /** void type (for opaque pointers only) */
 typedef void ALCvoid;
+
+/** void* function pointer type for all al*GetProcAddress (By JOAL/GlueGen) */
+typedef void* ALCproc;
 
 /**
  * intptr_t:

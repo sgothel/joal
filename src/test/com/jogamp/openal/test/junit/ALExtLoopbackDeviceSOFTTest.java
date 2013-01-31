@@ -19,7 +19,6 @@ import com.jogamp.openal.test.resources.ResourceLocation;
 import com.jogamp.openal.util.WAVData;
 import com.jogamp.openal.util.WAVLoader;
 
-
 public class ALExtLoopbackDeviceSOFTTest {
 
     @Test
@@ -31,10 +30,10 @@ public class ALExtLoopbackDeviceSOFTTest {
         alc.alcMakeContextCurrent(context);
         AL al = ALFactory.getAL();
 
-        System.out.println("Available null device OpenAL Extensions:"+alc.alcGetString(null, alc.ALC_EXTENSIONS));
-        System.out.println("Available device OpenAL Extensions:"+alc.alcGetString(dev, alc.ALC_EXTENSIONS));
+        System.out.println("Available null device OpenAL Extensions:"+alc.alcGetString(null, ALC.ALC_EXTENSIONS));
+        System.out.println("Available device OpenAL Extensions:"+alc.alcGetString(dev, ALC.ALC_EXTENSIONS));
        
-	boolean have = alc.alcIsExtensionPresent(dev, "ALC_SOFT_loopback");
+        boolean have = alc.alcIsExtensionPresent(dev, "ALC_SOFT_loopback");
 
         Exception ex = null;
         ALExt alext = ALFactory.getALExt();
@@ -105,5 +104,10 @@ public class ALExtLoopbackDeviceSOFTTest {
 
         System.out.println("end testAlCLoopbackDeviceSOFT");
     }
+    
+    public static void main(String args[]) throws IOException {
+        org.junit.runner.JUnitCore.main(ALExtLoopbackDeviceSOFTTest.class.getName());
+    }
+    
 
 }

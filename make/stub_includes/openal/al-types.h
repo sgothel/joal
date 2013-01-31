@@ -90,16 +90,8 @@ typedef double ALdouble;
 /** void type (for opaque pointers only) */
 typedef void ALvoid;
 
-/* Enumerant values begin at column 50. No tabs. */
-
-/** "no distance model" or "no buffer" */
-#define AL_NONE                                  0
-
-/** Boolean False. */
-#define AL_FALSE                                 0
-
-/** Boolean True. */
-#define AL_TRUE                                  1
+/** void* function pointer type for all al*GetProcAddress (By JOAL/GlueGen) */
+typedef void* ALproc;
 
 #if defined(__cplusplus)
 }  /* extern "C" */
