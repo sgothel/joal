@@ -1,0 +1,3 @@
+[submodule "openal-soft"]
+	path = openal-soft
+	url = ../openal-soft.git

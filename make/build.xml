@@ -423,7 +423,7 @@
     <target name="c.build.openal.soft" depends="init, gluegen.cpptasks.detect.os, gluegen.cpptasks.setup.compiler">
       <mkdir dir="${build}/openal-soft" />
       <exec dir="${build}/openal-soft" executable="cmake" logError="true" failonerror="false" failifexecutionfails="false">
-        <arg value="../../../openal-soft"/>
+        <arg value="../../openal-soft"/>
       </exec>
       <exec dir="${build}/openal-soft" executable="make" logError="true" failonerror="false" failifexecutionfails="false" />
     </target>
