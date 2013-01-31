@@ -79,15 +79,14 @@ typedef double ALCdouble;
 /** void type (for opaque pointers only) */
 typedef void ALCvoid;
 
-/** intptr_t */
-#if defined(_WIN64)
-        typedef __int64 intptr_t;
-#elif defined(__ia64__) || defined(__x86_64__)
-        typedef long int intptr_t;
-#else
-        typedef int intptr_t;
-#endif
-
+/**
+ * intptr_t:
+ *   Using <gluegen_stddef.h>
+ *   Using <gluegen_stdint.h>
+ */
+#include <gluegen_stddef.h>
+#define HAS_STDDEF 1
+#include <gluegen_stdint.h>
 
 #if defined(__cplusplus)
 }  /* extern "C" */

@@ -31,12 +31,13 @@ extern "C" {
  * applications porting code from AL 1.0
  */
 #define OPENAL
-#define ALAPI AL_API
-#define ALAPIENTRY AL_APIENTRY
-#define AL_INVALID                                (-1)
-#define AL_ILLEGAL_ENUM                           AL_INVALID_ENUM
-#define AL_ILLEGAL_COMMAND                        AL_INVALID_OPERATION
+#define ALAPI                                    AL_API
+#define ALAPIENTRY                               AL_APIENTRY
+#define AL_INVALID                               (-1)
+#define AL_ILLEGAL_ENUM                          AL_INVALID_ENUM
+#define AL_ILLEGAL_COMMAND                       AL_INVALID_OPERATION
 
+/** Supported AL version. */
 #define AL_VERSION_1_0
 #define AL_VERSION_1_1
 
@@ -77,18 +78,28 @@ typedef float ALfloat;
 /** 64-bit IEEE754 floating-point */
 typedef double ALdouble;
 
-/** uint64_t */
-#if defined(_WIN64)
-        typedef unsigned __int64 uint64_t;
-#elif defined(__ia64__) || defined(__x86_64__)
-        typedef unsigned long int uint64_t;
-#else
-        typedef unsigned int uint64_t;
-#endif
-
+/**
+ * uint64_t:
+ *   Using <gluegen_stddef.h>
+ *   Using <gluegen_stdint.h>
+ */
+#include <gluegen_stddef.h>
+#define HAS_STDDEF 1
+#include <gluegen_stdint.h>
 
 /** void type (for opaque pointers only) */
 typedef void ALvoid;
+
+/* Enumerant values begin at column 50. No tabs. */
+
+/** "no distance model" or "no buffer" */
+#define AL_NONE                                  0
+
+/** Boolean False. */
+#define AL_FALSE                                 0
+
+/** Boolean True. */
+#define AL_TRUE                                  1
 
 #if defined(__cplusplus)
 }  /* extern "C" */
