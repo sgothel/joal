@@ -37,6 +37,7 @@ package com.jogamp.openal.util;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.ByteOrder;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
@@ -103,7 +104,9 @@ public class WAVLoader {
     private static WAVData loadFromStreamImpl(AudioInputStream aIn)
       throws UnsupportedAudioFileException, IOException {
         final AudioFormat fmt = aIn.getFormat();
-        return WAVData.loadFromStream(aIn, fmt.getChannels(), fmt.getSampleSizeInBits(), Math.round(fmt.getSampleRate()));
+        return WAVData.loadFromStream(aIn, -1, fmt.getChannels(), fmt.getSampleSizeInBits(), 
+                                      Math.round(fmt.getSampleRate()), 
+                                      fmt.isBigEndian() ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN, false);
     }
     
 }

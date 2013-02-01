@@ -34,6 +34,7 @@ package com.jogamp.openal.test.manual;
  * design, construction, operation or maintenance of any nuclear facility.
  */
 import java.io.IOException;
+import java.nio.ByteOrder;
 import java.nio.IntBuffer;
 
 import com.jogamp.common.nio.Buffers;
@@ -70,8 +71,7 @@ public class OpenALTest {
         device = alc.alcOpenDevice(null);
         context = alc.alcCreateContext(device, null);
         alc.alcMakeContextCurrent(context);
-        al = ALFactory.getAL();
-        
+        al = ALFactory.getAL();        
         System.out.println("output devices:");
         {
             final String[] outDevices = alc.alcGetDeviceSpecifiers();
@@ -98,7 +98,12 @@ public class OpenALTest {
         int[] buffers = new int[1];
         al.alGenBuffers(1, buffers, 0);
 
-        WAVData wd = WAVData.loadFromStream(ResourceLocation.getTestStream0(), 1, 8, 22050);
+        // WAVData wd = WAVData.loadFromStream(ResourceLocation.getTestStream0(), ResourceLocation.getTestStream0Size(), 1, 8, 22050, ByteOrder.LITTLE_ENDIAN, true);
+        // WAVData wd = WAVData.loadFromStream(ResourceLocation.getTestStream1(), ResourceLocation.getTestStream1Size(), 2, 16, 44100, ByteOrder.BIG_ENDIAN, true);
+        WAVData wd = WAVData.loadFromStream(ResourceLocation.getTestStream2(), ResourceLocation.getTestStream2Size(), 2, 16, 44100, ByteOrder.LITTLE_ENDIAN, true);
+        // WAVData wd = WAVData.loadFromStream(ResourceLocation.getTestStream3(), ResourceLocation.getTestStream3Size(), 2, 16, 44100, ByteOrder.LITTLE_ENDIAN, true);
+        System.out.println("*** size "+wd.data.limit());
+        
         al.alBufferData(buffers[0], wd.format, wd.data, wd.size, wd.freq);
         
         sources = new int[1];
@@ -126,6 +131,7 @@ public class OpenALTest {
             return;
         }
         System.out.println("play direct");
+        al.alSourceRewind(sources[0]);
         al.alSourcePlay(sources[0]);
     }
     
@@ -134,6 +140,8 @@ public class OpenALTest {
             return;
         }
         System.out.println("play3f "+x+", "+y+", "+z);
+        al.alSourceRewind(sources[0]);
+        al.alSourcePlay(sources[0]);
         al.alSource3f(sources[0], AL.AL_POSITION, x, y, z);
     }
     
@@ -150,7 +158,7 @@ public class OpenALTest {
         }
         if( null != sources ) {
             al.alSourceStop(sources[0]);
-            al.alDeleteSources(1, sources, 0);
+            al.alDeleteSources(1, sources, 0);            
             sources = null;
         }
         if( null != context ) {
@@ -178,7 +186,7 @@ public class OpenALTest {
         Thread.sleep(5000);
 
         demo.play3f(0f, 0f, 0f);
-        Thread.sleep(10000);
+        Thread.sleep(5000);
         
         demo.dispose();
     }

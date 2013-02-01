@@ -34,6 +34,7 @@
 
 package com.jogamp.openal.util;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
@@ -41,6 +42,7 @@ import java.nio.ByteOrder;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 
+import com.jogamp.common.util.IOUtil;
 import com.jogamp.openal.ALConstants;
 import com.jogamp.openal.UnsupportedAudioFileException;
 
@@ -84,11 +86,12 @@ public final class WAVData {
     
     /**
      * This method loads a (.wav) file into a WAVData object.
-     *
-     * @param stream An InputStream for the .WAV stream
+     * @param initialCapacity initial buffer capacity in bytes, if &gt; available bytes
      * @param numChannels
      * @param bits
      * @param sampleRate
+     * @param byteOrder 
+     * @param stream An InputStream for the .WAV stream
      *
      * @return a WAVData object containing the audio data 
      *
@@ -97,9 +100,12 @@ public final class WAVData {
      * @throws IOException If the file can no be found or some other IO error 
      *                     occurs
      */    
-    public static WAVData loadFromStream(InputStream aIn, int numChannels, int bits, int sampleRate)
+    public static WAVData loadFromStream(InputStream aIn, int initialCapacity, int numChannels, int bits, int sampleRate, ByteOrder byteOrder, boolean loop)
       throws IOException {
-        ReadableByteChannel aChannel = Channels.newChannel(aIn);
+        if( !(aIn instanceof BufferedInputStream) ) {
+            aIn = new BufferedInputStream(aIn);
+        }
+        // ReadableByteChannel aChannel = Channels.newChannel(aIn);
         int format = ALConstants.AL_FORMAT_MONO8;
 
         if ((bits == 8) && (numChannels == 1)) {
@@ -112,16 +118,11 @@ public final class WAVData {
             format = ALConstants.AL_FORMAT_STEREO16;
         }
 
-        int size = aIn.available();
-        ByteBuffer buffer = ByteBuffer.allocateDirect(size);
-        while (buffer.remaining() > 0) {
-          aChannel.read(buffer);
-        }
-        buffer.rewind();
+        ByteBuffer buffer = IOUtil.copyStream2ByteBuffer(aIn, initialCapacity);
+        int size = buffer.limit();
 
-        // Must byte swap on big endian platforms
-        // Thanks to swpalmer on javagaming.org forums for hint at fix
-        if ((bits == 16) && (ByteOrder.nativeOrder() == ByteOrder.BIG_ENDIAN)) {
+        // Must byte swap in case endianess mismatch
+        if ( bits == 16 && ByteOrder.nativeOrder() != byteOrder ) {
           int len = buffer.remaining();
           for (int i = 0; i < len; i += 2) {
             byte a = buffer.get(i);
@@ -131,7 +132,7 @@ public final class WAVData {
           }
         }
 
-        WAVData result = new WAVData(buffer, format, size, sampleRate, false);
+        WAVData result = new WAVData(buffer, format, size, sampleRate, loop);
         aIn.close();
 
         return result;
