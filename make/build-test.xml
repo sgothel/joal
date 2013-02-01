@@ -170,6 +170,8 @@
         <copy todir="${classes.test}">
             <fileset dir="${src.test}">
                 <include name="**/*.wav"/>
+                <include name="**/*.cd"/>
+                <include name="**/*.cdr"/>
                 <exclude name="**/*.java"/>
             </fileset>
         </copy>
