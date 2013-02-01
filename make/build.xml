@@ -445,6 +445,7 @@
     </target>
 
     <target name="c.build.openal.soft.android" if="isAndroid">
+      <property name="c.build.openal.soft.done" value="true" />
       <mkdir dir="${build}/openal-soft" />
       <exec dir="${build}/openal-soft" executable="cmake" logError="true" failonerror="false" failifexecutionfails="false">
         <env key="PATH" value="${env.PATH_VANILLA}"/>
@@ -457,7 +458,18 @@
       <exec dir="${build}/openal-soft" executable="make" logError="true" failonerror="false" failifexecutionfails="false" />
     </target>
 
-    <target name="c.build.openal.soft.default" unless="isAndroid">
+    <target name="c.build.openal.soft.windows" if="isWindows">
+      <property name="c.build.openal.soft.done" value="true" />
+      <mkdir dir="${build}/openal-soft" />
+      <exec dir="${build}/openal-soft" executable="cmake" logError="true" failonerror="false" failifexecutionfails="false">
+        <env key="PATH" value="${env.PATH}"/>
+        <arg value="../../openal-soft"/>
+        <arg value="-DCMAKE_TOOLCHAIN_FILE=../../openal-soft/cmake/toolchain.windows.cmake"/>
+      </exec>
+      <exec dir="${build}/openal-soft" executable="make" logError="true" failonerror="false" failifexecutionfails="false" />
+    </target>
+
+    <target name="c.build.openal.soft.default" unless="c.build.openal.soft.done">
       <mkdir dir="${build}/openal-soft" />
       <exec dir="${build}/openal-soft" executable="cmake" logError="true" failonerror="false" failifexecutionfails="false">
         <arg value="../../openal-soft"/>
@@ -466,7 +478,7 @@
     </target>
 
     <target name="c.build.openal.soft" 
-            depends="init, gluegen.cpptasks.detect.os, gluegen.cpptasks.setup.compiler, c.build.openal.soft.default, c.build.openal.soft.android">
+            depends="init, gluegen.cpptasks.detect.os, gluegen.cpptasks.setup.compiler, c.build.openal.soft.windows, c.build.openal.soft.android, c.build.openal.soft.default">
         <copy todir="../${rootrel.build}/obj" failonerror="false">
             <fileset dir="${build}/openal-soft" erroronmissingdir="false">
               <include name="*openal.${native.library.suffix}" />
