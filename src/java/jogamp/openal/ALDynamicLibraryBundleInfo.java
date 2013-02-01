@@ -34,6 +34,7 @@ import com.jogamp.common.os.DynamicLibraryBundleInfo;
 import com.jogamp.common.os.Platform;
 import com.jogamp.common.util.RunnableExecutor;
 import com.jogamp.common.util.cache.TempJarCache;
+import com.jogamp.openal.ALFactory;
 
 import java.security.AccessController;
 import java.security.PrivilegedAction;
@@ -78,40 +79,39 @@ public class ALDynamicLibraryBundleInfo implements DynamicLibraryBundleInfo  {
     public List<List<String>> getToolLibNames() {
         List<List<String>> libNamesList = new ArrayList<List<String>>();
 
-        List<String> alLibNames = new ArrayList<String>();
-
-        if(Debug.isPropertyDefined("joal.SystemOpenAL", true)) {
-            // First test the System OpenAL 
+        final List<String> alSystemLibNames = new ArrayList<String>();
+        {
             // this is the default AL lib name, according to the spec
-            alLibNames.add("libopenal.so.1"); // unix
-            alLibNames.add("OpenAL32"); // windows
-            alLibNames.add("OpenAL"); // OSX
-
+            alSystemLibNames.add("libopenal.so.1"); // unix
+            alSystemLibNames.add("OpenAL32"); // windows
+            alSystemLibNames.add("OpenAL"); // OSX
+    
             // try this one as well, if spec fails
-            alLibNames.add("libOpenAL.so.1");
-            alLibNames.add("libopenal.so");
-            alLibNames.add("libOpenAL.so");
-
-            // last but not least .. the generic one
+            alSystemLibNames.add("libOpenAL.so.1");
+            alSystemLibNames.add("libopenal.so");
+            alSystemLibNames.add("libOpenAL.so");
+        }
+        final List<String> alSoftLibNames = new ArrayList<String>();
+        {
             // These names are in use by the bundled OpenAL-soft
-            alLibNames.add("openal");
-            alLibNames.add("OpenAL");
+            alSoftLibNames.add("openal");
+            alSoftLibNames.add("OpenAL");            
+        }
+
+        final List<String> alLibNames = new ArrayList<String>();
+        
+        if( ALFactory.PREFER_SYSTEM_OPENAL ) {
+            // First test the System OpenAL
+            alLibNames.addAll(alSystemLibNames);
+
+            // last but not least .. bundled OpenAL-soft
+            alLibNames.addAll(alSoftLibNames);
         } else {
             // First test use of the bundled OpenAL-soft
-            // the generic one
-            alLibNames.add("openal");
-            alLibNames.add("OpenAL");
-
+            alLibNames.addAll(alSoftLibNames);
+            
             // Then try the System OpenAL
-            // this is the default AL lib name, according to the spec
-            alLibNames.add("libopenal.so.1"); // unix
-            alLibNames.add("OpenAL32"); // windows
-            alLibNames.add("OpenAL"); // OSX
-
-            // try this one as well, if spec fails
-            alLibNames.add("libOpenAL.so.1");
-            alLibNames.add("libopenal.so");
-            alLibNames.add("libOpenAL.so");
+            alLibNames.addAll(alSystemLibNames);
         }
 
         // last but not least .. the generic one

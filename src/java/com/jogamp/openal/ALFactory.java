@@ -33,21 +33,56 @@
 
 package com.jogamp.openal;
 
+import java.security.AccessController;
+import java.security.PrivilegedAction;
+
+import jogamp.openal.ALCImpl;
+import jogamp.openal.ALExtImpl;
+import jogamp.openal.ALImpl;
+import jogamp.openal.Debug;
+
 import com.jogamp.common.os.Platform;
-import com.jogamp.openal.AL;
-import com.jogamp.openal.ALC;
-import com.jogamp.openal.ALExt;
-import jogamp.openal.*;
 
 /**
  * This class provides factory methods for generating AL and ALC objects.
  *
- * @author Athomas Goldberg
- * @author Kenneth Russell
+ * <p>
+ * Select preferred OpenAL native library type via system properties, 
+ * i.e. System-OpenAL or bundled Soft-OpenAL.<br/>
+ * If the preferred choice fails, implementation falls back to the other.
+ * <PRE>
+    -Djoal.openal.lib=auto     Prefer System-OpenAL over bundled Soft-OpenAL for OSX. Prefer bundled Soft-OpenAL over System-OpenAL for all others. This is the default.
+    -Djoal.openal.lib=system   Prefer System-OpenAL over bundled Soft-OpenAL for all.
+    -Djoal.openal.lib=soft     Prefer bundled Soft-OpenAL over System-OpenAL for all.
+   </PRE>
+ * Note: You may use the 'jnlp.' prefix, allowing using above property names w/ Applets and WebStart,
+ * e.g. 'jnlp.joal.openal.lib=system'.
+ * </p>
+ * 
+ * @author Athomas Goldberg, Kenneth Russell, et.al.
  */
 public class ALFactory {
   public static final boolean DEBUG = Debug.debug("Factory");
-
+  /** If true, prefer System-OpenAL over bundled Soft-OpenAL, otherwise vice versa. */
+  public static final boolean PREFER_SYSTEM_OPENAL;
+  
+  static {
+      Platform.initSingleton();
+      final String choice= AccessController.doPrivileged(new PrivilegedAction<String>() {
+                    public String run() {
+                        return Debug.getProperty("joal.openal.lib", true, null);
+                    } });
+      boolean useSystem = Platform.OSType.MACOS == Platform.OS_TYPE; // default
+      if( null != choice ) {
+          if( choice.equals("system") ) {
+              useSystem = true;
+          } else if( choice.equals("soft") ) {
+              useSystem = false;
+          }
+      }
+      PREFER_SYSTEM_OPENAL = useSystem;      
+  }
+  
   private static boolean initialized = false;
   private static AL al;
   private static ALC alc;
@@ -58,7 +93,6 @@ public class ALFactory {
   private static synchronized void initialize() throws ALException {
     try {
       if (!initialized) {
-        Platform.initSingleton();
         if(null == ALImpl.getALProcAddressTable()) {
             throw new ALException("AL not initialized (ProcAddressTable null)");
         }
@@ -70,6 +104,16 @@ public class ALFactory {
     } catch (UnsatisfiedLinkError e) {
       throw new ALException(e);
     }
+  }
+  
+  /**
+   * If the system property <code>joal.SystemOpenAL</code> is set
+   * @return
+   * @throws ALException
+   */
+  public static boolean getPreferSystemOpenAL() throws ALException {
+    initialize();
+    return PREFER_SYSTEM_OPENAL;
   }
 
   /**
