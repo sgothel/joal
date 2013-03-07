@@ -89,6 +89,17 @@ public final class Source {
     }
 
     /**
+     * Determines whether or not this source is playing.
+     *
+     * @return {@code true} if this source is playing.
+     */
+    public boolean isPlaying() {
+        int[] result = new int[1];
+        al.alGetSourcei(sourceID, AL.AL_SOURCE_STATE, result, 0);
+        return result[0] == AL.AL_PLAYING;
+    }
+
+    /**
      * Sets the pitch of the audio on this source. The pitch may be modified
      * without altering the playback speed of the audio.
      *
