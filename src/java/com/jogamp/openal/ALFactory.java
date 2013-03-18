@@ -103,6 +103,8 @@ public class ALFactory {
       }
     } catch (UnsatisfiedLinkError e) {
       throw new ALException(e);
+    } catch (ExceptionInInitializerError er) {
+	  throw new ALException(er);
     }
   }
   
