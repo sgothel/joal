@@ -436,6 +436,7 @@
       <jar destfile="${build}/joal-natives-${os.and.arch}.jar">
         <fileset dir="../${rootrel.build}/obj">
           <include name="*joal.${native.library.suffix}" />
+          <include name="*soft_oal.${native.library.suffix}" />
           <include name="*openal.${native.library.suffix}" />
           <exclude name="*openal*.1*.${native.library.suffix}" />
         </fileset>
