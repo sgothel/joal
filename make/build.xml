@@ -475,7 +475,7 @@
 		<exec dir="${build}/openal-soft" executable="make" logError="true" failonerror="false" failifexecutionfails="false" />
 	</target>
 
-	<target name="c.download.openal.soft.windows" if="isWindows">
+	<target name="c.download.openal.soft.windows" >
 		<property name="c.build.openal.soft.done" value="true" />
 		<!-- downloads the binaries of OpenAL-Soft for Windows as they aren't bundled with JOAL yet -->
 		<get src="http://kcat.strangesoft.net/openal-soft-1.15.1-bin.zip" dest="." verbose="true" usetimestamp="true" />
@@ -486,7 +486,7 @@
 			</patternset>
 		</unzip>
 		<!-- deletes the ZIP archive -->
-		<delete file="lib/joal/openal-soft-1.15.1-bin.zip" />
+		<delete file="openal-soft-1.15.1-bin.zip" />
 		<!-- creates the directories from which the DLLs will be picked up -->
 		<mkdir dir="lib/windows-i586" />
 		<mkdir dir="lib/windows-amd64" />
