@@ -31,313 +31,310 @@
    -->
 <project name="JOAL" basedir="." default="all">
 
-	<property name="project.root"  value=".." />
+    <property name="project.root"  value=".." />
 
-	<condition property="rootrel.build" value="build">
-		<not>
-			<isset property="rootrel.build"/>
-		</not>
-	</condition>
-	<property name="build"                value="${project.root}/${rootrel.build}" />
+    <condition property="rootrel.build" value="build">
+        <not>
+            <isset property="rootrel.build"/>
+        </not>
+    </condition>
+    <property name="build"                value="${project.root}/${rootrel.build}" />
 
-	<property name="gluegen.root"  value="${project.root}/../gluegen" />
-	<property name="gluegen.build" value="${gluegen.root}/${rootrel.build}" />
+    <property name="gluegen.root"  value="${project.root}/../gluegen" />
+    <property name="gluegen.build" value="${gluegen.root}/${rootrel.build}" />
 
-	<!-- This is the version of JOAL you are building -->
-	<property name="joal_base_version" value="2.0"/>
-	<property name="joal_int_version"  value="2"/>
-	<tstamp>
-		<format property="version.timestamp" pattern="yyyyMMdd"/>
-	</tstamp>
-	<property name="joal.build.number" value="manual-build"/>
-	<property name="joal.build.id"     value="${version.timestamp}"/>
-	<mkdir dir="${build}" />
-	<exec dir="." executable="git" logError="true" failonerror="false" failifexecutionfails="false"
+    <!-- This is the version of JOAL you are building -->
+    <property name="joal_base_version" value="2.0"/>
+    <property name="joal_int_version"  value="2"/>
+    <tstamp>
+        <format property="version.timestamp" pattern="yyyyMMdd"/>
+    </tstamp>
+    <property name="joal.build.number" value="manual-build"/>
+    <property name="joal.build.id"     value="${version.timestamp}"/>
+    <mkdir dir="${build}" />
+    <exec dir="." executable="git" logError="true" failonerror="false" failifexecutionfails="false"
               output="${build}/localbranch.raw">
-		<arg line="branch --no-color"/>
-	</exec>
-	<exec dir="." executable="sed" logError="true" failonerror="false" failifexecutionfails="false"
+        <arg line="branch --no-color"/>
+    </exec>
+    <exec dir="." executable="sed" logError="true" failonerror="false" failifexecutionfails="false"
               outputproperty="joal.build.branch">
-		<arg line="-e '/^[^*]/d' -e 's/* \(.*\)/\1/' ${build}/localbranch.raw"/>
-	</exec>
-	<property name="joal.build.branch" value="manual"/>
-	<!-- fallback -->
-	<exec dir="${project.root}" executable="git" logError="true" failonerror="false" failifexecutionfails="false"
+        <arg line="-e '/^[^*]/d' -e 's/* \(.*\)/\1/' ${build}/localbranch.raw"/>
+    </exec>
+    <property name="joal.build.branch" value="manual"/> <!-- fallback -->
+    <exec dir="${project.root}" executable="git" logError="true" failonerror="false" failifexecutionfails="false"
               outputproperty="joal.build.commit">
-		<arg line="rev-parse HEAD"/>
-	</exec>
-	<property name="joal.build.commit" value="manual"/>
-	<!-- fallback -->
-	<property name="joal.version"      value="${joal_base_version}-${version.timestamp}" />
-	<property name="joal.version.plus" value="${joal_base_version}-${joal.build.branch}-b${joal.build.number}-${joal.build.commit}-${version.timestamp}" />
+        <arg line="rev-parse HEAD"/>
+    </exec>
+    <property name="joal.build.commit" value="manual"/> <!-- fallback -->
+    <property name="joal.version"      value="${joal_base_version}-${version.timestamp}" />
+    <property name="joal.version.plus" value="${joal_base_version}-${joal.build.branch}-b${joal.build.number}-${joal.build.commit}-${version.timestamp}" />
 
-	<!-- Pull in GlueGen cpptasks build file -->
-	<import file="${gluegen.root}/make/gluegen-cpptasks.xml" />
-	<import file="${gluegen.root}/make/jogamp-archivetasks.xml" />
-	<import file="${gluegen.root}/make/jogamp-androidtasks.xml" />
-	<import file="${gluegen.root}/make/jogamp-env.xml" />
+    <!-- Pull in GlueGen cpptasks build file -->
+    <import file="${gluegen.root}/make/gluegen-cpptasks.xml" />
+    <import file="${gluegen.root}/make/jogamp-archivetasks.xml" />
+    <import file="${gluegen.root}/make/jogamp-androidtasks.xml" />
+    <import file="${gluegen.root}/make/jogamp-env.xml" />
 
-	<!-- ================================================================== -->
-	<!--
+    <!-- ================================================================== -->
+    <!--
        - Load user properties which override build defaults.
       -->
-	<target name="load.user.properties">
-		<property name="user.properties.file" value="${user.home}/joal.properties" />
-		<property file="${user.properties.file}" />
-		<echo message="Loaded ${user.properties.file}. (optionally)" />
+    <target name="load.user.properties">
+        <property name="user.properties.file" value="${user.home}/joal.properties" />
+        <property file="${user.properties.file}" />
+        <echo message="Loaded ${user.properties.file}. (optionally)" />
 
-		<property file="${user.home}/gluegen.properties" />
-		<echo message="Loaded ${user.home}/gluegen.properties." />
-	</target>
+        <property file="${user.home}/gluegen.properties" />
+        <echo message="Loaded ${user.home}/gluegen.properties." />
+    </target>
 
-	<!-- ================================================================== -->
-	<!--
+    <!-- ================================================================== -->
+    <!--
        - Declare all paths and user defined variables.
       -->
-	<target name="init" depends="jogamp.env.init, gluegen.cpptasks.detect.os">
+    <target name="init" depends="jogamp.env.init, gluegen.cpptasks.detect.os">
 
-		<!-- The location and name of the configuration ANT file that will
+        <!-- The location and name of the configuration ANT file that will
            - validate to ensure that all user-define variables are set. -->
-		<property name="validate.user.properties" value="${make}/validate-properties.xml" />
+        <property name="validate.user.properties" value="${make}/validate-properties.xml" />
 
-		<!-- GlueGen properties. -->
-		<!-- NOTE that these require a checked-out GlueGen workspace as a -->
-		<!-- sibling of the JOAL workspace. -->
-		<property name="gluegen.make.dir" value="${gluegen.root}/make" />
-		<property name="gluegen.build.xml" value="${gluegen.make.dir}/build.xml" />
-		<property name="gluegen.jar" value="${gluegen.build}/gluegen.jar" />
-		<property name="gluegen-rt.jar" value="${gluegen.build}/gluegen-rt.jar" />
+        <!-- GlueGen properties. -->
+        <!-- NOTE that these require a checked-out GlueGen workspace as a -->
+        <!-- sibling of the JOAL workspace. -->
+        <property name="gluegen.make.dir" value="${gluegen.root}/make" />
+        <property name="gluegen.build.xml" value="${gluegen.make.dir}/build.xml" />
+        <property name="gluegen.jar" value="${gluegen.build}/gluegen.jar" />
+        <property name="gluegen-rt.jar" value="${gluegen.build}/gluegen-rt.jar" />
 
-		<!-- Create the classpath that includes GlueGen and
+        <!-- Create the classpath that includes GlueGen and
            - ANTLR. This requires the user-defined "antlr.jar"
            - property. -->
-		<path id="gluegen.classpath">
-			<pathelement location="${gluegen.jar}" />
-			<pathelement location="${antlr.jar}" />
-		</path>
+        <path id="gluegen.classpath">
+            <pathelement location="${gluegen.jar}" />
+            <pathelement location="${antlr.jar}" />
+        </path>
 
-		<!-- Names of directories relative to the project root.
+        <!-- Names of directories relative to the project root.
              Some of these are used in FileMappers later for dependence information
              and need exact string matching, which is why they use file.separator
              instead of "/". -->
-		<property name="rootrel.src" value="src" />
-		<property name="rootrel.src.java" value="${rootrel.src}/java" />
-		<property name="rootrel.src.c" value="${rootrel.src}/native" />
-		<property name="rootrel.src.generated" value="${rootrel.build}/gensrc" />
-		<property name="rootrel.generated.java" value="${rootrel.src.generated}/classes" />
-		<property name="rootrel.generated.c.joal" value="${rootrel.src.generated}/native/joal" />
-		<property name="rootrel.obj" value="${rootrel.build}/obj" />
-		<property name="rootrel.obj.joal" value="${rootrel.obj}/joal" />
+        <property name="rootrel.src" value="src" />
+        <property name="rootrel.src.java" value="${rootrel.src}/java" />
+        <property name="rootrel.src.c" value="${rootrel.src}/native" />
+        <property name="rootrel.src.generated" value="${rootrel.build}/gensrc" />
+        <property name="rootrel.generated.java" value="${rootrel.src.generated}/classes" />
+        <property name="rootrel.generated.c.joal" value="${rootrel.src.generated}/native/joal" />
+        <property name="rootrel.obj" value="${rootrel.build}/obj" />
+        <property name="rootrel.obj.joal" value="${rootrel.obj}/joal" />
 
-		<!-- The source directories. -->
-		<property name="src"   value="${project.root}/${rootrel.src}" />
-		<property name="src.c" value="${project.root}/${rootrel.src.c}" />
-		<property name="src.java" value="${project.root}/${rootrel.src.java}" />
-		<property name="build" value="${project.root}/${rootrel.build}" />
-		<property name="tempdir" value="${project.root}/build-temp" />
-		<mkdir dir="${tempdir}" />
+        <!-- The source directories. -->
+        <property name="src"   value="${project.root}/${rootrel.src}" />
+        <property name="src.c" value="${project.root}/${rootrel.src.c}" />
+        <property name="src.java" value="${project.root}/${rootrel.src.java}" />
+        <property name="build" value="${project.root}/${rootrel.build}" />
+        <property name="tempdir" value="${project.root}/build-temp" />
+        <mkdir dir="${tempdir}" />
 
-		<!-- The generated source directories. -->
-		<property name="src.generated" value="${build}/gensrc" />
-		<property name="src.generated.java" value="${src.generated}/classes" />
-		<property name="src.generated.c" value="${src.generated}/native/joal" />
+        <!-- The generated source directories. -->
+        <property name="src.generated" value="${build}/gensrc" />
+        <property name="src.generated.java" value="${src.generated}/classes" />
+        <property name="src.generated.c" value="${src.generated}/native/joal" />
 
-		<!-- The compiler output directories. -->
-		<property name="classes" value="${build}/classes" />
-		<property name="obj"      value="${project.root}/${rootrel.obj}" />
-		<property name="obj.joal" value="${project.root}/${rootrel.obj.joal}" />
+        <!-- The compiler output directories. -->
+        <property name="classes" value="${build}/classes" />
+        <property name="obj"      value="${project.root}/${rootrel.obj}" />
+        <property name="obj.joal" value="${project.root}/${rootrel.obj.joal}" />
 
-		<!-- The headers from which Java files are generated -->
-		<property name="config" value="${project.root}/make" />
-		<property name="stub.includes" value="${config}/stub_includes" />
-		<property name="stub.includes.dir" value="stub_includes" />
-		<!-- NOTE:  this MUST be relative for FileSet -->
-		<property name="stub.includes.openal" value="${stub.includes}/openal" />
-		<dirset id="stub.includes.fileset.all" dir=".">
-			<include name="${stub.includes.dir}/openal/**" />
-		</dirset>
-		<fileset id="stub.includes.dependencies.fileset.1" dir="${stub.includes.dir}">
-			<include name="openal/**" />
-		</fileset>
-		<fileset id="stub.includes.dependencies.fileset.2" file="${gluegen.jar}" />
-		<fileset id="stub.includes.dependencies.fileset.3" dir=".">
-			<include name="*.cfg" />
-			<include name="*.java" />
-			<include name="*.c" />
-		</fileset>
-		<property name="stub.includes.gluegen.gg"  value="${gluegen.root}/make/stub_includes/gluegen" />
-		<property name="stub.includes.gluegen.cc"  value="${gluegen.root}/make/stub_includes/platform" />
+        <!-- The headers from which Java files are generated -->
+        <property name="config" value="${project.root}/make" />
+        <property name="stub.includes" value="${config}/stub_includes" />
+        <property name="stub.includes.dir" value="stub_includes" /> <!-- NOTE:  this MUST be relative for FileSet -->
+        <property name="stub.includes.openal" value="${stub.includes}/openal" />
+        <dirset id="stub.includes.fileset.all" dir=".">
+            <include name="${stub.includes.dir}/openal/**" />
+        </dirset>
+        <fileset id="stub.includes.dependencies.fileset.1" dir="${stub.includes.dir}">
+            <include name="openal/**" />
+        </fileset>
+        <fileset id="stub.includes.dependencies.fileset.2" file="${gluegen.jar}" />
+        <fileset id="stub.includes.dependencies.fileset.3" dir=".">
+            <include name="*.cfg" />
+            <include name="*.java" />
+            <include name="*.c" />
+        </fileset>
+        <property name="stub.includes.gluegen.gg"  value="${gluegen.root}/make/stub_includes/gluegen" />
+        <property name="stub.includes.gluegen.cc"  value="${gluegen.root}/make/stub_includes/platform" />
 
-		<!-- The resulting joal.jar. -->
-		<property name="joal.jar" value="${build}/joal.jar" />
-		<property name="joal-android.jar" value="${build}/joal-android.jar" />
-		<property name="joal-android.apk" value="${build}/joal-android-${android.abi}.apk" />
+        <!-- The resulting joal.jar. -->
+        <property name="joal.jar" value="${build}/joal.jar" />
+        <property name="joal-android.jar" value="${build}/joal-android.jar" />
+        <property name="joal-android.apk" value="${build}/joal-android-${android.abi}.apk" />
 
-		<path id="joal_all.classpath">
-			<pathelement location="${gluegen-rt.jar}" />
-			<pathelement location="${joal.jar}" />
-		</path>
+        <path id="joal_all.classpath">
+            <pathelement location="${gluegen-rt.jar}" />
+            <pathelement location="${joal.jar}" />
+        </path>
 
-		<!-- Names of configuration files used during glue code generation. -->
-		<property name="joal.cfg" value="${config}/joal.cfg" />
-		<property name="joal.constants.cfg" value="${config}/joal-constants.cfg" />
-		<property name="joal.alc.cfg" value="${config}/joal-alc.cfg" />
-		<property name="joal.alc.constants.cfg" value="${config}/joal-alc-constants.cfg" />
-		<property name="joal.alext.cfg" value="${config}/joal-alext.cfg" />
-		<property name="joal.alext.constants.cfg" value="${config}/joal-alext-constants.cfg" />
+        <!-- Names of configuration files used during glue code generation. -->
+        <property name="joal.cfg" value="${config}/joal.cfg" />
+        <property name="joal.constants.cfg" value="${config}/joal-constants.cfg" />
+        <property name="joal.alc.cfg" value="${config}/joal-alc.cfg" />
+        <property name="joal.alc.constants.cfg" value="${config}/joal-alc-constants.cfg" />
+        <property name="joal.alext.cfg" value="${config}/joal-alext.cfg" />
+        <property name="joal.alext.constants.cfg" value="${config}/joal-alext-constants.cfg" />
 
-		<!-- Create the required output directories. -->
-		<mkdir dir="${src.generated.java}" />
-		<mkdir dir="${src.generated.c}" />
-		<mkdir dir="${classes}" />
-		<mkdir dir="${obj}" />
-		<mkdir dir="${obj.joal}" />
+        <!-- Create the required output directories. -->
+        <mkdir dir="${src.generated.java}" />
+        <mkdir dir="${src.generated.c}" />
+        <mkdir dir="${classes}" />
+        <mkdir dir="${obj}" />
+        <mkdir dir="${obj.joal}" />
 
-		<property name="archive.name"        value="joal-${joal.version}-${os.and.arch}" />
-		<property name="archive"             value="${build}/${archive.name}" />
-	</target>
+        <property name="archive.name"        value="joal-${joal.version}-${os.and.arch}" />
+        <property name="archive"             value="${build}/${archive.name}" />
+    </target>
 
-	<!-- ================================================================== -->
-	<!-- GlueGen and BuildStaticGLInfo creation, task setup and Java file generation -->
-	<!--
+    <!-- ================================================================== -->
+    <!-- GlueGen and BuildStaticGLInfo creation, task setup and Java file generation -->
+    <!--
        - Build GlueGen
       -->
-	<target name="build.gluegen" depends="init" unless="common.gluegen.build.done">
-		<property name="common.gluegen.build.done" value="true" />
+    <target name="build.gluegen" depends="init" unless="common.gluegen.build.done">
+        <property name="common.gluegen.build.done" value="true" />
 
-		<!-- Run the GlueGen build to ensure that the GlueGen ANT task
+        <!-- Run the GlueGen build to ensure that the GlueGen ANT task
            - has been built. -->
-		<ant antfile="${gluegen.build.xml}" dir="${gluegen.make.dir}" target="base.compile" inheritAll="false" />
-	</target>
+        <ant antfile="${gluegen.build.xml}" dir="${gluegen.make.dir}" target="base.compile" inheritAll="false" />
+    </target>
 
-	<!-- ================================================================== -->
-	<!-- Java file generation -->
-	<!--
+    <!-- ================================================================== -->
+    <!-- Java file generation -->
+    <!--
        - Check to see whether we need to rebuild the generated sources.
       -->
 
-	<target name="java.generate.check">
-		<!-- Blow away all target files if any dependencies are violated
+    <target name="java.generate.check">
+        <!-- Blow away all target files if any dependencies are violated
              (the uptodate task doesn't allow arbitrary source and target filesets but should) -->
-		<dependset>
-			<srcfileset refid="stub.includes.dependencies.fileset.1" />
-			<srcfileset refid="stub.includes.dependencies.fileset.2" />
-			<srcfileset refid="stub.includes.dependencies.fileset.3" />
-			<targetfileset dir=".">
-				<include name="${src.generated.java}/**/*.java" />
-				<include name="${src.generated.c}/**/*.c" />
-			</targetfileset>
-		</dependset>
+        <dependset>
+            <srcfileset refid="stub.includes.dependencies.fileset.1" />
+            <srcfileset refid="stub.includes.dependencies.fileset.2" />
+            <srcfileset refid="stub.includes.dependencies.fileset.3" />
+            <targetfileset dir=".">
+                <include name="${src.generated.java}/**/*.java" />
+                <include name="${src.generated.c}/**/*.c" />
+            </targetfileset>
+        </dependset>
 
-		<!-- Now check for the presence of one well-known file -->
-		<uptodate property="java.generate.skip"
+        <!-- Now check for the presence of one well-known file -->
+        <uptodate property="java.generate.skip"
                   targetfile="${src.generated.java}/com/jogamp/openal/AL.java">
-			<srcfiles refid="stub.includes.dependencies.fileset.1" />
-			<srcfiles refid="stub.includes.dependencies.fileset.2" />
-			<srcfiles refid="stub.includes.dependencies.fileset.3" />
-		</uptodate>
-	</target>
+            <srcfiles refid="stub.includes.dependencies.fileset.1" />
+            <srcfiles refid="stub.includes.dependencies.fileset.2" />
+            <srcfiles refid="stub.includes.dependencies.fileset.3" />
+        </uptodate>
+    </target>
 
-	<target name="java.generate.copy2temp">
-		<copy todir="${tempdir}">
-			<fileset dir="${build}"
+    <target name="java.generate.copy2temp">
+        <copy todir="${tempdir}">
+            <fileset dir="${build}"
                      includes="gensrc/classes/**" />
-		</copy>
-	</target>
+        </copy>
+    </target>
 
-	<!--
+    <!--
        - Setup the generating ANT tasks and use it to generate the Java files
        - from the C AL headers.  This involves setting the taskdef and creating
        - the classpath reference id then running the task on each header.
       -->
-	<target name="java.generate" depends="build.gluegen, java.generate.check" unless="java.generate.skip">
-		<!-- Add the GlueGen task to ANT -->
-		<taskdef name="gluegen" classname="com.jogamp.gluegen.ant.GlueGenTask"
+    <target name="java.generate" depends="build.gluegen, java.generate.check" unless="java.generate.skip">
+        <!-- Add the GlueGen task to ANT -->
+        <taskdef name="gluegen" classname="com.jogamp.gluegen.ant.GlueGenTask"
                  classpathref="gluegen.classpath" />
 
-		<!-- Use the GlueGen task to generate the Java files -->
+        <!-- Use the GlueGen task to generate the Java files -->
 
-		<echo message="Generate the AL interface class and implementation" />
-		<gluegen src="${stub.includes.openal}/al.h"
+        <echo message="Generate the AL interface class and implementation" />
+        <gluegen src="${stub.includes.openal}/al.h"
                  outputRootDir="${build}"
                  config="${joal.cfg}"
                  includeRefid="stub.includes.fileset.all"
                  literalInclude="${stub.includes.gluegen.gg}"
                  emitter="com.jogamp.gluegen.procaddress.ProcAddressEmitter"
                  debug="false">
-			<classpath refid="gluegen.classpath" />
-		</gluegen>
+            <classpath refid="gluegen.classpath" />
+        </gluegen>
 
-		<echo message="Generate the ALConstants interface class" />
-		<gluegen src="${stub.includes.openal}/al.h"
+        <echo message="Generate the ALConstants interface class" />
+        <gluegen src="${stub.includes.openal}/al.h"
                  outputRootDir="${build}"
                  config="${joal.constants.cfg}"
                  includeRefid="stub.includes.fileset.all"
                  literalInclude="${stub.includes.gluegen.gg}"
                  emitter="com.jogamp.gluegen.JavaEmitter"
                  debug="false">
-			<classpath refid="gluegen.classpath" />
-		</gluegen>
+            <classpath refid="gluegen.classpath" />
+        </gluegen>
 
-		<echo message="Generate the ALC interface class and implementation" />
-		<gluegen src="${stub.includes.openal}/alc.h"
+        <echo message="Generate the ALC interface class and implementation" />
+        <gluegen src="${stub.includes.openal}/alc.h"
                  outputRootDir="${build}"
                  config="${joal.alc.cfg}"
                  includeRefid="stub.includes.fileset.all"
                  literalInclude="${stub.includes.gluegen.gg}"
                  emitter="com.jogamp.gluegen.procaddress.ProcAddressEmitter"
                  debug="false">
-			<classpath refid="gluegen.classpath" />
-		</gluegen>
+            <classpath refid="gluegen.classpath" />
+        </gluegen>
 
-		<echo message="Generate the ALCConstants interface class" />
-		<gluegen src="${stub.includes.openal}/alc.h"
+        <echo message="Generate the ALCConstants interface class" />
+        <gluegen src="${stub.includes.openal}/alc.h"
                  outputRootDir="${build}"
                  config="${joal.alc.constants.cfg}"
                  includeRefid="stub.includes.fileset.all"
                  literalInclude="${stub.includes.gluegen.gg}"
                  emitter="com.jogamp.gluegen.JavaEmitter"
                  debug="false">
-			<classpath refid="gluegen.classpath" />
-		</gluegen>
+            <classpath refid="gluegen.classpath" />
+        </gluegen>
 
-		<echo message="Generate the ALExt interface class and implementation" />
-		<antcall target="java.generate.copy2temp" inheritRefs="true" />
-		<gluegen src="${stub.includes.openal}/alext.h"
+        <echo message="Generate the ALExt interface class and implementation" />
+        <antcall target="java.generate.copy2temp" inheritRefs="true" />
+        <gluegen src="${stub.includes.openal}/alext.h"
                  outputRootDir="${build}"
                  config="${joal.alext.cfg}"
                  includeRefid="stub.includes.fileset.all"
                  literalInclude="${stub.includes.gluegen.gg}"
                  emitter="com.jogamp.gluegen.procaddress.ProcAddressEmitter"
                  debug="false">
-			<classpath refid="gluegen.classpath" />
-		</gluegen>
+            <classpath refid="gluegen.classpath" />
+        </gluegen>
 
-		<echo message="Generate the ALExt constants interface" />
-		<antcall target="java.generate.copy2temp" inheritRefs="true" />
-		<gluegen src="${stub.includes.openal}/alext.h"
+        <echo message="Generate the ALExt constants interface" />
+        <antcall target="java.generate.copy2temp" inheritRefs="true" />
+        <gluegen src="${stub.includes.openal}/alext.h"
                  outputRootDir="${build}"
                  config="${joal.alext.constants.cfg}"
                  includeRefid="stub.includes.fileset.all"
                  literalInclude="${stub.includes.gluegen.gg}"
                  emitter="com.jogamp.gluegen.JavaEmitter"
                  debug="false">
-			<classpath refid="gluegen.classpath" />
-		</gluegen>
+            <classpath refid="gluegen.classpath" />
+        </gluegen>
 
-		<!-- Inform the user that the generators have successfully created
+        <!-- Inform the user that the generators have successfully created
            - the necessary Java files -->
-		<echo message="" />
-		<echo message="GlueGen has successfully generated files." />
+        <echo message="" />
+        <echo message="GlueGen has successfully generated files." />
 
-	</target>
+    </target>
 
-	<!-- ================================================================== -->
-	<!--
+    <!-- ================================================================== -->
+    <!--
        - Compile the original and generated source.
       -->
-	<target name="java.compile" depends="java.generate">
-		<javac destdir="${classes}" 
+    <target name="java.compile" depends="java.generate">
+        <javac destdir="${classes}" 
                includeantruntime="false"
                classpath="${gluegen-rt.jar}" 
                memoryMaximumSize="${javac.memorymax}"
@@ -346,52 +343,52 @@
                target="${target.targetlevel}" 
                bootclasspath="${target.rt.jar}"
                debug="${javacdebug}" debuglevel="${javacdebuglevel}">
-			<src path="${src.java}" />
-			<src path="${src.generated.java}" />
-		</javac>
-	</target>
+            <src path="${src.java}" />
+            <src path="${src.generated.java}" />
+        </javac>
+    </target>
 
-	<!-- ================================================================== -->
-	<!--
+    <!-- ================================================================== -->
+    <!--
        - Compile the native C code for JOAL.
       -->
 
-	<target name="rename.mingw.dll" if="isMingW">
-		<move file="${src}" tofile="${dest}" />
-	</target>
+    <target name="rename.mingw.dll" if="isMingW">
+        <move file="${src}" tofile="${dest}" />
+    </target>
 
-	<target name="rename.dylib" if="isOSX">
-		<move file="${src}" tofile="${dest}" />
-	</target>
+    <target name="rename.dylib" if="isOSX">
+        <move file="${src}" tofile="${dest}" />
+    </target>
 
-	<macrodef name="c.build">
-		<attribute name="compiler.cfg.id" />
-		<attribute name="linker.cfg.id" />
-		<attribute name="output.lib.name" />
-		<attribute name="c.compiler.use-jawt" default="false"/>
-		<sequential>
-			<echo message="Output lib name = @{output.lib.name}" />
+    <macrodef name="c.build">
+        <attribute name="compiler.cfg.id" />
+        <attribute name="linker.cfg.id" />
+        <attribute name="output.lib.name" />
+        <attribute name="c.compiler.use-jawt" default="false"/>
+        <sequential>
+            <echo message="Output lib name = @{output.lib.name}" />
 
-			<echo message="compiler.cfg.id.base: @{compiler.cfg.id}"/>
-			<echo message="linker.cfg.id.base: @{linker.cfg.id}"/>
+            <echo message="compiler.cfg.id.base: @{compiler.cfg.id}"/>
+            <echo message="linker.cfg.id.base: @{linker.cfg.id}"/>
 
-			<!-- NOTE: the value of the debug and optimise attributes will not be overridden if already set externally -->
-			<property name="c.compiler.debug"     value="false" />
-			<!-- Optimise flags one of { none, size, speed, minimal, full, aggressive, extreme, unsafe } -->
-			<property name="c.compiler.optimise"  value="none" />
+            <!-- NOTE: the value of the debug and optimise attributes will not be overridden if already set externally -->
+            <property name="c.compiler.debug"     value="false" />
+            <!-- Optimise flags one of { none, size, speed, minimal, full, aggressive, extreme, unsafe } -->
+            <property name="c.compiler.optimise"  value="none" />
 
-			<condition property="c.compiler.use-debug">
-				<istrue value="${c.compiler.debug}"/>
-			</condition>
+            <condition property="c.compiler.use-debug">
+                <istrue value="${c.compiler.debug}"/>
+            </condition>
 
-			<patternset id="c.src.files">
-				<include name="${rootrel.src.c}/*.c"/>
-				<include name="${rootrel.generated.c.joal}/*.c"/>
-			</patternset>
+            <patternset id="c.src.files">
+                <include name="${rootrel.src.c}/*.c"/>
+                <include name="${rootrel.generated.c.joal}/*.c"/>
+            </patternset>
 
-			<echo message="Compiling @{output.lib.name}" />
+            <echo message="Compiling @{output.lib.name}" />
 
-			<cc outtype="shared" 
+            <cc outtype="shared" 
             objdir="${obj}" 
             outfile="${obj}/@{output.lib.name}"
             optimize="${c.compiler.optimise}" 
@@ -400,153 +397,153 @@
             exceptions="false" 
             rtti="false">
 
-				<fileset dir="${project.root}">
-					<patternset refid="c.src.files"/>
-				</fileset>
+                <fileset dir="${project.root}">
+                    <patternset refid="c.src.files"/>
+                </fileset>
 
-				<compiler extends="@{compiler.cfg.id}" >
-					<sysincludepath path="${java.includes.dir}"/>
-					<sysincludepath path="${java.includes.dir.platform}"/>
-					<sysincludepath path="${stub.includes.gluegen.cc}"/>
-					<includepath path="stub_includes/openal"/>
-					<!-- This is for the generated headers for handwritten C code -->
-					<includepath path="${src.generated.c}" />
-					<includepath path="${src.c}"/>
+                <compiler extends="@{compiler.cfg.id}" >
+                    <sysincludepath path="${java.includes.dir}"/>
+                    <sysincludepath path="${java.includes.dir.platform}"/>
+                    <sysincludepath path="${stub.includes.gluegen.cc}"/>
+                    <includepath path="stub_includes/openal"/>
+                    <!-- This is for the generated headers for handwritten C code -->
+                    <includepath path="${src.generated.c}" />
+                    <includepath path="${src.c}"/>
 
-					<!-- This must come last to not override real include paths -->
-					<!-- includepath path="stub_includes/macosx" if="isOSX" / -->
-				</compiler>
+                    <!-- This must come last to not override real include paths -->
+                    <!-- includepath path="stub_includes/macosx" if="isOSX" / -->
+                </compiler>
 
-				<linker extends="@{linker.cfg.id}" />
-			</cc>
+                <linker extends="@{linker.cfg.id}" />
+            </cc>
 
-			<antcall target="rename.dylib" inheritRefs="true">
-				<param name="src"  value="${obj}/lib@{output.lib.name}.dylib" />
-				<param name="dest" value="${obj}/lib@{output.lib.name}.jnilib" />
-			</antcall>
+            <antcall target="rename.dylib" inheritRefs="true">
+                <param name="src"  value="${obj}/lib@{output.lib.name}.dylib" />
+                <param name="dest" value="${obj}/lib@{output.lib.name}.jnilib" />
+            </antcall>
 
-			<antcall target="rename.mingw.dll" inheritRefs="true">
-				<param name="src"  value="${obj}/lib@{output.lib.name}.so" />
-				<param name="dest" value="${obj}/@{output.lib.name}.dll" />
-			</antcall>
-		</sequential>
-	</macrodef>
+            <antcall target="rename.mingw.dll" inheritRefs="true">
+                <param name="src"  value="${obj}/lib@{output.lib.name}.so" />
+                <param name="dest" value="${obj}/@{output.lib.name}.dll" />
+            </antcall>
+        </sequential>
+    </macrodef>
 
-	<target name="c.build.joal" depends="init, c.build.openal.soft, gluegen.cpptasks.detect.os, gluegen.cpptasks.setup.compiler">
-		<echo message="compiler.cfg.id.base: ${compiler.cfg.id.base}"/>
-		<echo message="linker.cfg.id.base: ${linker.cfg.id.base}"/>
-		<c.build compiler.cfg.id="${compiler.cfg.id.base}"
+    <target name="c.build.joal" depends="init, c.build.openal.soft, gluegen.cpptasks.detect.os, gluegen.cpptasks.setup.compiler">
+        <echo message="compiler.cfg.id.base: ${compiler.cfg.id.base}"/>
+        <echo message="linker.cfg.id.base: ${linker.cfg.id.base}"/>
+        <c.build compiler.cfg.id="${compiler.cfg.id.base}"
                output.lib.name="joal"
                linker.cfg.id="${linker.cfg.id.base}"/>
 
-		<!-- Create Java Web Start jar file from built file -->
-		<jar destfile="${build}/joal-natives-${os.and.arch}.jar">
-			<fileset dir="../${rootrel.build}/obj">
-				<include name="*joal.${native.library.suffix}" />
-				<include name="*soft_oal.${native.library.suffix}" />
-				<include name="*openal.${native.library.suffix}" />
-				<exclude name="*openal*.1*.${native.library.suffix}" />
-			</fileset>
-		</jar>
-	</target>
+        <!-- Create Java Web Start jar file from built file -->
+        <jar destfile="${build}/joal-natives-${os.and.arch}.jar">
+            <fileset dir="../${rootrel.build}/obj">
+                <include name="*joal.${native.library.suffix}" />
+                <include name="*soft_oal.${native.library.suffix}" />
+                <include name="*openal.${native.library.suffix}" />
+                <exclude name="*openal*.1*.${native.library.suffix}" />
+            </fileset>
+        </jar>
+    </target>
 
-	<target name="c.build.openal.soft.android" if="isAndroid">
-		<property name="c.build.openal.soft.done" value="true" />
-		<mkdir dir="${build}/openal-soft" />
-		<exec dir="${build}/openal-soft" executable="cmake" logError="true" failonerror="false" failifexecutionfails="false">
-			<env key="PATH" value="${env.PATH_VANILLA}"/>
-			<env key="ANDROID_TOOLCHAIN_VERSION" value="${env.GCC_VERSION}"/>
-			<env key="ANDROID_NDK" value="${env.NDK_ROOT}"/>
-			<arg value="../../openal-soft"/>
-			<arg value="-DCMAKE_TOOLCHAIN_FILE=../../openal-soft/cmake/toolchain.android.cmake"/>
-			<arg value="-DANDROID_API_LEVEL=${android.version}"/>
-		</exec>
-		<exec dir="${build}/openal-soft" executable="make" logError="true" failonerror="false" failifexecutionfails="false" />
-	</target>
+    <target name="c.build.openal.soft.android" if="isAndroid">
+        <property name="c.build.openal.soft.done" value="true" />
+        <mkdir dir="${build}/openal-soft" />
+        <exec dir="${build}/openal-soft" executable="cmake" logError="true" failonerror="false" failifexecutionfails="false">
+            <env key="PATH" value="${env.PATH_VANILLA}"/>
+            <env key="ANDROID_TOOLCHAIN_VERSION" value="${env.GCC_VERSION}"/>
+            <env key="ANDROID_NDK" value="${env.NDK_ROOT}"/>
+            <arg value="../../openal-soft"/>
+            <arg value="-DCMAKE_TOOLCHAIN_FILE=../../openal-soft/cmake/toolchain.android.cmake"/>
+            <arg value="-DANDROID_API_LEVEL=${android.version}"/>
+        </exec>
+        <exec dir="${build}/openal-soft" executable="make" logError="true" failonerror="false" failifexecutionfails="false" />
+    </target>
 
-	<target name="c.build.openal.soft.windows" if="isWindows">
-		<property name="c.build.openal.soft.done" value="true" />
-		<mkdir dir="${build}/openal-soft" />
-		<exec dir="${build}/openal-soft" executable="cmake" logError="true" failonerror="false" failifexecutionfails="false">
-			<env key="PATH" value="${env.PATH}"/>
-			<arg value="../../openal-soft"/>
-			<arg value="-DCMAKE_TOOLCHAIN_FILE=../../openal-soft/cmake/toolchain.windows.cmake"/>
-		</exec>
-		<exec dir="${build}/openal-soft" executable="make" logError="true" failonerror="false" failifexecutionfails="false" />
-	</target>
+    <target name="c.build.openal.soft.windows" if="isWindows">
+        <property name="c.build.openal.soft.done" value="true" />
+        <mkdir dir="${build}/openal-soft" />
+        <exec dir="${build}/openal-soft" executable="cmake" logError="true" failonerror="false" failifexecutionfails="false">
+            <env key="PATH" value="${env.PATH}"/>
+            <arg value="../../openal-soft"/>
+            <arg value="-DCMAKE_TOOLCHAIN_FILE=../../openal-soft/cmake/toolchain.windows.cmake"/>
+        </exec>
+        <exec dir="${build}/openal-soft" executable="make" logError="true" failonerror="false" failifexecutionfails="false" />
+    </target>
 
-	<target name="c.download.openal.soft.windows" if="isWindows">
-		<property name="c.build.openal.soft.done" value="true" />
-		<!-- downloads the binaries of OpenAL-Soft for Windows as they aren't bundled with JOAL yet -->
-		<get src="http://kcat.strangesoft.net/openal-soft-1.15.1-bin.zip" dest="." verbose="true" usetimestamp="true" />
-		<!-- extracts the DLLs of OpenAL-Soft for Windows 32 bits & 64 bits -->
-		<unzip src="openal-soft-1.15.1-bin.zip" dest=".">
-			<patternset>
-				<include name="**/soft_oal.dll"/>
-			</patternset>
-		</unzip>
-		<!-- deletes the ZIP archive -->
-		<delete file="openal-soft-1.15.1-bin.zip" />
-		<!-- creates the directories from which the DLLs will be picked up -->
-		<mkdir dir="lib/windows-i586" />
-		<mkdir dir="lib/windows-amd64" />
-		<!-- moves the DLLs into these newly created directories -->
-		<move file="openal-soft-1.15.1-bin/Win32/soft_oal.dll" todir="lib/windows-i586" />
-		<move file="openal-soft-1.15.1-bin/Win64/soft_oal.dll" todir="lib/windows-amd64" />
-		<!-- deletes the directories created during the decompression of the ZIP archive -->
-		<delete dir="openal-soft-1.15.1-bin" />
-	</target>
+    <target name="c.download.openal.soft.windows" if="isWindows">
+        <property name="c.build.openal.soft.done" value="true" />
+        <!-- downloads the binaries of OpenAL-Soft for Windows as they aren't bundled with JOAL yet -->
+        <get src="http://kcat.strangesoft.net/openal-soft-1.15.1-bin.zip" dest="." verbose="true" usetimestamp="true" />
+        <!-- extracts the DLLs of OpenAL-Soft for Windows 32 bits & 64 bits -->
+        <unzip src="openal-soft-1.15.1-bin.zip" dest=".">
+            <patternset>
+                <include name="**/soft_oal.dll"/>
+            </patternset>
+        </unzip>
+        <!-- deletes the ZIP archive -->
+        <delete file="openal-soft-1.15.1-bin.zip" />
+        <!-- creates the directories from which the DLLs will be picked up -->
+        <mkdir dir="lib/windows-i586" />
+        <mkdir dir="lib/windows-amd64" />
+        <!-- moves the DLLs into these newly created directories -->
+        <move file="openal-soft-1.15.1-bin/Win32/soft_oal.dll" todir="lib/windows-i586" />
+        <move file="openal-soft-1.15.1-bin/Win64/soft_oal.dll" todir="lib/windows-amd64" />
+        <!-- deletes the directories created during the decompression of the ZIP archive -->
+        <delete dir="openal-soft-1.15.1-bin" />
+    </target>
 
-	<target name="c.build.openal.soft.default" unless="c.build.openal.soft.done">
-		<mkdir dir="${build}/openal-soft" />
-		<exec dir="${build}/openal-soft" executable="cmake" logError="true" failonerror="false" failifexecutionfails="false">
-			<arg value="../../openal-soft"/>
-		</exec>
-		<exec dir="${build}/openal-soft" executable="make" logError="true" failonerror="false" failifexecutionfails="false" />
-	</target>
+    <target name="c.build.openal.soft.default" unless="c.build.openal.soft.done">
+        <mkdir dir="${build}/openal-soft" />
+        <exec dir="${build}/openal-soft" executable="cmake" logError="true" failonerror="false" failifexecutionfails="false">
+            <arg value="../../openal-soft"/>
+        </exec>
+        <exec dir="${build}/openal-soft" executable="make" logError="true" failonerror="false" failifexecutionfails="false" />
+    </target>
 
-	<target name="c.build.openal.soft" 
+    <target name="c.build.openal.soft" 
             depends="init, gluegen.cpptasks.detect.os, gluegen.cpptasks.setup.compiler, c.build.openal.soft.windows, c.build.openal.soft.android, c.build.openal.soft.default">
-		<copy todir="../${rootrel.build}/obj" failonerror="false">
-			<fileset dir="${build}/openal-soft" erroronmissingdir="false">
-				<include name="*openal.${native.library.suffix}" />
-			</fileset>
-		</copy>
-	</target>
+        <copy todir="../${rootrel.build}/obj" failonerror="false">
+            <fileset dir="${build}/openal-soft" erroronmissingdir="false">
+                <include name="*openal.${native.library.suffix}" />
+            </fileset>
+        </copy>
+    </target>
 
-	<!-- ================================================================== -->
-	<!--
+    <!-- ================================================================== -->
+    <!--
        - Build the joal.jar file.
       -->
-	<target name="jar">
-		<!-- Prepare the manifest -->
-		<copy file="joalversion"
+    <target name="jar">
+        <!-- Prepare the manifest -->
+        <copy file="joalversion"
           tofile="tempversion"
           overwrite="true">
-			<filterset>
-				<filter token="VERSION" value="${joal.version}"/>
-				<filter token="SCM_BRANCH" value="${joal.build.branch}"/>
-				<filter token="SCM_COMMIT" value="${joal.build.commit}"/>
-				<filter token="BASEVERSION" value="${joal_base_version}" />
-			</filterset>
-		</copy>
+            <filterset>
+                <filter token="VERSION" value="${joal.version}"/>
+                <filter token="SCM_BRANCH" value="${joal.build.branch}"/>
+                <filter token="SCM_COMMIT" value="${joal.build.commit}"/>
+                <filter token="BASEVERSION" value="${joal_base_version}" />
+            </filterset>
+        </copy>
 
-		<!-- Build the jar excluding any build specific classes. -->
-		<jar manifest="tempversion" destfile="${joal.jar}">
-			<fileset dir="${classes}">
-				<include name="com/jogamp/openal/**" />
-				<include name="jogamp/openal/**" />
-			</fileset>
-		</jar>
-		<copy file="${joal.jar}" tofile="${joal-android.jar}"/>
+        <!-- Build the jar excluding any build specific classes. -->
+        <jar manifest="tempversion" destfile="${joal.jar}">
+            <fileset dir="${classes}">
+                <include name="com/jogamp/openal/**" />
+                <include name="jogamp/openal/**" />
+            </fileset>
+        </jar>
+        <copy file="${joal.jar}" tofile="${joal-android.jar}"/>
 
-		<antcall target="android.package" inheritRefs="true" />
+        <antcall target="android.package" inheritRefs="true" />
 
-		<delete file="tempversion"/>
-	</target>
+        <delete file="tempversion"/>
+    </target>
 
-	<target name="android.package" if="isAndroid">
-		<aapt.signed 
+    <target name="android.package" if="isAndroid">
+        <aapt.signed 
             jarsrcdir="${src.java}"
             jarbuilddir="${build}"
             jarbasename="joal-android"
@@ -558,37 +555,37 @@
             jarmanifest.path="tempversion"
             version.code="${joal_int_version}"
             version.name="${joal.version.plus}" />
-	</target>
+    </target>
 
-	<!-- ================================================================== -->
-	<!--
+    <!-- ================================================================== -->
+    <!--
        - Build the Javadocs for the sources.
        - NOTE:  these are not entirely correct as the javadocs targets depend
        -        on the platform specific build targets.  To circumvent any
        -        errors, ensure that the source is built first.
       -->
-	<target name="javadoc" depends="init, javadoc.init, javadoc.public, javadoc.dev, javadoc.zip"/>
+    <target name="javadoc" depends="init, javadoc.init, javadoc.public, javadoc.dev, javadoc.zip"/>
 
-	<!-- copies ${gluegen-javadoc.path}/** to ${javadoc.root.path}/gluegen/ 
+    <!-- copies ${gluegen-javadoc.path}/** to ${javadoc.root.path}/gluegen/ 
          gluegen-javadoc.path is the parent folder of package-list:
             gluegen-javadoc.path := build/javadoc/gluegen 
             with build/javadoc/gluegen/javadoc/package-list
       -->
-	<target name="javadoc.gluegen" depends="init" if="gluegen-javadoc.path">
-		<delete dir="${javadoc.root.path}/gluegen" includeEmptyDirs="true" quiet="true" failonerror="false" />
-		<mkdir dir="${javadoc.root.path}/gluegen" />
+    <target name="javadoc.gluegen" depends="init" if="gluegen-javadoc.path">
+        <delete dir="${javadoc.root.path}/gluegen" includeEmptyDirs="true" quiet="true" failonerror="false" />
+        <mkdir dir="${javadoc.root.path}/gluegen" />
 
-		<copy todir="${javadoc.root.path}/gluegen" failonerror="false">
-			<fileset dir="${gluegen-javadoc.path}" includes="**" />
-		</copy>
-	</target>
+        <copy todir="${javadoc.root.path}/gluegen" failonerror="false">
+            <fileset dir="${gluegen-javadoc.path}" includes="**" />
+        </copy>
+    </target>
 
-	<target name="javadoc.init" depends="init">
-		<!-- property name="javadoc.link" value="http://java.sun.com/j2se/1.4.2/docs/api/" /-->
-		<!-- property name="javadoc.link" value="http://download.oracle.com/javase/1.5.0/docs/api/" /-->
-		<property name="javadoc.link" value="http://docs.oracle.com/javase/6/docs/api/" />
+    <target name="javadoc.init" depends="init">
+        <!-- property name="javadoc.link" value="http://java.sun.com/j2se/1.4.2/docs/api/" /-->
+        <!-- property name="javadoc.link" value="http://download.oracle.com/javase/1.5.0/docs/api/" /-->
+        <property name="javadoc.link" value="http://docs.oracle.com/javase/6/docs/api/" />
 
-		<!-- Link offline with relative URLs does not work.
+        <!-- Link offline with relative URLs does not work.
              Link online with relative URLs works, 
              so we have to assume the same relative online folder structure:
 
@@ -609,156 +606,156 @@
 
                  jogl.root:    build/javadoc/gluegen/javadoc
           -->
-		<property name="gluegen.link" value="../../gluegen/javadoc" />
-		<property name="javadoc.root.path" value="${build}/javadoc" />
-		<property name="javadoc.joal.public.path" value="${javadoc.root.path}/joal/javadoc" />
-		<property name="javadoc.joal.dev.path"    value="${javadoc.root.path}/joal/javadoc_dev" />
+        <property name="gluegen.link" value="../../gluegen/javadoc" />
+        <property name="javadoc.root.path" value="${build}/javadoc" />
+        <property name="javadoc.joal.public.path" value="${javadoc.root.path}/joal/javadoc" />
+        <property name="javadoc.joal.dev.path"    value="${javadoc.root.path}/joal/javadoc_dev" />
 
-		<property name="javadoc.packagenames" value="com.jogamp.openal,com.jogamp.openal.util,com.jogamp.openal.sound3d" />
-		<property name="javadoc.dev.packagenames" value="${javadoc.packagenames},jogamp.openal" />
+        <property name="javadoc.packagenames" value="com.jogamp.openal,com.jogamp.openal.util,com.jogamp.openal.sound3d" />
+        <property name="javadoc.dev.packagenames" value="${javadoc.packagenames},jogamp.openal" />
 
-		<!-- if gluegen-javadoc.path is not set, check in default location, 
+        <!-- if gluegen-javadoc.path is not set, check in default location, 
              ${gluegen.root}/${rootrel.build}/javadoc/gluegen -->
-		<available file="${gluegen.build}/javadoc/gluegen/javadoc/package-list" 
+        <available file="${gluegen.build}/javadoc/gluegen/javadoc/package-list" 
                    type="file"
                    property="gluegen-javadoc.path"
                    value="${gluegen.build}/javadoc/gluegen" />
-		<antcall target="javadoc.gluegen" inheritRefs="true" />
-	</target>
+        <antcall target="javadoc.gluegen" inheritRefs="true" />
+    </target>
 
-	<target name="javadoc.zip" depends="javadoc.init">
-		<archive.7z destfile="${build}/javadoc.7z"
+    <target name="javadoc.zip" depends="javadoc.init">
+        <archive.7z destfile="${build}/javadoc.7z"
                     basedir="${javadoc.root.path}"
                     includes="joal/**" />
-	</target>
+    </target>
 
-	<target name="javadoc.public" depends="javadoc.init">
-		<javadoc packagenames="${javadoc.packagenames}"
+    <target name="javadoc.public" depends="javadoc.init">
+        <javadoc packagenames="${javadoc.packagenames}"
                  sourcepath="${src.java};${src.generated.java}"
                  destdir="${javadoc.joal.public.path}" windowtitle="JOAL API"
                  encoding="UTF-8"
                  source="${target.sourcelevel}"
                  maxmemory="${javac.memorymax}" >
-			<classpath refid="joal_all.classpath"/>
-			<link offline="true" href="${javadoc.link}" packagelistLoc="${gluegen.root}/make/142-packages" />
-			<link offline="false" href="${gluegen.link}" />
-		</javadoc>
-	</target>
+            <classpath refid="joal_all.classpath"/>
+            <link offline="true" href="${javadoc.link}" packagelistLoc="${gluegen.root}/make/142-packages" />
+            <link offline="false" href="${gluegen.link}" />
+        </javadoc>
+    </target>
 
-	<target name="javadoc.dev" depends="javadoc.init">
-		<!-- Build the internal developer Javadoc -->
-		<javadoc packagenames="${javadoc.dev.packagenames},${javadoc.dev.packagenames.platform}"
+    <target name="javadoc.dev" depends="javadoc.init">
+        <!-- Build the internal developer Javadoc -->
+        <javadoc packagenames="${javadoc.dev.packagenames},${javadoc.dev.packagenames.platform}"
                  sourcepath="${src.java};${src.generated.java}"
                  destdir="${javadoc.joal.dev.path}" windowtitle="JOAL API"
                  encoding="UTF-8"
                  source="${target.sourcelevel}"
                  maxmemory="${javac.memorymax}" >
-			<classpath refid="joal_all.classpath"/>
-			<link offline="true" href="${javadoc.link}" packagelistLoc="${gluegen.root}/make/142-packages" />
-			<link offline="false" href="${gluegen.link}" />
-		</javadoc>
-	</target>
+            <classpath refid="joal_all.classpath"/>
+            <link offline="true" href="${javadoc.link}" packagelistLoc="${gluegen.root}/make/142-packages" />
+            <link offline="false" href="${gluegen.link}" />
+        </javadoc>
+    </target>
 
-	<target name="developer-src-zip" depends="init">
-		<!--delete includeEmptyDirs="true" quiet="true" failonerror="false">
+    <target name="developer-src-zip" depends="init">
+        <!--delete includeEmptyDirs="true" quiet="true" failonerror="false">
             <fileset dir="${build}" includes="joal-java-src.zip" />
         </delete-->
-		<zip destfile="${build}/joal-java-src.zip">
-			<fileset dir="${src.java}"/>
-			<fileset dir="${build}/gensrc/classes"/>
-		</zip>
-	</target>
+        <zip destfile="${build}/joal-java-src.zip">
+            <fileset dir="${src.java}"/>
+            <fileset dir="${build}/gensrc/classes"/>
+        </zip>
+    </target>
 
-	<!-- Build binary zip archives for developers -->
-	<target name="developer-zip-archive" depends="init,developer-src-zip" if="build.archiveon">
-		<!-- Clean up and create temporary directory -->
-		<delete includeEmptyDirs="true" quiet="true" dir="${archive}" failonerror="false" />
-		<mkdir dir="${archive}" />
-		<copy file="${build}/artifact.properties" todir="${archive}"/>
-		<mkdir dir="${archive}/jar" />
-		<copy todir="${archive}/jar">
-			<fileset dir="${build}" includes="joal*.jar"/>
-			<fileset dir="${build}" includes="joal*.apk"/>
-		</copy>
-		<mkdir dir="${archive}/lib" />
-		<copy todir="${archive}/lib">
-			<fileset dir="${build}/obj" includes="*.${native.library.suffix}"/>
-		</copy>
-		<mkdir dir="${archive}/jnlp-files" />
-		<copy todir="${archive}/jnlp-files">
-			<fileset dir="${project.root}/jnlp-files" includes="*" />
-		</copy>
-		<mkdir dir="${archive}/www" />
-		<copy todir="${archive}/www">
-			<fileset dir="${project.root}/www" includes="*" />
-		</copy>
-		<copy file="../README.txt" todir="${archive}"/>
-		<copy file="../LICENSE.txt" todir="${archive}"/>
-		<copy todir="${archive}" file="${build}/joal-java-src.zip"/>
-		<archive.7z destfile="${build}/${archive.name}.7z"
+    <!-- Build binary zip archives for developers -->
+    <target name="developer-zip-archive" depends="init,developer-src-zip" if="build.archiveon">
+        <!-- Clean up and create temporary directory -->
+        <delete includeEmptyDirs="true" quiet="true" dir="${archive}" failonerror="false" />
+        <mkdir dir="${archive}" />
+        <copy file="${build}/artifact.properties" todir="${archive}"/>
+        <mkdir dir="${archive}/jar" />
+        <copy todir="${archive}/jar">
+            <fileset dir="${build}" includes="joal*.jar"/>
+            <fileset dir="${build}" includes="joal*.apk"/>
+        </copy>
+        <mkdir dir="${archive}/lib" />
+        <copy todir="${archive}/lib">
+            <fileset dir="${build}/obj" includes="*.${native.library.suffix}"/>
+        </copy>
+        <mkdir dir="${archive}/jnlp-files" />
+        <copy todir="${archive}/jnlp-files">
+            <fileset dir="${project.root}/jnlp-files" includes="*" />
+        </copy>
+        <mkdir dir="${archive}/www" />
+        <copy todir="${archive}/www">
+            <fileset dir="${project.root}/www" includes="*" />
+        </copy>
+        <copy file="../README.txt" todir="${archive}"/>
+        <copy file="../LICENSE.txt" todir="${archive}"/>
+        <copy todir="${archive}" file="${build}/joal-java-src.zip"/>
+        <archive.7z destfile="${build}/${archive.name}.7z"
              basedir="${build}"
              includes="${archive.name}/**" />
-		<!-- Clean up after ourselves -->
-		<delete includeEmptyDirs="true" quiet="true" dir="${archive}" failonerror="false" />
-	</target>
+        <!-- Clean up after ourselves -->
+        <delete includeEmptyDirs="true" quiet="true" dir="${archive}" failonerror="false" />
+    </target>
 
-	<!-- ================================================================== -->
-	<!--
+    <!-- ================================================================== -->
+    <!--
        - Clean up all that is built.
       -->
-	<target name="clean" depends="init">
-		<delete includeEmptyDirs="true" quiet="true">
-			<fileset dir="${build}" />
-			<fileset dir="${javadoc}" />
-			<fileset dir="${javadoc.dev}" />
-		</delete>
-		<ant antfile="build-test.xml" target="clean"/>
-	</target>
+    <target name="clean" depends="init">
+        <delete includeEmptyDirs="true" quiet="true">
+            <fileset dir="${build}" />
+            <fileset dir="${javadoc}" />
+            <fileset dir="${javadoc.dev}" />
+        </delete>
+        <ant antfile="build-test.xml" target="clean"/>
+    </target>
 
-	<!-- ================================================================== -->
-	<!--
+    <!-- ================================================================== -->
+    <!--
        - Build everything.
       -->
-	<target name="all" depends="joal.build, test.compile, tag.build, developer-zip-archive"/>
+    <target name="all" depends="joal.build, test.compile, tag.build, developer-zip-archive"/>
 
-	<target name="joal.build" depends="init">
-		<!-- Generate and compile the Java sources. -->
-		<antcall target="java.compile" inheritRefs="true" />
+    <target name="joal.build" depends="init">
+        <!-- Generate and compile the Java sources. -->
+        <antcall target="java.compile" inheritRefs="true" />
 
-		<!-- Compile the native C sources . -->
-		<antcall target="c.build.joal" inheritRefs="true" />
+        <!-- Compile the native C sources . -->
+        <antcall target="c.build.joal" inheritRefs="true" />
 
-		<!-- build the jar/apk -->
-		<antcall target="jar" inheritRefs="true" />
-	</target>
+        <!-- build the jar/apk -->
+        <antcall target="jar" inheritRefs="true" />
+    </target>
 
-	<target name="tag.build">
-		<copy file="${gluegen.build}/artifact.properties" todir="${build}" overwrite="true" failonerror="false"/>
-		<echo message='joal.build.number=${joal.build.number}${line.separator}' file="${build}/artifact.properties" append="true"/>
-		<echo message='joal.build.id=${joal.build.id}${line.separator}'         file="${build}/artifact.properties" append="true"/>
-		<echo message='joal.build.branch=${joal.build.branch}${line.separator}' file="${build}/artifact.properties" append="true"/>
-		<echo message='joal.build.commit=${joal.build.commit}${line.separator}' file="${build}/artifact.properties" append="true"/>
-	</target>
+    <target name="tag.build">
+        <copy file="${gluegen.build}/artifact.properties" todir="${build}" overwrite="true" failonerror="false"/>
+        <echo message='joal.build.number=${joal.build.number}${line.separator}' file="${build}/artifact.properties" append="true"/>
+        <echo message='joal.build.id=${joal.build.id}${line.separator}'         file="${build}/artifact.properties" append="true"/>
+        <echo message='joal.build.branch=${joal.build.branch}${line.separator}' file="${build}/artifact.properties" append="true"/>
+        <echo message='joal.build.commit=${joal.build.commit}${line.separator}' file="${build}/artifact.properties" append="true"/>
+    </target>
 
-	<!-- ================================================================== -->
-	<!--
+    <!-- ================================================================== -->
+    <!--
        - unit tests
       -->
 
-	<target name="test.compile" depends="joal.build">
-		<ant antfile="build-test.xml" target="test.compile" inheritRefs="true" inheritAll="true"/>
-	</target>
+    <target name="test.compile" depends="joal.build">
+        <ant antfile="build-test.xml" target="test.compile" inheritRefs="true" inheritAll="true"/>
+    </target>
 
-	<target name="test.auto.run" depends="test.compile">
-		<ant antfile="build-test.xml" target="test.auto.run" inheritRefs="true" inheritAll="true"/>
-	</target>
+    <target name="test.auto.run" depends="test.compile">
+        <ant antfile="build-test.xml" target="test.auto.run" inheritRefs="true" inheritAll="true"/>
+    </target>
 
-	<target name="junit.run" depends="test.compile">
-		<ant antfile="build-test.xml" target="junit.run" inheritRefs="true" inheritAll="true"/>
-	</target>
+    <target name="junit.run" depends="test.compile">
+        <ant antfile="build-test.xml" target="junit.run" inheritRefs="true" inheritAll="true"/>
+    </target>
 
-	<target name="test.manual.run" depends="test.compile">
-		<ant antfile="build-test.xml" target="test.manual.run" inheritRefs="true" inheritAll="true"/>
-	</target>
+    <target name="test.manual.run" depends="test.compile">
+        <ant antfile="build-test.xml" target="test.manual.run" inheritRefs="true" inheritAll="true"/>
+    </target>
 
 </project>
