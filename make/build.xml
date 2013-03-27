@@ -502,11 +502,22 @@
         <exec dir="${build}/openal-soft" executable="make" logError="true" failonerror="false" failifexecutionfails="false" />
     </target>
 
+    <!-- If compilation is not supported or fails, at least we pick up the injected pre-compiled binaries, if available. -->
+    <target name="c.build.openal.use-blobs" unless="c.build.openal.soft.done">
+        <copy todir="../${rootrel.build}/obj" failonerror="false">
+            <fileset dir="lib/${os.and.arch}" erroronmissingdir="false">
+                <include name="*openal.${native.library.suffix}" />
+                <include name="*soft_oal.${native.library.suffix}" />
+            </fileset>
+        </copy>
+    </target>
+
     <target name="c.build.openal.soft" 
-            depends="init, gluegen.cpptasks.detect.os, gluegen.cpptasks.setup.compiler, c.build.openal.soft.windows, c.build.openal.soft.android, c.build.openal.soft.default">
+            depends="init, gluegen.cpptasks.detect.os, gluegen.cpptasks.setup.compiler, c.build.openal.use-blobs, c.build.openal.soft.windows, c.build.openal.soft.android, c.build.openal.soft.default">
         <copy todir="../${rootrel.build}/obj" failonerror="false">
             <fileset dir="${build}/openal-soft" erroronmissingdir="false">
                 <include name="*openal.${native.library.suffix}" />
+                <include name="*soft_oal.${native.library.suffix}" />
             </fileset>
         </copy>
     </target>
