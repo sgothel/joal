@@ -37,9 +37,6 @@ package com.jogamp.openal.util;
 
 import java.io.*;
 import java.nio.ByteBuffer;
-
-import javax.sound.sampled.UnsupportedAudioFileException;
-
 import com.jogamp.openal.*;
 
 /**
