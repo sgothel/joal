@@ -45,7 +45,6 @@
 
     <!-- This is the version of JOAL you are building -->
     <property name="joal.build.number" value="manual-build"/>
-    <property name="joal.build.id"     value="${version.timestamp}"/>
     <mkdir dir="${build}" />
     <exec dir="." executable="git" logError="true" failonerror="false" failifexecutionfails="false"
               output="${build}/localbranch.raw">
@@ -87,6 +86,7 @@
       -->
     <target name="init" depends="jogamp.env.init, gluegen.cpptasks.detect.os">
 
+        <property name="joal.build.id"     value="${version.timestamp}"/>
         <property name="joal.version"      value="${jogamp.version.base}-${version.timestamp}" />
 
         <!-- The location and name of the configuration ANT file that will
@@ -736,7 +736,7 @@
         <antcall target="jar" inheritRefs="true" />
     </target>
 
-    <target name="tag.build">
+    <target name="tag.build" depends="init">
         <copy file="${gluegen.build}/artifact.properties" todir="${build}" overwrite="true" failonerror="false"/>
         <echo message='joal.build.number=${joal.build.number}${line.separator}' file="${build}/artifact.properties" append="true"/>
         <echo message='joal.build.id=${joal.build.id}${line.separator}'         file="${build}/artifact.properties" append="true"/>
