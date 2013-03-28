@@ -52,6 +52,8 @@
     <import file="${gluegen.root}/make/gluegen-cpptasks.xml" />
 
     <target name="declare.common" depends="jogamp.env.init, gluegen.cpptasks.detect.os">
+        <property name="joal.version"         value="${jogamp.version.base}-${version.timestamp}" />
+
         <property name="project.root"         value=".." />
         <property name="build"                value="${project.root}/${rootrel.build}" />
 
@@ -84,7 +86,7 @@
         <mkdir dir="${classes.test}"/>
     </target>
 
-    <target name="test.compile.javase">
+    <target name="test.compile.javase" depends="declare.common" >
         <javac destdir="${classes.test}" 
                excludes="${java.part.test.android}"
                fork="yes"
@@ -101,10 +103,11 @@
             tofile="${build.test}/manifest-test.mf"
             overwrite="true">
             <filterset>
-                <filter token="VERSION" value="${joal.version}"/>
+                <filter token="VERSION" value="${jogamp.version}"/>
+                <filter token="BUILD_VERSION" value="${joal.version}"/>
                 <filter token="SCM_BRANCH" value="${joal.build.branch}"/>
                 <filter token="SCM_COMMIT" value="${joal.build.commit}"/>
-                <filter token="BASEVERSION" value="${joal_base_version}"/>
+                <filter token="BASEVERSION" value="${jogamp.version.base}"/>
             </filterset>
         </copy>
         <jar manifest="${build.test}/manifest-test.mf" destfile="${build}/joal-test.jar">
@@ -135,10 +138,11 @@
             tofile="${build.test}/manifest-test-android.mf"
             overwrite="true">
             <filterset>
-                <filter token="VERSION" value="${joal.version}"/>
+                <filter token="VERSION" value="${jogamp.version}"/>
+                <filter token="BUILD_VERSION" value="${joal.version}"/>
                 <filter token="SCM_BRANCH" value="${joal.build.branch}"/>
                 <filter token="SCM_COMMIT" value="${joal.build.commit}"/>
-                <filter token="BASEVERSION" value="${joal_base_version}"/>
+                <filter token="BASEVERSION" value="${jogamp.version.base}"/>
             </filterset>
         </copy>
         <jar manifest="${build.test}/manifest-test-android.mf" destfile="${build}/joal-test-android.jar" filesonly="true">
@@ -161,8 +165,8 @@
             androidmanifest.path="resources/android/AndroidManifest-test.xml"
             androidresources.path="resources/android/res-test"
             jarmanifest.path="${build.test}/manifest-test-android.mf"
-            version.code="${joal_int_version}"
-            version.name="${joal.version.plus}" />
+            version.code="${jogamp.version.int}"
+            version.name="${jogamp.version}" />
     </target>
 
     <target name="test.compile" depends="declare.common" unless="test.compile.skip">

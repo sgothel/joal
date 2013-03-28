@@ -44,11 +44,6 @@
     <property name="gluegen.build" value="${gluegen.root}/${rootrel.build}" />
 
     <!-- This is the version of JOAL you are building -->
-    <property name="joal_base_version" value="2.0"/>
-    <property name="joal_int_version"  value="2"/>
-    <tstamp>
-        <format property="version.timestamp" pattern="yyyyMMdd"/>
-    </tstamp>
     <property name="joal.build.number" value="manual-build"/>
     <property name="joal.build.id"     value="${version.timestamp}"/>
     <mkdir dir="${build}" />
@@ -66,8 +61,6 @@
         <arg line="rev-parse HEAD"/>
     </exec>
     <property name="joal.build.commit" value="manual"/> <!-- fallback -->
-    <property name="joal.version"      value="${joal_base_version}-${version.timestamp}" />
-    <property name="joal.version.plus" value="${joal_base_version}-${joal.build.branch}-b${joal.build.number}-${joal.build.commit}-${version.timestamp}" />
 
     <!-- Pull in GlueGen cpptasks build file -->
     <import file="${gluegen.root}/make/gluegen-cpptasks.xml" />
@@ -93,6 +86,8 @@
        - Declare all paths and user defined variables.
       -->
     <target name="init" depends="jogamp.env.init, gluegen.cpptasks.detect.os">
+
+        <property name="joal.version"      value="${jogamp.version.base}-${version.timestamp}" />
 
         <!-- The location and name of the configuration ANT file that will
            - validate to ensure that all user-define variables are set. -->
@@ -526,16 +521,17 @@
     <!--
        - Build the joal.jar file.
       -->
-    <target name="jar">
+    <target name="jar" depends="init">
         <!-- Prepare the manifest -->
         <copy file="joalversion"
           tofile="tempversion"
           overwrite="true">
             <filterset>
-                <filter token="VERSION" value="${joal.version}"/>
+                <filter token="VERSION" value="${jogamp.version}"/>
+                <filter token="BUILD_VERSION" value="${joal.version}"/>
                 <filter token="SCM_BRANCH" value="${joal.build.branch}"/>
                 <filter token="SCM_COMMIT" value="${joal.build.commit}"/>
-                <filter token="BASEVERSION" value="${joal_base_version}" />
+                <filter token="BASEVERSION" value="${jogamp.version.base}" />
             </filterset>
         </copy>
 
@@ -553,7 +549,7 @@
         <delete file="tempversion"/>
     </target>
 
-    <target name="android.package" if="isAndroid">
+    <target name="android.package" depends="init" if="isAndroid">
         <aapt.signed 
             jarsrcdir="${src.java}"
             jarbuilddir="${build}"
@@ -564,8 +560,8 @@
             androidmanifest.path="resources/android/AndroidManifest-joal.xml"
             androidresources.path="resources/android/res-joal"
             jarmanifest.path="tempversion"
-            version.code="${joal_int_version}"
-            version.name="${joal.version.plus}" />
+            version.code="${jogamp.version.int}"
+            version.name="${jogamp.version}" />
     </target>
 
     <!-- ================================================================== -->
