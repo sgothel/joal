@@ -431,6 +431,10 @@
                output.lib.name="joal"
                linker.cfg.id="${linker.cfg.id.base}"/>
 
+        <antcall target="gluegen.cpptasks.striplibs" inheritRefs="true">
+            <param name="libdir" value="../${rootrel.build}/obj"/>
+        </antcall>
+
         <!-- Create Java Web Start jar file from built file -->
         <jar destfile="${build}/joal-natives-${os.and.arch}.jar">
             <fileset dir="../${rootrel.build}/obj">
@@ -442,7 +446,7 @@
         </jar>
     </target>
 
-    <target name="c.build.openal.soft.android" if="isAndroid">
+    <target name="c.build.openal.soft.android" if="isAndroid" unless="c.build.openal.soft.done">
         <property name="c.build.openal.soft.done" value="true" />
         <mkdir dir="${build}/openal-soft" />
         <exec dir="${build}/openal-soft" executable="cmake" logError="true" failonerror="false" failifexecutionfails="false">
@@ -456,7 +460,7 @@
         <exec dir="${build}/openal-soft" executable="make" logError="true" failonerror="false" failifexecutionfails="false" />
     </target>
 
-    <target name="c.build.openal.soft.windows" if="isWindows">
+    <target name="c.build.openal.soft.windows" if="isWindows" unless="c.build.openal.soft.done">
         <property name="c.build.openal.soft.done" value="true" />
         <mkdir dir="${build}/openal-soft" />
         <exec dir="${build}/openal-soft" executable="cmake" logError="true" failonerror="false" failifexecutionfails="false">
@@ -489,10 +493,22 @@
         <delete dir="openal-soft-1.15.1-bin" />
     </target>
 
-    <target name="c.build.openal.soft.default" unless="c.build.openal.soft.done">
+    <target name="c.build.openal.soft.gcc.x86_32" if="isI386" unless="c.build.openal.soft.done">
+        <property name="c.build.openal.soft.done" value="true" />
         <mkdir dir="${build}/openal-soft" />
         <exec dir="${build}/openal-soft" executable="cmake" logError="true" failonerror="false" failifexecutionfails="false">
             <arg value="../../openal-soft"/>
+            <arg value="-DCMAKE_TOOLCHAIN_FILE=../../openal-soft/cmake/toolchain.gcc-x86_32.cmake"/>
+        </exec>
+        <exec dir="${build}/openal-soft" executable="make" logError="true" failonerror="false" failifexecutionfails="false" />
+    </target>
+
+    <target name="c.build.openal.soft.gcc.default" unless="c.build.openal.soft.done">
+        <property name="c.build.openal.soft.done" value="true" />
+        <mkdir dir="${build}/openal-soft" />
+        <exec dir="${build}/openal-soft" executable="cmake" logError="true" failonerror="false" failifexecutionfails="false">
+            <arg value="../../openal-soft"/>
+            <arg value="-DCMAKE_TOOLCHAIN_FILE=../../openal-soft/cmake/toolchain.gcc-default.cmake"/>
         </exec>
         <exec dir="${build}/openal-soft" executable="make" logError="true" failonerror="false" failifexecutionfails="false" />
     </target>
@@ -508,7 +524,7 @@
     </target>
 
     <target name="c.build.openal.soft" 
-            depends="init, gluegen.cpptasks.detect.os, gluegen.cpptasks.setup.compiler, c.build.openal.use-blobs, c.build.openal.soft.windows, c.build.openal.soft.android, c.build.openal.soft.default">
+            depends="init, gluegen.cpptasks.detect.os, gluegen.cpptasks.setup.compiler, c.build.openal.use-blobs, c.build.openal.soft.windows, c.build.openal.soft.android, c.build.openal.soft.gcc.x86_32, c.build.openal.soft.gcc.default">
         <copy todir="../${rootrel.build}/obj" failonerror="false">
             <fileset dir="${build}/openal-soft" erroronmissingdir="false">
                 <include name="*openal.${native.library.suffix}" />

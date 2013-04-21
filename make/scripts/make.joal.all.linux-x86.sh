@@ -2,8 +2,8 @@
 
 SDIR=`dirname $0` 
 
-if [ -e $SDIR/../../../gluegen/make/scripts/setenv-build-jogl-i586.sh ] ; then
-    . $SDIR/../../../gluegen/make/scripts/setenv-build-jogl-i586.sh
+if [ -e $SDIR/../../../gluegen/make/scripts/setenv-build-jogl-x86.sh ] ; then
+    . $SDIR/../../../gluegen/make/scripts/setenv-build-jogl-x86.sh
 fi
 
 if [ -z "$ANT_PATH" ] ; then
@@ -18,14 +18,10 @@ if [ -z "$ANT_PATH" ] ; then
     exit
 fi
 
-#    -Drootrel.build=build-586 \
 #    -Dtarget.sourcelevel=1.6 \
 #    -Dtarget.targetlevel=1.6 \
 #    -Dtarget.rt.jar=/opt-share/jre1.6.0_30/lib/rt.jar \
 
 ant  \
-    -Dtarget.sourcelevel=1.6 \
-    -Dtarget.targetlevel=1.6 \
-    -Dtarget.rt.jar=/opt-share/jre1.6.0_30/lib/rt.jar \
-    -Drootrel.build=build-i586 \
-    $* 2>&1 | tee make.joal.all.linux-i586.log
+    -Drootrel.build=build-x86 \
+    $* 2>&1 | tee make.joal.all.linux-x86.log
