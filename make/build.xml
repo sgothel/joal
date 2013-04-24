@@ -190,18 +190,20 @@
 
         <condition property="useLinuxARMv6SFOptions">
             <and>
-                <istrue value="isLinuxARMv6"/>
-                <istrue value="isAbiEabiGnuArmel"/>
-                <istrue value="isCrosscompilation"/>
+                <isset property="isLinuxARMv6"/>
+                <isset property="isAbiEabiGnuArmel"/>
+                <isset property="isCrosscompilation"/>
             </and>
         </condition>
         <condition property="useLinuxARMv6HFOptions">
             <and>
-                <istrue value="isLinuxARMv6"/>
-                <istrue value="isAbiEabiGnuArmhf"/>
-                <istrue value="isCrosscompilation"/>
+                <isset property="isLinuxARMv6"/>
+                <isset property="isAbiEabiGnuArmhf"/>
+                <isset property="isCrosscompilation"/>
             </and>
         </condition>
+        <echo message="useLinuxARMv6SFOptions ${useLinuxARMv6SFOptions}" />
+        <echo message="useLinuxARMv6HFOptions ${useLinuxARMv6HFOptions}" />
     </target>
 
     <!-- ================================================================== -->
