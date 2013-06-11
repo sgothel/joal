@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2003-2005 Sun Microsystems, Inc. All Rights Reserved.
+ * Copyright (c) 2012 JogAmp Community. All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
@@ -39,6 +40,9 @@
 
 package jogamp.openal;
 
+import java.security.AccessController;
+import java.security.PrivilegedAction;
+
 import com.jogamp.common.util.PropertyAccess;
 
 
@@ -50,15 +54,16 @@ public class Debug extends PropertyAccess {
   private static boolean debugAll;
   
   static {
-    PropertyAccess.addTrustedPrefix("joal.", Debug.class);
+    AccessController.doPrivileged(new PrivilegedAction<Object>() {
+        public Object run() {
+            PropertyAccess.addTrustedPrefix("joal.");
+            return null;
+    } } );
+    
     verbose = isPropertyDefined("joal.verbose", true);
     debugAll = isPropertyDefined("joal.debug", true);
   }
 
-  public static final boolean isPropertyDefined(final String property, final boolean jnlpAlias) {
-    return PropertyAccess.isPropertyDefined(property, jnlpAlias, null);
-  }
-    
   public static boolean verbose() {
     return verbose;
   }
@@ -68,6 +73,6 @@ public class Debug extends PropertyAccess {
   }
 
   public static boolean debug(String subcomponent) {
-	  return debugAll() || isPropertyDefined("joal.debug." + subcomponent, true, null);
+	  return debugAll() || isPropertyDefined("joal.debug." + subcomponent, true);
   }
 }

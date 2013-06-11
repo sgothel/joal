@@ -7,12 +7,11 @@ static {
       throw new RuntimeException("Couldn't instantiate ALProcAddressTable");
     }
 
-    alDynamicLookupHelper = (DynamicLibraryBundle) 
-        AccessController.doPrivileged(new PrivilegedAction() {
-            public Object run() {
-                return new DynamicLibraryBundle(new ALDynamicLibraryBundleInfo());
-            }
-        });
+    alDynamicLookupHelper = AccessController.doPrivileged(new PrivilegedAction<DynamicLibraryBundle>() {
+                                public DynamicLibraryBundle run() {
+                                    return new DynamicLibraryBundle(new ALDynamicLibraryBundleInfo());
+                                } } );
+
     if(null==alDynamicLookupHelper) {
       throw new RuntimeException("Null ALDynamicLookupHelper");
     }

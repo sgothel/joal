@@ -68,10 +68,7 @@ public class ALFactory {
   
   static {
       Platform.initSingleton();
-      final String choice= AccessController.doPrivileged(new PrivilegedAction<String>() {
-                    public String run() {
-                        return Debug.getProperty("joal.openal.lib", true, null);
-                    } });
+      final String choice = Debug.getProperty("joal.openal.lib", true);
       boolean useSystem = Platform.OSType.MACOS == Platform.OS_TYPE; // default
       if( null != choice ) {
           if( choice.equals("system") ) {
