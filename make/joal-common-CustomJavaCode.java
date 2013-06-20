@@ -9,19 +9,19 @@ static {
 
     alDynamicLookupHelper = AccessController.doPrivileged(new PrivilegedAction<DynamicLibraryBundle>() {
                                 public DynamicLibraryBundle run() {
-                                    return new DynamicLibraryBundle(new ALDynamicLibraryBundleInfo());
+                                    final DynamicLibraryBundle bundle =  new DynamicLibraryBundle(new ALDynamicLibraryBundleInfo());
+                                    if(null==bundle) {
+                                      throw new RuntimeException("Null ALDynamicLookupHelper");
+                                    }
+                                    if(!bundle.isToolLibLoaded()) {
+                                      throw new RuntimeException("Couln't load native AL library");
+                                    }
+                                    if(!bundle.isLibComplete()) {
+                                      throw new RuntimeException("Couln't load native AL/JNI glue library");
+                                    }
+                                    alProcAddressTable.reset(bundle);
+                                    return bundle;
                                 } } );
-
-    if(null==alDynamicLookupHelper) {
-      throw new RuntimeException("Null ALDynamicLookupHelper");
-    }
-    if(!alDynamicLookupHelper.isToolLibLoaded()) {
-      throw new RuntimeException("Couln't load native AL library");
-    }
-    if(!alDynamicLookupHelper.isLibComplete()) {
-      throw new RuntimeException("Couln't load native AL/JNI glue library");
-    }
-    alProcAddressTable.reset(alDynamicLookupHelper);
 }
 
 public static ALProcAddressTable getALProcAddressTable() { return alProcAddressTable; }

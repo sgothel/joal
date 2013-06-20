@@ -40,8 +40,8 @@ import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.*;
 
-public class ALDynamicLibraryBundleInfo implements DynamicLibraryBundleInfo  {
-    private static List<String> glueLibNames;
+public final class ALDynamicLibraryBundleInfo implements DynamicLibraryBundleInfo  {
+    private static final List<String> glueLibNames;
     static {
         AccessController.doPrivileged(new PrivilegedAction<Object>() {
             public Object run() {
@@ -62,13 +62,16 @@ public class ALDynamicLibraryBundleInfo implements DynamicLibraryBundleInfo  {
     protected ALDynamicLibraryBundleInfo() {
     }
 
-    /** FIXME: not default, maybe local ? **/
+    /** 
+     * Returns <code>true</code>,
+     * since we might load the library and allow symbol access to subsequent libs.
+     */
     @Override
-    public boolean shallLinkGlobal() { return true; }
+    public final boolean shallLinkGlobal() { return true; }
 
     /** default **/
     @Override
-    public boolean shallLookupGlobal() { return false; }
+    public final boolean shallLookupGlobal() { return false; }
     
     @Override
     public final List<String> getGlueLibNames() {
@@ -76,7 +79,7 @@ public class ALDynamicLibraryBundleInfo implements DynamicLibraryBundleInfo  {
     }
 
     @Override
-    public List<List<String>> getToolLibNames() {
+    public final List<List<String>> getToolLibNames() {
         List<List<String>> libNamesList = new ArrayList<List<String>>();
 
         final List<String> alSystemLibNames = new ArrayList<String>();
@@ -138,12 +141,12 @@ public class ALDynamicLibraryBundleInfo implements DynamicLibraryBundleInfo  {
     }
 
     @Override
-    public boolean useToolGetProcAdressFirst(String funcName) {
+    public final boolean useToolGetProcAdressFirst(String funcName) {
         return true;
     }
 
     @Override
-    public RunnableExecutor getLibLoaderExecutor() {
+    public final RunnableExecutor getLibLoaderExecutor() {
         return DynamicLibraryBundle.getDefaultRunnableExecutor();
     }    
 }
