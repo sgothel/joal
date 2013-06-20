@@ -23,9 +23,12 @@ fi
 #    -Dtarget.targetlevel=1.6 \
 #    -Dtarget.rt.jar=/opt-share/jre1.6.0_30/lib/rt.jar \
 
+export SOURCE_LEVEL=1.6
+export TARGET_LEVEL=1.6
+export TARGET_RT_JAR=/opt-share/jre1.6.0_30/lib/rt.jar
+
+export JOGAMP_JAR_CODEBASE="Codebase: *.jogamp.org"
+
 ant  \
-    -Dtarget.sourcelevel=1.6 \
-    -Dtarget.targetlevel=1.6 \
-    -Dtarget.rt.jar=/opt-share/jre1.6.0_30/lib/rt.jar \
     -Drootrel.build=build-linux-armv6 \
     $* 2>&1 | tee make.joal.all.linux-armv6.log

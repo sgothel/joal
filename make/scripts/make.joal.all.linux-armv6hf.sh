@@ -2,8 +2,8 @@
 
 SDIR=`dirname $0` 
 
-if [ -e $SDIR/../../../gluegen/make/scripts/setenv-build-jogl-armv6hf.sh ] ; then
-    . $SDIR/../../../gluegen/make/scripts/setenv-build-jogl-armv6hf.sh
+if [ -e $SDIR/setenv-build-jogl-x86_64.sh ] ; then
+    . $SDIR/setenv-build-jogl-x86_64.sh
 fi
 
 if [ -z "$ANT_PATH" ] ; then
@@ -23,9 +23,12 @@ fi
 #    -Dtarget.targetlevel=1.6 \
 #    -Dtarget.rt.jar=/opt-share/jre1.6.0_30/lib/rt.jar \
 
+export SOURCE_LEVEL=1.6
+export TARGET_LEVEL=1.6
+export TARGET_RT_JAR=/opt-share/jre1.6.0_30/lib/rt.jar
+
+export JOGAMP_JAR_CODEBASE="Codebase: *.jogamp.org"
+
 ant  \
-    -Dtarget.sourcelevel=1.6 \
-    -Dtarget.targetlevel=1.6 \
-    -Dtarget.rt.jar=/opt-share/jre1.6.0_30/lib/rt.jar \
     -Drootrel.build=build-linux-armv6hf \
     $* 2>&1 | tee make.joal.all.linux-armv6hf.log

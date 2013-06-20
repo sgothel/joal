@@ -585,6 +585,7 @@
                 <filter token="SCM_BRANCH" value="${joal.build.branch}"/>
                 <filter token="SCM_COMMIT" value="${joal.build.commit}"/>
                 <filter token="BASEVERSION" value="${jogamp.version.base}" />
+                <filter token="JAR_CODEBASE_TAG" value="${jogamp.jar.codebase}"/>
             </filterset>
         </copy>
 

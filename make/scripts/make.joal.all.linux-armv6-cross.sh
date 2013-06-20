@@ -2,8 +2,8 @@
 
 SDIR=`dirname $0` 
 
-if [ -e $SDIR/../../../gluegen/make/scripts/setenv-build-jogl-x86_64.sh ] ; then
-    . $SDIR/../../../gluegen/make/scripts/setenv-build-jogl-x86_64.sh
+if [ -e $SDIR/setenv-build-jogl-x86_64.sh ] ; then
+    . $SDIR/setenv-build-jogl-x86_64.sh
 fi
 
 PATH=`pwd`/../../gluegen/make/lib/toolchain/armsf-linux-gnueabi/bin:$PATH
@@ -35,6 +35,12 @@ export GLUEGEN_CPPTASKS_FILE="../../gluegen/make/lib/gluegen-cpptasks-linux-armv
 
 #export JUNIT_DISABLED="true"
 #export JUNIT_RUN_ARG0="-Dnewt.test.Screen.disableScreenMode"
+
+export SOURCE_LEVEL=1.6
+export TARGET_LEVEL=1.6
+export TARGET_RT_JAR=/opt-share/jre1.6.0_30/lib/rt.jar
+
+export JOGAMP_JAR_CODEBASE="Codebase: *.jogamp.org"
 
 ant \
     -Drootrel.build=build-linux-armv6 \

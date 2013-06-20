@@ -20,6 +20,12 @@ fi
 
 #    -Drootrel.build=build-x86_64 \
 
+export SOURCE_LEVEL=1.6
+export TARGET_LEVEL=1.6
+export TARGET_RT_JAR=/opt-share/jre1.6.0_30/lib/rt.jar
+
+export JOGAMP_JAR_CODEBASE="Codebase: *.jogamp.org"
+
 ant  \
     -Drootrel.build=build-solaris-x86_64 \
     $* 2>&1 | tee make.joal.all.solaris-x86_64.log
