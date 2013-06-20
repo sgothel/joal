@@ -11,11 +11,11 @@ set LIB_GEN=%THISDIR%\lib
 set CLASSPATH=.;%THISDIR%\build-win32\classes
 REM    -Dc.compiler.debug=true 
 
-export SOURCE_LEVEL=1.6
-export TARGET_LEVEL=1.6
-export TARGET_RT_JAR=c:\jre1.6.0_30\lib\rt.jar
+set SOURCE_LEVEL=1.6
+set TARGET_LEVEL=1.6
+set TARGET_RT_JAR=c:\jre1.6.0_30\lib\rt.jar
 
-export JOGAMP_JAR_CODEBASE="Codebase: *.jogamp.org"
+set JOGAMP_JAR_CODEBASE="Codebase: *.jogamp.org"
 
 
 ant -Drootrel.build=build-win32 %1 %2 %3 %4 %5 %6 %7 %8 %9 > make.joal.all.win32.log 2>&1
