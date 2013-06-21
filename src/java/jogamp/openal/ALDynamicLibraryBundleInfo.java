@@ -63,13 +63,20 @@ public final class ALDynamicLibraryBundleInfo implements DynamicLibraryBundleInf
     }
 
     /** 
+     * <p>
      * Returns <code>true</code>,
      * since we might load the library and allow symbol access to subsequent libs.
+     * </p>
      */
     @Override
     public final boolean shallLinkGlobal() { return true; }
 
-    /** default **/
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Returns <code>false</code>.
+     * </p> 
+     */
     @Override
     public final boolean shallLookupGlobal() { return false; }
     
