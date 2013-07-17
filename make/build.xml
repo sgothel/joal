@@ -696,11 +696,15 @@
                  destdir="${javadoc.joal.public.path}" windowtitle="JOAL API"
                  encoding="UTF-8"
                  source="${target.sourcelevel}"
-                 maxmemory="${javac.memorymax}" >
+                 maxmemory="${javac.memorymax}"
+                 stylesheetfile="${gluegen.make.dir}/doc/javadoc/stylesheet.css">
             <classpath refid="joal_all.classpath"/>
             <link offline="true" href="${javadoc.link}" packagelistLoc="${gluegen.root}/make/142-packages" />
             <link offline="false" href="${gluegen.link}" />
         </javadoc>
+        <copy todir="${javadoc.joal.public.path}/resources" overwrite="true">
+            <fileset dir="${gluegen.make.dir}/doc/javadoc/resources" includes="*" />
+        </copy>
     </target>
 
     <target name="javadoc.dev" depends="javadoc.init">
@@ -710,11 +714,15 @@
                  destdir="${javadoc.joal.dev.path}" windowtitle="JOAL API"
                  encoding="UTF-8"
                  source="${target.sourcelevel}"
-                 maxmemory="${javac.memorymax}" >
+                 maxmemory="${javac.memorymax}"
+                 stylesheetfile="${gluegen.make.dir}/doc/javadoc/stylesheet.css">
             <classpath refid="joal_all.classpath"/>
             <link offline="true" href="${javadoc.link}" packagelistLoc="${gluegen.root}/make/142-packages" />
             <link offline="false" href="${gluegen.link}" />
         </javadoc>
+        <copy todir="${javadoc.joal.dev.path}/resources" overwrite="true">
+            <fileset dir="${gluegen.make.dir}/doc/javadoc/resources" includes="*" />
+        </copy>
     </target>
 
     <target name="developer-src-zip" depends="init">
