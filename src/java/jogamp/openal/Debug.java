@@ -64,15 +64,19 @@ public class Debug extends PropertyAccess {
     debugAll = isPropertyDefined("joal.debug", true);
   }
 
-  public static boolean verbose() {
+  /** Ensures static init block has been issues, i.e. if calling through to {@link PropertyAccess#isPropertyDefined(String, boolean)}. */
+  public static final void initSingleton() {}
+
+  
+  public static final boolean verbose() {
     return verbose;
   }
 
-  public static boolean debugAll() {
+  public static final boolean debugAll() {
     return debugAll;
   }
 
-  public static boolean debug(String subcomponent) {
+  public static final boolean debug(String subcomponent) {
 	  return debugAll() || isPropertyDefined("joal.debug." + subcomponent, true);
   }
 }
