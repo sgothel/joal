@@ -246,10 +246,10 @@ public class ALHelpers {
             case AL_MONO_SOFT: return "Mono";
             case AL_STEREO_SOFT: return "Stereo";
             case AL_REAR_SOFT: return "Rear";
-            case AL_QUAD_SOFT: return "Quadraphonic";
-            case AL_5POINT1_SOFT: return "5.1 Surround";
-            case AL_6POINT1_SOFT: return "6.1 Surround";
-            case AL_7POINT1_SOFT: return "7.1 Surround";
+            case AL_QUAD_SOFT: return "Quad";
+            case AL_5POINT1_SOFT: return "5.1";
+            case AL_6POINT1_SOFT: return "6.1";
+            case AL_7POINT1_SOFT: return "7.1";
         }
         return "Unknown AL-Channel-Layout 0x"+Integer.toHexString(alChannelLayout);
     }
@@ -291,14 +291,14 @@ public class ALHelpers {
      */
     public static final String alSampleTypeName(final int alSampleType) {
         switch(alSampleType) {
-            case AL_BYTE_SOFT: return "S8";
-            case AL_UNSIGNED_BYTE_SOFT: return "U8";
-            case AL_SHORT_SOFT: return "S16";
-            case AL_UNSIGNED_SHORT_SOFT: return "U16";
-            case AL_INT_SOFT: return "S32";
-            case AL_UNSIGNED_INT_SOFT: return "U32";
-            case AL_FLOAT_SOFT: return "F32";
-            case AL_DOUBLE_SOFT: return "F64";
+            case AL_BYTE_SOFT: return "s8";
+            case AL_UNSIGNED_BYTE_SOFT: return "u8";
+            case AL_SHORT_SOFT: return "s16";
+            case AL_UNSIGNED_SHORT_SOFT: return "u16";
+            case AL_INT_SOFT: return "s32";
+            case AL_UNSIGNED_INT_SOFT: return "u32";
+            case AL_FLOAT_SOFT: return "f32";
+            case AL_DOUBLE_SOFT: return "f64";
         }
         return "Unknown AL-Type 0x"+Integer.toHexString(alSampleType);
     }
