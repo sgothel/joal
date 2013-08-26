@@ -33,9 +33,6 @@
 
 package com.jogamp.openal;
 
-import java.security.AccessController;
-import java.security.PrivilegedAction;
-
 import jogamp.openal.ALCImpl;
 import jogamp.openal.ALExtImpl;
 import jogamp.openal.ALImpl;
