@@ -202,6 +202,12 @@
                 <isset property="isCrosscompilation"/>
             </and>
         </condition>
+        <condition property="isCLANG.i386">
+            <and>
+                <isset property="isCLANG"/>
+                <isset property="isI386"/>
+            </and>
+        </condition>
         <echo message="useLinuxARMv6SFOptions ${useLinuxARMv6SFOptions}" />
         <echo message="useLinuxARMv6HFOptions ${useLinuxARMv6HFOptions}" />
     </target>
@@ -510,16 +516,6 @@
         <delete dir="openal-soft-1.15.1-bin" />
     </target>
 
-    <target name="c.build.openal.soft.gcc.x86_32" if="isI386" unless="c.build.openal.soft.done">
-        <property name="c.build.openal.soft.done" value="true" />
-        <mkdir dir="${build}/openal-soft" />
-        <exec dir="${build}/openal-soft" executable="cmake" logError="true" failonerror="false" failifexecutionfails="false">
-            <arg value="../../openal-soft"/>
-            <arg value="-DCMAKE_TOOLCHAIN_FILE=../../openal-soft/cmake/toolchain.gcc-x86_32.cmake"/>
-        </exec>
-        <exec dir="${build}/openal-soft" executable="make" logError="true" failonerror="false" failifexecutionfails="false" />
-    </target>
-
     <target name="c.build.openal.soft.gcc.armv6.soft" if="useLinuxARMv6SFOptions" unless="c.build.openal.soft.done">
         <property name="c.build.openal.soft.done" value="true" />
         <mkdir dir="${build}/openal-soft" />
@@ -536,6 +532,36 @@
         <exec dir="${build}/openal-soft" executable="cmake" logError="true" failonerror="false" failifexecutionfails="false">
             <arg value="../../openal-soft"/>
             <arg value="-DCMAKE_TOOLCHAIN_FILE=../../openal-soft/cmake/toolchain.gcc-armv6hf.cmake"/>
+        </exec>
+        <exec dir="${build}/openal-soft" executable="make" logError="true" failonerror="false" failifexecutionfails="false" />
+    </target>
+
+    <target name="c.build.openal.soft.clang.x86_32" if="isCLANG.i386" unless="c.build.openal.soft.done">
+        <property name="c.build.openal.soft.done" value="true" />
+        <mkdir dir="${build}/openal-soft" />
+        <exec dir="${build}/openal-soft" executable="cmake" logError="true" failonerror="false" failifexecutionfails="false">
+            <arg value="../../openal-soft"/>
+            <arg value="-DCMAKE_TOOLCHAIN_FILE=../../openal-soft/cmake/toolchain.clang-x86_32.cmake"/>
+        </exec>
+        <exec dir="${build}/openal-soft" executable="make" logError="true" failonerror="false" failifexecutionfails="false" />
+    </target>
+
+    <target name="c.build.openal.soft.clang.default" if="isCLANG" unless="c.build.openal.soft.done">
+        <property name="c.build.openal.soft.done" value="true" />
+        <mkdir dir="${build}/openal-soft" />
+        <exec dir="${build}/openal-soft" executable="cmake" logError="true" failonerror="false" failifexecutionfails="false">
+            <arg value="../../openal-soft"/>
+            <arg value="-DCMAKE_TOOLCHAIN_FILE=../../openal-soft/cmake/toolchain.clang-default.cmake"/>
+        </exec>
+        <exec dir="${build}/openal-soft" executable="make" logError="true" failonerror="false" failifexecutionfails="false" />
+    </target>
+
+    <target name="c.build.openal.soft.gcc.x86_32" if="isI386" unless="c.build.openal.soft.done">
+        <property name="c.build.openal.soft.done" value="true" />
+        <mkdir dir="${build}/openal-soft" />
+        <exec dir="${build}/openal-soft" executable="cmake" logError="true" failonerror="false" failifexecutionfails="false">
+            <arg value="../../openal-soft"/>
+            <arg value="-DCMAKE_TOOLCHAIN_FILE=../../openal-soft/cmake/toolchain.gcc-x86_32.cmake"/>
         </exec>
         <exec dir="${build}/openal-soft" executable="make" logError="true" failonerror="false" failifexecutionfails="false" />
     </target>
@@ -561,7 +587,7 @@
     </target>
 
     <target name="c.build.openal.soft" 
-            depends="init, gluegen.cpptasks.detect.os, gluegen.cpptasks.setup.compiler, c.build.openal.use-blobs, c.build.openal.soft.windows, c.build.openal.soft.android, c.build.openal.soft.gcc.x86_32, c.build.openal.soft.gcc.armv6.soft, c.build.openal.soft.gcc.armv6.hard, c.build.openal.soft.gcc.default">
+            depends="init, gluegen.cpptasks.detect.os, gluegen.cpptasks.setup.compiler, c.build.openal.use-blobs, c.build.openal.soft.windows, c.build.openal.soft.android, c.build.openal.soft.gcc.armv6.soft, c.build.openal.soft.gcc.armv6.hard, c.build.openal.soft.clang.x86_32, c.build.openal.soft.clang.default, c.build.openal.soft.gcc.x86_32, c.build.openal.soft.gcc.default">
         <copy todir="../${rootrel.build}/obj" failonerror="false">
             <fileset dir="${build}/openal-soft" erroronmissingdir="false">
                 <include name="*openal.${native.library.suffix}" />

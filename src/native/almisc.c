@@ -12,6 +12,7 @@
  #include "efx.h"
   #include <string.h>
 
+extern int strlen_alc(ALCdevice *device, int param, const char* str);
 
 /*   Java->C glue code:
  *   Java package: jogamp.openal.ALImpl
