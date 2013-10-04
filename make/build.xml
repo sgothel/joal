@@ -826,6 +826,7 @@
 
     <target name="tag.build" depends="init">
         <copy file="${gluegen.build}/artifact.properties" todir="${build}" overwrite="true" failonerror="false"/>
+        <echo message='joal.build.version=${jogamp.version}${line.separator}'   file="${build}/artifact.properties" append="true"/>
         <echo message='joal.build.number=${joal.build.number}${line.separator}' file="${build}/artifact.properties" append="true"/>
         <echo message='joal.build.id=${joal.build.id}${line.separator}'         file="${build}/artifact.properties" append="true"/>
         <echo message='joal.build.branch=${joal.build.branch}${line.separator}' file="${build}/artifact.properties" append="true"/>
