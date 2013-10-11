@@ -3,7 +3,8 @@
       sharedUserId="com.jogamp.Community" 
       package="com.jogamp.openal">
 
-    <uses-sdk android:minSdkVersion="9" />
+    <uses-sdk android:minSdkVersion="9" android:targetSdkVersion="14"/>
+
     <uses-library android:name="com.jogamp.common" android:required="true" />
 
     <application android:icon="@drawable/icon" 
