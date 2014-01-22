@@ -17,3 +17,4 @@ Permissions: all-permissions
 Name: jogamp/openal/
 Sealed: true
 @JAR_CODEBASE_TAG@
+

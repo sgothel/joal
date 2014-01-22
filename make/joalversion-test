@@ -12,4 +12,5 @@ Implementation-Vendor: JogAmp Community
 Implementation-URL: http://jogamp.org/
 Extension-Name: com.jogamp.openal.test
 Implementation-Vendor-Id: com.jogamp
-Permissions: all-permissions
+Permissions: sandbox
+
