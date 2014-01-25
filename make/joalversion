@@ -20,3 +20,6 @@ Application-Library-Allowable-Codebase: *
 Name: jogamp/openal/
 Sealed: true
 
+Name: com/jogamp/openal/
+Sealed: true
+
