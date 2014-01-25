@@ -141,8 +141,8 @@
         <property name="obj.joal" value="${project.root}/${rootrel.obj.joal}" />
 
         <!-- The headers from which Java files are generated -->
-        <property name="config" value="${project.root}/make" />
-        <property name="stub.includes" value="${config}/stub_includes" />
+        <property name="config" value="${project.root}/make/config" />
+        <property name="stub.includes" value="${project.root}/make/stub_includes" />
         <property name="stub.includes.dir" value="stub_includes" /> <!-- NOTE:  this MUST be relative for FileSet -->
         <property name="stub.includes.openal" value="${stub.includes}/openal" />
         <dirset id="stub.includes.fileset.all" dir=".">
@@ -152,7 +152,7 @@
             <include name="openal/**" />
         </fileset>
         <fileset id="stub.includes.dependencies.fileset.2" file="${gluegen.jar}" />
-        <fileset id="stub.includes.dependencies.fileset.3" dir=".">
+        <fileset id="stub.includes.dependencies.fileset.3" dir="config">
             <include name="*.cfg" />
             <include name="*.java" />
             <include name="*.c" />
