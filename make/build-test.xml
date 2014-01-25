@@ -76,8 +76,8 @@
         <property name="gluegen-rt-android.jar" value="${gluegen.build}/gluegen-rt-android.jar" />
 
         <property name="obj.all.paths"        value="${gluegen.build}/obj${path.separator}${obj}${path.separator}lib/${os.and.arch}"/>
-        <property name="classpath.test"       value="${junit.jar}${path.separator}${gluegen-rt.jar}${path.separator}${build}/joal.jar${path.separator}${build}/joal-test.jar"/>
-        <property name="classpath.test.remote" value="${junit.jar}${path.separator}${env.TARGET_ANT_HOME}/lib/ant.jar${path.separator}${env.TARGET_ANT_HOME}/lib/ant-junit.jar${path.separator}${gluegen-rt.jar}${path.separator}${build}/joal.jar${path.separator}${build}/joal-test.jar"/>
+        <property name="classpath.test"       value="${junit.jar}${path.separator}${gluegen-rt.jar}${path.separator}${build}/jar/joal.jar${path.separator}${build}/jar/joal-test.jar"/>
+        <property name="classpath.test.remote" value="${junit.jar}${path.separator}${env.TARGET_ANT_HOME}/lib/ant.jar${path.separator}${env.TARGET_ANT_HOME}/lib/ant-junit.jar${path.separator}${gluegen-rt.jar}${path.separator}${build}/jar/joal.jar${path.separator}${build}/jar/joal-test.jar"/>
 
         <property name="test.archive.name"    value="${archive.name}-test-results-${build.node.name}"/>
 
@@ -92,7 +92,7 @@
                fork="yes"
                includeantruntime="false"
                srcdir="${src.test}" 
-               classpath="${gluegen-rt.jar};${build}/joal.jar;${junit.jar}"
+               classpath="${gluegen-rt.jar};${build}/jar/joal.jar;${junit.jar}"
                memoryMaximumSize="${javac.memorymax}"
                encoding="UTF-8"
                source="${target.sourcelevel}" 
@@ -110,7 +110,7 @@
                 <filter token="BASEVERSION" value="${jogamp.version.base}"/>
             </filterset>
         </copy>
-        <jar manifest="${build.test}/manifest-test.mf" destfile="${build}/joal-test.jar">
+        <jar manifest="${build.test}/manifest-test.mf" destfile="${build}/jar/joal-test.jar">
             <!-- get all class files, but skip any resource files that external tools
                  might have copied into the class directory (otherwise, it's possible
                  to get the same resource file twice in the jar) -->
@@ -125,7 +125,7 @@
         <javac destdir="${classes.test}" 
                fork="yes"
                includeAntRuntime="false"
-               classpath="${android.jar};${gluegen-rt-android.jar};${build}/joal.jar;${junit.jar}"
+               classpath="${android.jar};${gluegen-rt-android.jar};${build}/jar/joal.jar;${junit.jar}"
                memoryMaximumSize="${javac.memorymax}"
                encoding="UTF-8"
                source="${target.sourcelevel}" 
@@ -145,7 +145,7 @@
                 <filter token="BASEVERSION" value="${jogamp.version.base}"/>
             </filterset>
         </copy>
-        <jar manifest="${build.test}/manifest-test-android.mf" destfile="${build}/joal-test-android.jar" filesonly="true">
+        <jar manifest="${build.test}/manifest-test-android.mf" destfile="${build}/jar/joal-test-android.jar" filesonly="true">
             <!-- get all class files, but skip any resource files that external tools
                  might have copied into the class directory (otherwise, it's possible
                  to get the same resource file twice in the jar) -->
@@ -158,7 +158,7 @@
         <aapt.signed 
             assetsdir="resources/assets-test"
             jarsrcdir="${src.test}"
-            jarbuilddir="${build}"
+            jarbuilddir="${build}/jar"
             jarbasename="joal-test-android"
             nativebuilddir="../${rootrel.build}/obj"
             nativebasename="non-existing"
