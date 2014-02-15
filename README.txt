@@ -77,6 +77,12 @@ packages and tools have been used:
   -- OpenAL CVS version from opensource.creative.com (see CVS instructions at 
      www.openal.org)
 
+  -- OpenAL Soft: OpenAL: ALSA, OSS, PulseAudio, WaveFile, Null
+     
+     apt-get install cmake autoconf \
+             libpulse-dev libpulse0:amd64 libpulse0:i386 pulseaudio \
+             libasound2-dev libasound2:amd64 libasound2:i386
+
 * OSX
   -- OSX 10.2 or later
   -- OSX Developer Tools
