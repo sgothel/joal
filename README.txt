@@ -143,6 +143,18 @@ Preparations:
 * OSX:
  Grab the OpenAL SDK from openal.org and install it.
 
+
+GIT
+====
+
+JOAL can be build w/ openal-soft, which is a git submodule of JOAL.
+This is the default for our JogAmp build.
+
+Cloning [and pulling] JOAL incl. openal-soft 
+can be performed w/ the option '--recurse-submodules'.
+
+    git clone --recurse-submodules git://jogamp.org/srv/scm/joal.git
+    cd joal ; git pull --recurse-submodules
  
 JOAL Build Instructions:
 ===================
