@@ -5,8 +5,6 @@ import static org.junit.Assert.*;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-import javax.sound.sampled.UnsupportedAudioFileException;
-
 import org.junit.Test;
 
 import com.jogamp.openal.ALFactory;
@@ -15,6 +13,7 @@ import com.jogamp.openal.ALC;
 import com.jogamp.openal.ALExt;
 import com.jogamp.openal.ALCcontext;
 import com.jogamp.openal.ALCdevice;
+import com.jogamp.openal.UnsupportedAudioFileException;
 import com.jogamp.openal.test.resources.ResourceLocation;
 import com.jogamp.openal.util.WAVData;
 import com.jogamp.openal.util.WAVLoader;
@@ -23,7 +22,7 @@ public class ALExtLoopbackDeviceSOFTTest {
 
     @Test
     public void testAlCLoopbackDeviceSOFT() throws UnsupportedAudioFileException, IOException {
-    	
+
     	ALC alc = ALFactory.getALC();
         ALCdevice dev = alc.alcOpenDevice(null);
         ALCcontext context = alc.alcCreateContext(dev,null);
@@ -32,12 +31,12 @@ public class ALExtLoopbackDeviceSOFTTest {
 
         System.out.println("Available null device OpenAL Extensions:"+alc.alcGetString(null, ALC.ALC_EXTENSIONS));
         System.out.println("Available device OpenAL Extensions:"+alc.alcGetString(dev, ALC.ALC_EXTENSIONS));
-       
+
         boolean have = alc.alcIsExtensionPresent(dev, "ALC_SOFT_loopback");
 
         Exception ex = null;
         ALExt alext = ALFactory.getALExt();
-        
+
         if (!have) {
             System.out.println("No extension ALC_SOFT_loopback present");
 
@@ -72,7 +71,7 @@ public class ALExtLoopbackDeviceSOFTTest {
                     wd.freq,
                     0
                 }, 0);
-            
+
             boolean state = alc.alcMakeContextCurrent(context);
             assertTrue(state);
         } catch (Exception e) {
@@ -104,10 +103,10 @@ public class ALExtLoopbackDeviceSOFTTest {
 
         System.out.println("end testAlCLoopbackDeviceSOFT");
     }
-    
+
     public static void main(String args[]) throws IOException {
         org.junit.runner.JUnitCore.main(ALExtLoopbackDeviceSOFTTest.class.getName());
     }
-    
+
 
 }
