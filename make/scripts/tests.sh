@@ -61,12 +61,13 @@ ANT_JARS=$ANT_PATH/lib/ant.jar:$ANT_PATH/lib/ant-junit.jar
 
 function jrun() {
     #D_ARGS="-Djogamp.debug=all"
+    #D_ARGS="-Djogamp.debug.Bitstream"
     #D_ARGS="-Djogamp.debug.NativeLibrary=true -Djoal.debug=true"
     #D_ARGS="-Djoal.debug=all"
     #X_ARGS="-verbose:jni"
     #X_ARGS="-Xrs"
 
-    export CLASSPATH=$GLUEGEN_BDIR/gluegen-rt.jar:$bdir/joal.jar:$bdir/joal-test.jar:$JUNIT_JAR:$ANT_JARS
+    export CLASSPATH=$GLUEGEN_BDIR/gluegen-rt.jar:$bdir/jar/joal.jar:$bdir/jar/joal-test.jar:$JUNIT_JAR:$ANT_JARS
     echo CLASSPATH $CLASSPATH
 
     echo
@@ -85,6 +86,7 @@ function testnormal() {
 }
 
 
-testnormal com.jogamp.openal.test.manual.OpenALTest $*
+#testnormal com.jogamp.openal.test.manual.OpenALTest $*
 #testnormal com.jogamp.openal.test.manual.Sound3DTest $*
+testnormal com.jogamp.openal.test.junit.ALutWAVLoaderTest $*
 #testnormal com.jogamp.openal.test.junit.ALExtLoopbackDeviceSOFTTest $*

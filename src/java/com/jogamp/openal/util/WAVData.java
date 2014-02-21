@@ -5,17 +5,17 @@
 * Redistribution and use in source and binary forms, with or without
 * modification, are permitted provided that the following conditions are met:
 *
-* -Redistribution of source code must retain the above copyright notice, 
+* -Redistribution of source code must retain the above copyright notice,
 * this list of conditions and the following disclaimer.
 *
-* -Redistribution in binary form must reproduce the above copyright notice, 
+* -Redistribution in binary form must reproduce the above copyright notice,
 * this list of conditions and the following disclaimer in the documentation
 * and/or other materials provided with the distribution.
 *
-* Neither the name of Sun Microsystems, Inc. or the names of contributors may 
-* be used to endorse or promote products derived from this software without 
+* Neither the name of Sun Microsystems, Inc. or the names of contributors may
+* be used to endorse or promote products derived from this software without
 * specific prior written permission.
-* 
+*
 * This software is provided "AS IS," without a warranty of any kind.
 * ALL EXPRESS OR IMPLIED CONDITIONS, REPRESENTATIONS AND WARRANTIES, INCLUDING
 * ANY IMPLIED WARRANTY OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE OR
@@ -39,15 +39,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.nio.channels.Channels;
-import java.nio.channels.ReadableByteChannel;
 
 import com.jogamp.common.util.IOUtil;
 import com.jogamp.openal.ALConstants;
 import com.jogamp.openal.UnsupportedAudioFileException;
 
 /**
- * This class is a holder for WAV (.wav ) file Data returned from the WavLoader, 
+ * This class is a holder for WAV (.wav ) file Data returned from the WavLoader,
  * or directly via  {@link #loadFromStream(InputStream, int, int, int)}.
  *
  * @author Athomas Goldberg, et.al.
@@ -83,23 +81,23 @@ public final class WAVData {
         this.freq = freq;
         this.loop = loop;
     }
-    
+
     /**
      * This method loads a (.wav) file into a WAVData object.
      * @param initialCapacity initial buffer capacity in bytes, if &gt; available bytes
      * @param numChannels
      * @param bits
      * @param sampleRate
-     * @param byteOrder 
+     * @param byteOrder
      * @param stream An InputStream for the .WAV stream
      *
-     * @return a WAVData object containing the audio data 
+     * @return a WAVData object containing the audio data
      *
      * @throws UnsupportedAudioFileException if the format of the audio if not
-     *                                       supported. 
-     * @throws IOException If the file can no be found or some other IO error 
+     *                                       supported.
+     * @throws IOException If the file can no be found or some other IO error
      *                     occurs
-     */    
+     */
     public static WAVData loadFromStream(InputStream aIn, int initialCapacity, int numChannels, int bits, int sampleRate, ByteOrder byteOrder, boolean loop)
       throws IOException {
         if( !(aIn instanceof BufferedInputStream) ) {
@@ -117,7 +115,6 @@ public final class WAVData {
         } else if ((bits == 16) && (numChannels == 2)) {
             format = ALConstants.AL_FORMAT_STEREO16;
         }
-
         ByteBuffer buffer = IOUtil.copyStream2ByteBuffer(aIn, initialCapacity);
         int size = buffer.limit();
 
@@ -137,5 +134,5 @@ public final class WAVData {
 
         return result;
     }
-    
+
 }
