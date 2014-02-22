@@ -6,15 +6,19 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
+import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.Assert;
+import org.junit.runners.MethodSorters;
 
 import com.jogamp.openal.test.resources.ResourceLocation;
+import com.jogamp.openal.test.util.UITestCase;
 import com.jogamp.openal.util.ALut;
 import com.jogamp.openal.util.WAVData;
 import com.jogamp.openal.util.WAVLoader;
 
-public class ALutWAVLoaderTest {
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
+public class ALutWAVLoaderTest extends UITestCase {
 
     @Test
     public void testALutLoadWAVFileStream() throws IOException {
