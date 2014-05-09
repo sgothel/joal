@@ -218,6 +218,9 @@
                 <path path="${classpath.test}"/>
             </classpath>
         </junit>
+        <move todir="${results.test}">
+            <fileset dir="." includes="hs_err_pid*.log" />
+        </move>
     </target>
     
     <target name="test.manual.run" depends="clean.results, test.compile">
