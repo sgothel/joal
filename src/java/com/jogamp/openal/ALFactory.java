@@ -4,17 +4,17 @@
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  *
- * -Redistribution of source code must retain the above copyright notice, 
+ * -Redistribution of source code must retain the above copyright notice,
  * this list of conditions and the following disclaimer.
  *
- * -Redistribution in binary form must reproduce the above copyright notice, 
+ * -Redistribution in binary form must reproduce the above copyright notice,
  * this list of conditions and the following disclaimer in the documentation
  * and/or other materials provided with the distribution.
  *
- * Neither the name of Sun Microsystems, Inc. or the names of contributors may 
- * be used to endorse or promote products derived from this software without 
+ * Neither the name of Sun Microsystems, Inc. or the names of contributors may
+ * be used to endorse or promote products derived from this software without
  * specific prior written permission.
- * 
+ *
  * This software is provided "AS IS," without a warranty of any kind.
  * ALL EXPRESS OR IMPLIED CONDITIONS, REPRESENTATIONS AND WARRANTIES, INCLUDING
  * ANY IMPLIED WARRANTY OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE OR
@@ -44,7 +44,7 @@ import com.jogamp.common.os.Platform;
  * This class provides factory methods for generating AL and ALC objects.
  *
  * <p>
- * Select preferred OpenAL native library type via system properties, 
+ * Select preferred OpenAL native library type via system properties,
  * i.e. System-OpenAL or bundled Soft-OpenAL.<br/>
  * If the preferred choice fails, implementation falls back to the other.
  * <PRE>
@@ -55,18 +55,18 @@ import com.jogamp.common.os.Platform;
  * Note: You may use the 'jnlp.' prefix, allowing using above property names w/ Applets and WebStart,
  * e.g. 'jnlp.joal.openal.lib=system'.
  * </p>
- * 
+ *
  * @author Athomas Goldberg, Kenneth Russell, et.al.
  */
 public class ALFactory {
   public static final boolean DEBUG = Debug.debug("Factory");
-  /** If true, prefer System-OpenAL over bundled Soft-OpenAL, otherwise vice versa. */
+  /** If true, prefer System-OpenAL, otherwise bundled Soft-OpenAL (default). */
   public static final boolean PREFER_SYSTEM_OPENAL;
-  
+
   static {
       Platform.initSingleton();
       final String choice = Debug.getProperty("joal.openal.lib", true);
-      boolean useSystem = Platform.OSType.MACOS == Platform.OS_TYPE; // default
+      boolean useSystem = false; // default on all systems
       if( null != choice ) {
           if( choice.equals("system") ) {
               useSystem = true;
@@ -74,9 +74,9 @@ public class ALFactory {
               useSystem = false;
           }
       }
-      PREFER_SYSTEM_OPENAL = useSystem;      
+      PREFER_SYSTEM_OPENAL = useSystem;
   }
-  
+
   private static boolean initialized = false;
   private static AL al;
   private static ALC alc;
@@ -101,7 +101,7 @@ public class ALFactory {
 	  throw new ALException(er);
     }
   }
-  
+
   /**
    * If the system property <code>joal.SystemOpenAL</code> is set
    * @return
@@ -127,7 +127,7 @@ public class ALFactory {
   }
 
   /**
-   * Get the default ALC object. This object is used to access most of the 
+   * Get the default ALC object. This object is used to access most of the
    * OpenAL context functionality.
    *
    * @return the ALC object
@@ -141,7 +141,7 @@ public class ALFactory {
   }
 
   /**
-   * Get the default ALExt object. This object is used to access most of the 
+   * Get the default ALExt object. This object is used to access most of the
    * OpenAL extension functionality.
    *
    * @return the ALExt object
