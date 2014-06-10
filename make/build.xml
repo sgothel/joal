@@ -541,7 +541,7 @@
         <mkdir dir="${build}/openal-soft" />
         <exec dir="${build}/openal-soft" executable="cmake" logError="true" failonerror="false" failifexecutionfails="false">
             <arg value="../../openal-soft"/>
-            <arg value="-DCMAKE_TOOLCHAIN_FILE=../../openal-soft/cmake/toolchain.clang-x86_32.cmake"/>
+            <arg value="-DOPENAL_CUSTOM_CONFIG=../openal-soft/cmake/customconfig.clang-x86_32.cmake"/>
         </exec>
         <exec dir="${build}/openal-soft" executable="make" logError="true" failonerror="false" failifexecutionfails="false" />
     </target>
@@ -551,7 +551,7 @@
         <mkdir dir="${build}/openal-soft" />
         <exec dir="${build}/openal-soft" executable="cmake" logError="true" failonerror="false" failifexecutionfails="false">
             <arg value="../../openal-soft"/>
-            <arg value="-DCMAKE_TOOLCHAIN_FILE=../../openal-soft/cmake/toolchain.clang-default.cmake"/>
+            <arg value="-DOPENAL_CUSTOM_CONFIG=../openal-soft/cmake/customconfig.clang-default.cmake"/>
         </exec>
         <exec dir="${build}/openal-soft" executable="make" logError="true" failonerror="false" failifexecutionfails="false" />
     </target>
@@ -561,7 +561,7 @@
         <mkdir dir="${build}/openal-soft" />
         <exec dir="${build}/openal-soft" executable="cmake" logError="true" failonerror="false" failifexecutionfails="false">
             <arg value="../../openal-soft"/>
-            <arg value="-DCMAKE_TOOLCHAIN_FILE=../../openal-soft/cmake/toolchain.gcc-x86_32.cmake"/>
+            <arg value="-DOPENAL_CUSTOM_CONFIG=../openal-soft/cmake/customconfig.gcc-x86_32.cmake"/>
         </exec>
         <exec dir="${build}/openal-soft" executable="make" logError="true" failonerror="false" failifexecutionfails="false" />
     </target>
@@ -571,7 +571,7 @@
         <mkdir dir="${build}/openal-soft" />
         <exec dir="${build}/openal-soft" executable="cmake" logError="true" failonerror="false" failifexecutionfails="false">
             <arg value="../../openal-soft"/>
-            <arg value="-DCMAKE_TOOLCHAIN_FILE=../../openal-soft/cmake/toolchain.gcc-default.cmake"/>
+            <arg value="-DOPENAL_CUSTOM_CONFIG=../openal-soft/cmake/customconfig.gcc-default.cmake"/>
         </exec>
         <exec dir="${build}/openal-soft" executable="make" logError="true" failonerror="false" failifexecutionfails="false" />
     </target>
