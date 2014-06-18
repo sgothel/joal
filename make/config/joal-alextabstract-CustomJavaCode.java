@@ -8,9 +8,10 @@ static {
                                       throw new RuntimeException("Couldn't instantiate ALExtProcAddressTable");
                                     }
                                     alExtProcAddressTable.reset(ALImpl.alDynamicLookupHelper);
+                                    /** Not required nor forced
                                     if( !initializeImpl() ) {
                                         throw new RuntimeException("Initialization failure");
-                                    }                                      
+                                    } */
                                     return alExtProcAddressTable;
                                 } } );
 }

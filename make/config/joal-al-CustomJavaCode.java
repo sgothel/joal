@@ -20,9 +20,10 @@ static {
                                       throw new RuntimeException("Couln't load native AL/JNI glue library");
                                     }
                                     alProcAddressTable.reset(bundle);
+                                    /** Not required nor forced
                                     if( !initializeImpl() ) {
                                         throw new RuntimeException("Initialization failure");
-                                    }                                      
+                                    } */
                                     return bundle;
                                 } } );
 }
