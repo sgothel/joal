@@ -74,7 +74,7 @@ public final class WAVData {
     /** flag indicating whether or not the sound in the data should loop */
     public final boolean loop;
 
-    public WAVData(ByteBuffer data, int format, int size, int freq, boolean loop) {
+    public WAVData(final ByteBuffer data, final int format, final int size, final int freq, final boolean loop) {
         this.data = data;
         this.format = format;
         this.size = size;
@@ -98,7 +98,7 @@ public final class WAVData {
      * @throws IOException If the file can no be found or some other IO error
      *                     occurs
      */
-    public static WAVData loadFromStream(InputStream aIn, int initialCapacity, int numChannels, int bits, int sampleRate, ByteOrder byteOrder, boolean loop)
+    public static WAVData loadFromStream(InputStream aIn, final int initialCapacity, final int numChannels, final int bits, final int sampleRate, final ByteOrder byteOrder, final boolean loop)
       throws IOException {
         if( !(aIn instanceof BufferedInputStream) ) {
             aIn = new BufferedInputStream(aIn);
@@ -115,21 +115,21 @@ public final class WAVData {
         } else if ((bits == 16) && (numChannels == 2)) {
             format = ALConstants.AL_FORMAT_STEREO16;
         }
-        ByteBuffer buffer = IOUtil.copyStream2ByteBuffer(aIn, initialCapacity);
-        int size = buffer.limit();
+        final ByteBuffer buffer = IOUtil.copyStream2ByteBuffer(aIn, initialCapacity);
+        final int size = buffer.limit();
 
         // Must byte swap in case endianess mismatch
         if ( bits == 16 && ByteOrder.nativeOrder() != byteOrder ) {
-          int len = buffer.remaining();
+          final int len = buffer.remaining();
           for (int i = 0; i < len; i += 2) {
-            byte a = buffer.get(i);
-            byte b = buffer.get(i+1);
+            final byte a = buffer.get(i);
+            final byte b = buffer.get(i+1);
             buffer.put(i, b);
             buffer.put(i+1, a);
           }
         }
 
-        WAVData result = new WAVData(buffer, format, size, sampleRate, loop);
+        final WAVData result = new WAVData(buffer, format, size, sampleRate, loop);
         aIn.close();
 
         return result;

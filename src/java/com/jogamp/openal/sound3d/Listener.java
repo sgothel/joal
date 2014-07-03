@@ -4,17 +4,17 @@
 * Redistribution and use in source and binary forms, with or without
 * modification, are permitted provided that the following conditions are met:
 *
-* -Redistribution of source code must retain the above copyright notice, 
+* -Redistribution of source code must retain the above copyright notice,
 * this list of conditions and the following disclaimer.
 *
-* -Redistribution in binary form must reproduce the above copyright notice, 
+* -Redistribution in binary form must reproduce the above copyright notice,
 * this list of conditions and the following disclaimer in the documentation
 * and/or other materials provided with the distribution.
 *
-* Neither the name of Sun Microsystems, Inc. or the names of contributors may 
-* be used to endorse or promote products derived from this software without 
+* Neither the name of Sun Microsystems, Inc. or the names of contributors may
+* be used to endorse or promote products derived from this software without
 * specific prior written permission.
-* 
+*
 * This software is provided "AS IS," without a warranty of any kind.
 * ALL EXPRESS OR IMPLIED CONDITIONS, REPRESENTATIONS AND WARRANTIES, INCLUDING
 * ANY IMPLIED WARRANTY OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE OR
@@ -34,10 +34,11 @@
 package com.jogamp.openal.sound3d;
 
 import com.jogamp.openal.AL;
+import com.jogamp.openal.ALConstants;
 
 
 /**
- * This class represents the human listener in the Sound3D environment. It 
+ * This class represents the human listener in the Sound3D environment. It
  * provides methods for controlling the position, orientation as well as other
  * properties associated with the listener.
  *
@@ -46,7 +47,7 @@ import com.jogamp.openal.AL;
 public class Listener {
     private final AL al;
 
-    Listener(AL al) {
+    Listener(final AL al) {
         this.al = al;
     }
 
@@ -56,8 +57,8 @@ public class Listener {
      *
      * @param gain the gain, or volume
      */
-    public void setGain(float gain) {
-        al.alListenerf(AL.AL_GAIN, gain);
+    public void setGain(final float gain) {
+        al.alListenerf(ALConstants.AL_GAIN, gain);
     }
 
     /**
@@ -67,8 +68,8 @@ public class Listener {
      * @return the gain value.
      */
     public float getGain() {
-        float[] f = new float[1];
-        al.alGetListenerf(AL.AL_GAIN, f, 0);
+        final float[] f = new float[1];
+        al.alGetListenerf(ALConstants.AL_GAIN, f, 0);
 
         return f[0];
     }
@@ -84,32 +85,32 @@ public class Listener {
      * @param z The position of the listener along the Z-axis in the Sound3D
      * environment
      */
-    public void setPosition(float x, float y, float z) {
-        al.alListener3f(AL.AL_POSITION, x, y, z);
+    public void setPosition(final float x, final float y, final float z) {
+        al.alListener3f(ALConstants.AL_POSITION, x, y, z);
     }
 
     /**
      * Sets the position in (x-y-z coordinates) of the Listener in the Sound3D
      * environment.
      *
-     * @param position a Vec3f object containing the x,y and z coordinates of 
+     * @param position a Vec3f object containing the x,y and z coordinates of
      * Listener.
      */
-    public void setPosition(Vec3f position) {
-        al.alListener3f(AL.AL_POSITION, position.v1, position.v2, position.v3);
+    public void setPosition(final Vec3f position) {
+        al.alListener3f(ALConstants.AL_POSITION, position.v1, position.v2, position.v3);
     }
 
     /**
      * Gets the position in (x-y-z coordinates) of the Listener in the Sound3D
      * environment.
      *
-     * @return a Vec3f object containing the x,y and z coordinates of 
+     * @return a Vec3f object containing the x,y and z coordinates of
      * Listener.
      */
     public Vec3f getPosition() {
         Vec3f result = null;
-        float[] tmp = new float[3];
-        al.alGetListenerfv(AL.AL_POSITION, tmp, 0);
+        final float[] tmp = new float[3];
+        al.alGetListenerfv(ALConstants.AL_POSITION, tmp, 0);
         result = new Vec3f(tmp[0], tmp[1], tmp[2]);
 
         return result;
@@ -122,8 +123,8 @@ public class Listener {
      * @param velocity a Vec3f object containing the velicity in
      * x,y and z coordinates of Listener.
      */
-    public void setVelocity(Vec3f velocity) {
-        al.alListener3f(AL.AL_VELOCITY, velocity.v1, velocity.v2, velocity.v3);
+    public void setVelocity(final Vec3f velocity) {
+        al.alListener3f(ALConstants.AL_VELOCITY, velocity.v1, velocity.v2, velocity.v3);
     }
 
     /**
@@ -135,28 +136,28 @@ public class Listener {
      */
     public Vec3f getVelocity() {
         Vec3f result = null;
-        float[] tmp = new float[3];
-        al.alGetListenerfv(AL.AL_VELOCITY, tmp, 0);
+        final float[] tmp = new float[3];
+        al.alGetListenerfv(ALConstants.AL_VELOCITY, tmp, 0);
         result = new Vec3f(tmp[0], tmp[1], tmp[2]);
 
         return result;
     }
 
     /**
-     * Sets the orientation of the Listener in the Sound3D environment. 
-     * Orientation is expressed as "up" and "at" vectors. 
+     * Sets the orientation of the Listener in the Sound3D environment.
+     * Orientation is expressed as "up" and "at" vectors.
      *
      * @param orientation The first 3 elements of the array should contain
      * the x,y,z up-vector, the second 3 elements should contain the x,z,z
      * look-at vector.
      */
-    public void setOrientation(float[] orientation) {
-        al.alListenerfv(AL.AL_ORIENTATION, orientation, 0);
+    public void setOrientation(final float[] orientation) {
+        al.alListenerfv(ALConstants.AL_ORIENTATION, orientation, 0);
     }
 
     /**
-     * Gets the orientation of the Listener in the Sound3D environment. 
-     * Orientation is expressed as "up" and "at" vectors. 
+     * Gets the orientation of the Listener in the Sound3D environment.
+     * Orientation is expressed as "up" and "at" vectors.
      *
      * @return an array containing the orientation of the listener.
      * The first 3 elements of the array contain
@@ -164,8 +165,8 @@ public class Listener {
      * look-at vector.
      */
     public float[] getOrientation() {
-        float[] tmp = new float[6];
-        al.alGetListenerfv(AL.AL_ORIENTATION, tmp, 0);
+        final float[] tmp = new float[6];
+        al.alGetListenerfv(ALConstants.AL_ORIENTATION, tmp, 0);
         return tmp;
     }
 }

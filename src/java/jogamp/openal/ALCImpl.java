@@ -16,26 +16,26 @@ import java.util.ArrayList;
  */
 public class ALCImpl extends ALCAbstractImpl {
 
-    public String alcGetString(ALCdevice device, int param) {
+    public String alcGetString(final ALCdevice device, final int param) {
         if (device == null && param == ALC_DEVICE_SPECIFIER) {
             throw new ALException("Call alcGetDeviceSpecifiers to fetch all available device names");
         }
 
-        ByteBuffer buf = alcGetStringImpl(device, param);
+        final ByteBuffer buf = alcGetStringImpl(device, param);
         if (buf == null) {
             return null;
         }
-        byte[] res = new byte[buf.capacity()];
+        final byte[] res = new byte[buf.capacity()];
         buf.get(res);
         try {
             return new String(res, "US-ASCII");
-        } catch (UnsupportedEncodingException e) {
+        } catch (final UnsupportedEncodingException e) {
             throw new ALException(e);
         }
     }
 
     /** Entry point (through function pointer) to C language function: <br> <code> const ALCchar *  alcGetString(ALCdevice *  device, ALCenum param); </code>    */
-    public ByteBuffer alcGetStringImpl(ALCdevice device, int param) {
+    public ByteBuffer alcGetStringImpl(final ALCdevice device, final int param) {
 
         final long __addr_ = getALCProcAddressTable()._addressof_alcGetString;
         if (__addr_ == 0) {
@@ -67,18 +67,18 @@ public class ALCImpl extends ALCAbstractImpl {
         return getDoubleNullTerminatedString(ALC_CAPTURE_DEVICE_SPECIFIER);
     }
 
-    private String[] getDoubleNullTerminatedString(int which) {
-        ByteBuffer buf = alcGetStringImpl(null, which);
+    private String[] getDoubleNullTerminatedString(final int which) {
+        final ByteBuffer buf = alcGetStringImpl(null, which);
         if (buf == null) {
             return null;
         }
-        byte[] bytes = new byte[buf.capacity()];
+        final byte[] bytes = new byte[buf.capacity()];
         buf.get(bytes);
         try {
-            ArrayList/*<String>*/ res = new ArrayList/*<String>*/();
+            final ArrayList/*<String>*/ res = new ArrayList/*<String>*/();
             int i = 0;
             while (i < bytes.length) {
-                int startIndex = i;
+                final int startIndex = i;
                 while ((i < bytes.length) && (bytes[i] != 0)) {
                     i++;
                 }
@@ -86,7 +86,7 @@ public class ALCImpl extends ALCAbstractImpl {
                 i++;
             }
             return (String[]) res.toArray(new String[res.size()]);
-        } catch (UnsupportedEncodingException e) {
+        } catch (final UnsupportedEncodingException e) {
             throw new ALException(e);
         }
     }

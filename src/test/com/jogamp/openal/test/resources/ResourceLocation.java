@@ -22,7 +22,7 @@ public class ResourceLocation {
     /** CDR 44100Hz, 2 channels, S16_LE */
     public static final String aa_wav = "aa.wav";
     public static final int aa_wav_size = 846748;
-    
+
     static final ResourceLocation rl;
 
     static {
@@ -37,21 +37,21 @@ public class ResourceLocation {
     public static int getTestStream0Size() {
         return lewiscarrol_wav_size;
     }
-    /** CDR 44100Hz, 2 channels, S16_BE */ 
+    /** CDR 44100Hz, 2 channels, S16_BE */
     public static InputStream getTestStream1() {
         return getInputStream(aa_cdr, true);
     }
     public static int getTestStream1Size() {
         return aa_cdr_size;
     }
-    /** CDR 44100Hz, 2 channels, S16_LE */ 
+    /** CDR 44100Hz, 2 channels, S16_LE */
     public static InputStream getTestStream2() {
         return getInputStream(aa_cd, true);
     }
     public static int getTestStream2Size() {
         return aa_cd_size;
     }
-    /** WAV 44100Hz, 2 channels, S16_LE */ 
+    /** WAV 44100Hz, 2 channels, S16_LE */
     public static InputStream getTestStream3() {
         return getInputStream(aa_wav, true);
     }
@@ -59,24 +59,24 @@ public class ResourceLocation {
         return aa_wav_size;
     }
 
-    public static InputStream getInputStream(String fileName) {
+    public static InputStream getInputStream(final String fileName) {
         return getInputStream(fileName, false);
     }
 
-    public static InputStream getInputStream(String fileName, boolean throwException) {
-        URLConnection conn = IOUtil.getResource(rl.getClass(), fileName);        
+    public static InputStream getInputStream(final String fileName, final boolean throwException) {
+        final URLConnection conn = IOUtil.getResource(rl.getClass(), fileName);
         if (conn == null) {
             return null;
         }
         InputStream stream = null;
         try {
             stream = new BufferedInputStream(conn.getInputStream());
-        } catch (IOException e) {
+        } catch (final IOException e) {
             if(throwException && null == stream) {
                 throw new RuntimeException("File '"+fileName+"' not found: "+e.getMessage());
             } else {
                 System.err.println("File '"+fileName+"' not found");
-                e.printStackTrace();                
+                e.printStackTrace();
             }
         }
         return stream;

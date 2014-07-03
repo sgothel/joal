@@ -87,7 +87,7 @@ public final class ALDynamicLibraryBundleInfo implements DynamicLibraryBundleInf
 
     @Override
     public final List<List<String>> getToolLibNames() {
-        List<List<String>> libNamesList = new ArrayList<List<String>>();
+        final List<List<String>> libNamesList = new ArrayList<List<String>>();
 
         final List<String> alSystemLibNames = new ArrayList<String>();
         {
@@ -137,18 +137,18 @@ public final class ALDynamicLibraryBundleInfo implements DynamicLibraryBundleInf
 
     @Override
     public final List<String> getToolGetProcAddressFuncNameList() {
-        List<String> res = new ArrayList<String>();
+        final List<String> res = new ArrayList<String>();
         res.add("alGetProcAddress");
         return res;
     }
 
     @Override
-    public final long toolGetProcAddress(long toolGetProcAddressHandle, String funcName) {
+    public final long toolGetProcAddress(final long toolGetProcAddressHandle, final String funcName) {
         return ALImpl.alGetProcAddress(toolGetProcAddressHandle, funcName);
     }
 
     @Override
-    public final boolean useToolGetProcAdressFirst(String funcName) {
+    public final boolean useToolGetProcAdressFirst(final String funcName) {
         return true;
     }
 

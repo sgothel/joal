@@ -4,17 +4,17 @@
 * Redistribution and use in source and binary forms, with or without
 * modification, are permitted provided that the following conditions are met:
 *
-* -Redistribution of source code must retain the above copyright notice, 
+* -Redistribution of source code must retain the above copyright notice,
 * this list of conditions and the following disclaimer.
 *
-* -Redistribution in binary form must reproduce the above copyright notice, 
+* -Redistribution in binary form must reproduce the above copyright notice,
 * this list of conditions and the following disclaimer in the documentation
 * and/or other materials provided with the distribution.
 *
-* Neither the name of Sun Microsystems, Inc. or the names of contributors may 
-* be used to endorse or promote products derived from this software without 
+* Neither the name of Sun Microsystems, Inc. or the names of contributors may
+* be used to endorse or promote products derived from this software without
 * specific prior written permission.
-* 
+*
 * This software is provided "AS IS," without a warranty of any kind.
 * ALL EXPRESS OR IMPLIED CONDITIONS, REPRESENTATIONS AND WARRANTIES, INCLUDING
 * ANY IMPLIED WARRANTY OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE OR
@@ -34,6 +34,7 @@
 package com.jogamp.openal.sound3d;
 
 import com.jogamp.openal.AL;
+import com.jogamp.openal.ALConstants;
 
 /**
  * This class is used to represent sound-producing objects in the Sound3D
@@ -48,7 +49,7 @@ public final class Source {
     private final int sourceID;
     private Buffer buffer;
 
-    Source(AL al, int sourceID) {
+    Source(final AL al, final int sourceID) {
         this.al = al;
         this.sourceID = sourceID;
     }
@@ -94,9 +95,9 @@ public final class Source {
      * @return {@code true} if this source is playing.
      */
     public boolean isPlaying() {
-        int[] result = new int[1];
-        al.alGetSourcei(sourceID, AL.AL_SOURCE_STATE, result, 0);
-        return result[0] == AL.AL_PLAYING;
+        final int[] result = new int[1];
+        al.alGetSourcei(sourceID, ALConstants.AL_SOURCE_STATE, result, 0);
+        return result[0] == ALConstants.AL_PLAYING;
     }
 
     /**
@@ -105,8 +106,8 @@ public final class Source {
      *
      * @param pitch the pitch value of this source.
      */
-    public void setPitch(float pitch) {
-        al.alSourcef(sourceID, AL.AL_PITCH, pitch);
+    public void setPitch(final float pitch) {
+        al.alSourcef(sourceID, ALConstants.AL_PITCH, pitch);
     }
 
     /**
@@ -116,8 +117,8 @@ public final class Source {
      * @return the pitch value of this source.
      */
     public float getPitch() {
-        float[] result = new float[1];
-        al.alGetSourcef(sourceID, AL.AL_PITCH, result, 0);
+        final float[] result = new float[1];
+        al.alGetSourcef(sourceID, ALConstants.AL_PITCH, result, 0);
 
         return result[0];
     }
@@ -128,8 +129,8 @@ public final class Source {
      *
      * @param gain the gain of the audio on this source
      */
-    public void setGain(float gain) {
-        al.alSourcef(sourceID, AL.AL_GAIN, gain);
+    public void setGain(final float gain) {
+        al.alSourcef(sourceID, ALConstants.AL_GAIN, gain);
     }
 
     /**
@@ -139,8 +140,8 @@ public final class Source {
      * @return the gain of the audio on this source
      */
     public float getGain() {
-        float[] result = new float[1];
-        al.alGetSourcef(sourceID, AL.AL_GAIN, result, 0);
+        final float[] result = new float[1];
+        al.alGetSourcef(sourceID, ALConstants.AL_GAIN, result, 0);
 
         return result[0];
     }
@@ -151,8 +152,8 @@ public final class Source {
      *
      * @param maxDistance the max ditance for source attentuation.
      */
-    public void setMaxDistance(float maxDistance) {
-        al.alSourcef(sourceID, AL.AL_MAX_DISTANCE, maxDistance);
+    public void setMaxDistance(final float maxDistance) {
+        al.alSourcef(sourceID, ALConstants.AL_MAX_DISTANCE, maxDistance);
     }
 
     /**
@@ -162,8 +163,8 @@ public final class Source {
      * @return the max ditance for source attentuation.
      */
     public float getMaxDistance() {
-        float[] result = new float[1];
-        al.alGetSourcef(sourceID, AL.AL_MAX_DISTANCE, result, 0);
+        final float[] result = new float[1];
+        al.alGetSourcef(sourceID, ALConstants.AL_MAX_DISTANCE, result, 0);
 
         return result[0];
     }
@@ -173,8 +174,8 @@ public final class Source {
      *
      * @param rolloffFactor the rolloff rate of the source.
      */
-    public void setRolloffFactor(float rolloffFactor) {
-        al.alSourcef(sourceID, AL.AL_ROLLOFF_FACTOR, rolloffFactor);
+    public void setRolloffFactor(final float rolloffFactor) {
+        al.alSourcef(sourceID, ALConstants.AL_ROLLOFF_FACTOR, rolloffFactor);
     }
 
     /**
@@ -183,8 +184,8 @@ public final class Source {
      * @return the rolloff rate of the source.
      */
     public float getRolloffFactor() {
-        float[] result = new float[1];
-        al.alGetSourcef(sourceID, AL.AL_ROLLOFF_FACTOR, result, 0);
+        final float[] result = new float[1];
+        al.alGetSourcef(sourceID, ALConstants.AL_ROLLOFF_FACTOR, result, 0);
 
         return result[0];
     }
@@ -195,8 +196,8 @@ public final class Source {
      *
      * @param referenceDistance the reference distance for the source.
      */
-    public void setReferenceDistance(float referenceDistance) {
-        al.alSourcef(sourceID, AL.AL_REFERENCE_DISTANCE, referenceDistance);
+    public void setReferenceDistance(final float referenceDistance) {
+        al.alSourcef(sourceID, ALConstants.AL_REFERENCE_DISTANCE, referenceDistance);
     }
 
     /**
@@ -206,8 +207,8 @@ public final class Source {
      * @return the reference distance for the source.
      */
     public float getReferenceDistance() {
-        float[] result = new float[1];
-        al.alGetSourcef(sourceID, AL.AL_REFERENCE_DISTANCE, result, 0);
+        final float[] result = new float[1];
+        al.alGetSourcef(sourceID, ALConstants.AL_REFERENCE_DISTANCE, result, 0);
 
         return result[0];
     }
@@ -217,8 +218,8 @@ public final class Source {
      *
      * @param minGain the minimum gain for this source.
      */
-    public void setMinGain(float minGain) {
-        al.alSourcef(sourceID, AL.AL_MIN_GAIN, minGain);
+    public void setMinGain(final float minGain) {
+        al.alSourcef(sourceID, ALConstants.AL_MIN_GAIN, minGain);
     }
 
     /**
@@ -227,8 +228,8 @@ public final class Source {
      * @return the minimum gain for this source.
      */
     public float getMinGain() {
-        float[] result = new float[1];
-        al.alGetSourcef(sourceID, AL.AL_MIN_GAIN, result, 0);
+        final float[] result = new float[1];
+        al.alGetSourcef(sourceID, ALConstants.AL_MIN_GAIN, result, 0);
 
         return result[0];
     }
@@ -238,8 +239,8 @@ public final class Source {
      *
      * @param maxGain the maximum gain for this source
      */
-    public void setMaxGain(float maxGain) {
-        al.alSourcef(sourceID, AL.AL_MAX_GAIN, maxGain);
+    public void setMaxGain(final float maxGain) {
+        al.alSourcef(sourceID, ALConstants.AL_MAX_GAIN, maxGain);
     }
 
     /**
@@ -248,8 +249,8 @@ public final class Source {
      * @return the maximum gain for this source
      */
     public float getMaxGain() {
-        float[] result = new float[1];
-        al.alGetSourcef(sourceID, AL.AL_MAX_GAIN, result, 0);
+        final float[] result = new float[1];
+        al.alGetSourcef(sourceID, ALConstants.AL_MAX_GAIN, result, 0);
 
         return result[0];
     }
@@ -259,8 +260,8 @@ public final class Source {
      *
      * @param coneOuterGain the gain when outside the oriented cone.
      */
-    public void setConeOuterGain(float coneOuterGain) {
-        al.alSourcef(sourceID, AL.AL_CONE_OUTER_GAIN, coneOuterGain);
+    public void setConeOuterGain(final float coneOuterGain) {
+        al.alSourcef(sourceID, ALConstants.AL_CONE_OUTER_GAIN, coneOuterGain);
     }
 
     /**
@@ -269,8 +270,8 @@ public final class Source {
      * @return the gain when outside the oriented cone.
      */
     public float getConeOuterGain() {
-        float[] result = new float[1];
-        al.alGetSourcef(sourceID, AL.AL_CONE_OUTER_GAIN, result, 0);
+        final float[] result = new float[1];
+        al.alGetSourcef(sourceID, ALConstants.AL_CONE_OUTER_GAIN, result, 0);
 
         return result[0];
     }
@@ -281,10 +282,10 @@ public final class Source {
      * @param position a Vec3f object containing the x,y,z position of the
      * source.
      */
-    public void setPosition(Vec3f position) {
+    public void setPosition(final Vec3f position) {
         al.alSource3f(
             sourceID,
-            AL.AL_POSITION,
+            ALConstants.AL_POSITION,
             position.v1,
             position.v2,
             position.v3);
@@ -297,8 +298,8 @@ public final class Source {
      * @param y the y position of the source.
      * @param z the z position of the source.
      */
-    public void setPosition(float x, float y, float z) {
-        al.alSource3f(sourceID, AL.AL_POSITION, x, y, z);
+    public void setPosition(final float x, final float y, final float z) {
+        al.alSource3f(sourceID, ALConstants.AL_POSITION, x, y, z);
     }
 
     /**
@@ -309,8 +310,8 @@ public final class Source {
      */
     public Vec3f getPosition() {
         Vec3f result = null;
-        float[] pos = new float[3];
-        al.alGetSourcefv(sourceID, AL.AL_POSITION, pos, 0);
+        final float[] pos = new float[3];
+        al.alGetSourcefv(sourceID, ALConstants.AL_POSITION, pos, 0);
         result = new Vec3f(pos[0], pos[1], pos[2]);
 
         return result;
@@ -321,10 +322,10 @@ public final class Source {
      *
      * @param velocity the velocity vector of the source
      */
-    public void setVelocity(Vec3f velocity) {
+    public void setVelocity(final Vec3f velocity) {
         al.alSource3f(
             sourceID,
-            AL.AL_VELOCITY,
+            ALConstants.AL_VELOCITY,
             velocity.v1,
             velocity.v2,
             velocity.v3);
@@ -337,8 +338,8 @@ public final class Source {
      * @param y the y velocity of the source.
      * @param z the z velocity of the source.
      */
-    public void setVelocity(float x, float y, float z) {
-        al.alSource3f(sourceID, AL.AL_VELOCITY, x, y, z);
+    public void setVelocity(final float x, final float y, final float z) {
+        al.alSource3f(sourceID, ALConstants.AL_VELOCITY, x, y, z);
     }
 
     /**
@@ -348,8 +349,8 @@ public final class Source {
      */
     public Vec3f getVelocity() {
         Vec3f result = null;
-        float[] vel = new float[3];
-        al.alGetSourcefv(sourceID, AL.AL_VELOCITY, vel, 0);
+        final float[] vel = new float[3];
+        al.alGetSourcefv(sourceID, ALConstants.AL_VELOCITY, vel, 0);
         result = new Vec3f(vel[0], vel[1], vel[2]);
 
         return result;
@@ -360,10 +361,10 @@ public final class Source {
      *
      * @param direction the direction vector of the source.
      */
-    public void setDirection(Vec3f direction) {
+    public void setDirection(final Vec3f direction) {
         al.alSource3f(
             sourceID,
-            AL.AL_DIRECTION,
+            ALConstants.AL_DIRECTION,
             direction.v1,
             direction.v2,
             direction.v3);
@@ -376,8 +377,8 @@ public final class Source {
      * @param y the y direction of the source.
      * @param z the z direction of the source.
      */
-    public void setDirection(float x, float y, float z) {
-        al.alSource3f(sourceID, AL.AL_DIRECTION, x, y, z);
+    public void setDirection(final float x, final float y, final float z) {
+        al.alSource3f(sourceID, ALConstants.AL_DIRECTION, x, y, z);
     }
 
     /**
@@ -387,80 +388,80 @@ public final class Source {
      */
     public Vec3f getDirection() {
         Vec3f result = null;
-        float[] dir = new float[3];
-        al.alGetSourcefv(sourceID, AL.AL_DIRECTION, dir, 0);
+        final float[] dir = new float[3];
+        al.alGetSourcefv(sourceID, ALConstants.AL_DIRECTION, dir, 0);
         result = new Vec3f(dir[0], dir[1], dir[2]);
 
         return result;
     }
 
     /**
-     * Determines if the position of the source is relative to the listener. 
+     * Determines if the position of the source is relative to the listener.
      * The default is false.
      * @param isRelative true if the position of the source is relative
-     * to the listener, false if the position of the source is relative to the 
+     * to the listener, false if the position of the source is relative to the
      * world.
      */
-    public void setSourceRelative(boolean isRelative) {
-        int rel = isRelative ? 1 : 0;
-        al.alSourcei(sourceID, AL.AL_SOURCE_RELATIVE, rel);
+    public void setSourceRelative(final boolean isRelative) {
+        final int rel = isRelative ? 1 : 0;
+        al.alSourcei(sourceID, ALConstants.AL_SOURCE_RELATIVE, rel);
     }
 
     /**
-     * Determines if the position of the source is relative to the listener. 
+     * Determines if the position of the source is relative to the listener.
      * The default is false.
      * @return true if the position of the source is relative
-     * to the listener, false if the position of the source is relative to the 
+     * to the listener, false if the position of the source is relative to the
      * world.
      */
     public boolean isSourceRelative() {
-        int[] result = new int[1];
-        al.alGetSourcei(sourceID, AL.AL_SOURCE_RELATIVE, result, 0);
+        final int[] result = new int[1];
+        al.alGetSourcei(sourceID, ALConstants.AL_SOURCE_RELATIVE, result, 0);
 
         return result[0] == 1;
     }
 
     /**
-     * turns looping on or off. 
+     * turns looping on or off.
      *
      * @param isLooping true-looping is on, false-looping is off
      */
-    public void setLooping(boolean isLooping) {
-        int loop = isLooping ? 1 : 0;
-        al.alSourcei(sourceID, AL.AL_LOOPING, loop);
+    public void setLooping(final boolean isLooping) {
+        final int loop = isLooping ? 1 : 0;
+        al.alSourcei(sourceID, ALConstants.AL_LOOPING, loop);
     }
 
     /**
-     * indicates whether looping is turned on or off. 
+     * indicates whether looping is turned on or off.
      *
      * @return true-looping is on, false-looping is off
      */
     public boolean getLooping() {
-        boolean result = false;
-        int[] tmp = new int[1];
-        al.alGetSourcei(sourceID, AL.AL_LOOPING, tmp, 0);
-        return tmp[0] == AL.AL_TRUE;
+        final boolean result = false;
+        final int[] tmp = new int[1];
+        al.alGetSourcei(sourceID, ALConstants.AL_LOOPING, tmp, 0);
+        return tmp[0] == ALConstants.AL_TRUE;
     }
 
-    
+
     /**
-     * Gets the number of buffers currently queued on this source. 
+     * Gets the number of buffers currently queued on this source.
      * @return the number of buffers currently queued on this source.
      */
     public int getBuffersQueued() {
-        int[] result = new int[1];
-        al.alGetSourcei(sourceID, AL.AL_BUFFERS_QUEUED, result, 0);
+        final int[] result = new int[1];
+        al.alGetSourcei(sourceID, ALConstants.AL_BUFFERS_QUEUED, result, 0);
 
         return result[0];
     }
 
     /**
-     * Gets the number of buffers already processed on this source. 
+     * Gets the number of buffers already processed on this source.
      * @return the number of buffers already processed on this source.
      */
     public int getBuffersProcessed() {
-        int[] result = new int[1];
-        al.alGetSourcei(sourceID, AL.AL_BUFFERS_PROCESSED, result, 0);
+        final int[] result = new int[1];
+        al.alGetSourcei(sourceID, ALConstants.AL_BUFFERS_PROCESSED, result, 0);
 
         return result[0];
     }
@@ -470,8 +471,8 @@ public final class Source {
      *
      * @param buffer the buffer associated with this source
      */
-    public void setBuffer(Buffer buffer) {
-        al.alSourcei(sourceID, AL.AL_BUFFER, buffer.bufferID);
+    public void setBuffer(final Buffer buffer) {
+        al.alSourcei(sourceID, ALConstants.AL_BUFFER, buffer.bufferID);
         this.buffer = buffer;
     }
 
@@ -485,14 +486,14 @@ public final class Source {
     }
 
     /**
-     * Queues one or more buffers on a source. Useful for streaming audio, 
+     * Queues one or more buffers on a source. Useful for streaming audio,
      * buffers will be played in the order they are queued.
      *
      * @param buffers a set of initialized (loaded) buffers.
      */
-    public void queueBuffers(Buffer[] buffers) {
-        int numBuffers = buffers.length;
-        int[] arr = new int[numBuffers];
+    public void queueBuffers(final Buffer[] buffers) {
+        final int numBuffers = buffers.length;
+        final int[] arr = new int[numBuffers];
 
         for (int i = 0; i < numBuffers; i++) {
             arr[i] = buffers[i].bufferID;
@@ -506,9 +507,9 @@ public final class Source {
      *
      * @param buffers a set of previously queued buffers.
      */
-    public void unqueueBuffers(Buffer[] buffers) {
-        int numBuffers = buffers.length;
-        int[] arr = new int[numBuffers];
+    public void unqueueBuffers(final Buffer[] buffers) {
+        final int numBuffers = buffers.length;
+        final int[] arr = new int[numBuffers];
 
         for (int i = 0; i < numBuffers; i++) {
             arr[i] = buffers[i].bufferID;

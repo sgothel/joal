@@ -61,9 +61,9 @@ public class WAVLoader {
      * @throws IOException If the file can no be found or some other IO error
      *                     occurs
      */
-    public static WAVData loadFromFile(String filename) throws ALException, IOException {
-        File soundFile = new File(filename);
-        InputStream is = new FileInputStream(soundFile);
+    public static WAVData loadFromFile(final String filename) throws ALException, IOException {
+        final File soundFile = new File(filename);
+        final InputStream is = new FileInputStream(soundFile);
         return loadFromStreamImpl(is);
     }
 
@@ -78,7 +78,7 @@ public class WAVLoader {
      * @throws IOException If the file can no be found or some other IO error
      *                     occurs
      */
-    public static WAVData loadFromStream(InputStream stream) throws ALException, IOException {
+    public static WAVData loadFromStream(final InputStream stream) throws ALException, IOException {
         return loadFromStreamImpl(stream);
     }
 
@@ -89,7 +89,7 @@ public class WAVLoader {
     private static final int FMT  = 0x666D7420;
     private static final int DATA = 0x64617461;
 
-    private static WAVData loadFromStreamImpl(InputStream aIn) throws ALException, IOException {
+    private static WAVData loadFromStreamImpl(final InputStream aIn) throws ALException, IOException {
     	/**
     	 * references:
     	 * http://www.sonicspot.com/guide/wavefiles.html
@@ -125,7 +125,7 @@ public class WAVLoader {
 		    long chunkLength = 0;
 
 			while (!foundData) {
-				int chunkId = (int)bs.readUInt32(true /* msbFirst */, true /* bigEndian */);
+				final int chunkId = (int)bs.readUInt32(true /* msbFirst */, true /* bigEndian */);
 				chunkLength = bs.readUInt32(true /* msbFirst */, bigEndian);
 				switch (chunkId) {
 				case FMT:

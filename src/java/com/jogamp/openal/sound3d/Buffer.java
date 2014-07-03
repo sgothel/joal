@@ -4,17 +4,17 @@
 * Redistribution and use in source and binary forms, with or without
 * modification, are permitted provided that the following conditions are met:
 *
-* -Redistribution of source code must retain the above copyright notice, 
+* -Redistribution of source code must retain the above copyright notice,
 * this list of conditions and the following disclaimer.
 *
-* -Redistribution in binary form must reproduce the above copyright notice, 
+* -Redistribution in binary form must reproduce the above copyright notice,
 * this list of conditions and the following disclaimer in the documentation
 * and/or other materials provided with the distribution.
 *
-* Neither the name of Sun Microsystems, Inc. or the names of contributors may 
-* be used to endorse or promote products derived from this software without 
+* Neither the name of Sun Microsystems, Inc. or the names of contributors may
+* be used to endorse or promote products derived from this software without
 * specific prior written permission.
-* 
+*
 * This software is provided "AS IS," without a warranty of any kind.
 * ALL EXPRESS OR IMPLIED CONDITIONS, REPRESENTATIONS AND WARRANTIES, INCLUDING
 * ANY IMPLIED WARRANTY OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE OR
@@ -34,6 +34,7 @@
 package com.jogamp.openal.sound3d;
 
 import com.jogamp.openal.AL;
+import com.jogamp.openal.ALConstants;
 
 import java.nio.ByteBuffer;
 
@@ -54,10 +55,10 @@ public class Buffer {
     public final static int FORMAT_STEREO16 = AL.AL_FORMAT_STEREO16;
     final int bufferID;
     private ByteBuffer data;
-    private boolean isConfigured = false;
+    private final boolean isConfigured = false;
     private final AL al;
 
-    Buffer(AL al, int bufferID) {
+    Buffer(final AL al, final int bufferID) {
         this.bufferID = bufferID;
         this.al = al;
     }
@@ -70,7 +71,7 @@ public class Buffer {
      *        FORMAT_STEREO8</code> and <code>FORMAT_STEREO16</code>
      * @param freq the frequency of the data
      */
-    public void configure(ByteBuffer data, int format, int freq) {
+    public void configure(final ByteBuffer data, final int format, final int freq) {
         if (!isConfigured) {
             this.data = data;
             al.alBufferData(bufferID, format, data, data.capacity(), freq);
@@ -91,8 +92,8 @@ public class Buffer {
      * @return the bit-depth of the data
      */
     public int getBitDepth() {
-        int[] i = new int[1];
-        al.alGetBufferi(bufferID, AL.AL_BITS, i, 0);
+        final int[] i = new int[1];
+        al.alGetBufferi(bufferID, ALConstants.AL_BITS, i, 0);
 
         return i[0];
     }
@@ -103,8 +104,8 @@ public class Buffer {
      * @return the number of audio channels.
      */
     public int getNumChannels() {
-        int[] i = new int[1];
-        al.alGetBufferi(bufferID, AL.AL_CHANNELS, i, 0);
+        final int[] i = new int[1];
+        al.alGetBufferi(bufferID, ALConstants.AL_CHANNELS, i, 0);
 
         return i[0];
     }
@@ -124,8 +125,8 @@ public class Buffer {
      * @return the frequency of the data
      */
     public int getFrequency() {
-        int[] i = new int[1];
-        al.alGetBufferi(bufferID, AL.AL_FREQUENCY, i, 0);
+        final int[] i = new int[1];
+        al.alGetBufferi(bufferID, ALConstants.AL_FREQUENCY, i, 0);
 
         return i[0];
     }
@@ -136,8 +137,8 @@ public class Buffer {
      * @return the size of the data.
      */
     public int getSize() {
-        int[] i = new int[1];
-        al.alGetBufferi(bufferID, AL.AL_SIZE, i, 0);
+        final int[] i = new int[1];
+        al.alGetBufferi(bufferID, ALConstants.AL_SIZE, i, 0);
 
         return i[0];
     }

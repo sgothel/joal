@@ -4,17 +4,17 @@
 * Redistribution and use in source and binary forms, with or without
 * modification, are permitted provided that the following conditions are met:
 *
-* -Redistribution of source code must retain the above copyright notice, 
+* -Redistribution of source code must retain the above copyright notice,
 * this list of conditions and the following disclaimer.
 *
-* -Redistribution in binary form must reproduce the above copyright notice, 
+* -Redistribution in binary form must reproduce the above copyright notice,
 * this list of conditions and the following disclaimer in the documentation
 * and/or other materials provided with the distribution.
 *
-* Neither the name of Sun Microsystems, Inc. or the names of contributors may 
-* be used to endorse or promote products derived from this software without 
+* Neither the name of Sun Microsystems, Inc. or the names of contributors may
+* be used to endorse or promote products derived from this software without
 * specific prior written permission.
-* 
+*
 * This software is provided "AS IS," without a warranty of any kind.
 * ALL EXPRESS OR IMPLIED CONDITIONS, REPRESENTATIONS AND WARRANTIES, INCLUDING
 * ANY IMPLIED WARRANTY OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE OR
@@ -56,15 +56,15 @@ public interface EAXConstants {
     public final static int DSPROPERTY_EAXLISTENER_ENVIRONMENTDIFFUSION = 13;
     public final static int DSPROPERTY_EAXLISTENER_AIRABSORPTIONHF      = 14;
     public final static int DSPROPERTY_EAXLISTENER_FLAGS                = 15;
-    
-//     OR these flags with property id // 
+
+//     OR these flags with property id //
     /** changes take effect immediately */
     public static final int DSPROPERTY_EAXLISTENER_IMMEDIATE  = 0x00000000;
 
     /** changes take effect later */
     public static final int DSPROPERTY_EAXLISTENER_DEFERRED   = 0x80000000;
 
-    public static final int DSPROPERTY_EAXLISTENER_COMMITDEFERREDSETTINGS = 
+    public static final int DSPROPERTY_EAXLISTENER_COMMITDEFERREDSETTINGS =
             DSPROPERTY_EAXLISTENER_NONE |
             DSPROPERTY_EAXLISTENER_IMMEDIATE;
 
@@ -125,15 +125,15 @@ public interface EAXConstants {
 
 //     These flags determine what properties are affected by environment size.
     /**  reverberation decay time */
-    public final static int EAXLISTENERFLAGS_DECAYTIMESCALE        = 0x00000001; 
+    public final static int EAXLISTENERFLAGS_DECAYTIMESCALE        = 0x00000001;
     /**  reflection level */
     public final static int EAXLISTENERFLAGS_REFLECTIONSSCALE      = 0x00000002;
     /**  initial reflection delay time */
-    public final static int EAXLISTENERFLAGS_REFLECTIONSDELAYSCALE = 0x00000004; 
+    public final static int EAXLISTENERFLAGS_REFLECTIONSDELAYSCALE = 0x00000004;
     /**  reflections level */
-    public final static int EAXLISTENERFLAGS_REVERBSCALE           = 0x00000008; 
+    public final static int EAXLISTENERFLAGS_REVERBSCALE           = 0x00000008;
     /**  late reverberation delay time */
-    public final static int EAXLISTENERFLAGS_REVERBDELAYSCALE      = 0x00000010; 
+    public final static int EAXLISTENERFLAGS_REVERBDELAYSCALE      = 0x00000010;
 
     /** This flag limits high-frequency decay time according to air absorption.*/
     public final static int EAXLISTENERFLAGS_DECAYHFLIMIT          = 0x00000020;
@@ -194,9 +194,9 @@ public interface EAXConstants {
     public final static float EAXLISTENER_MAXAIRABSORPTIONHF          = 0.0f;
     public final static float EAXLISTENER_DEFAULTAIRABSORPTIONHF      = -5.0f;
 
-    public final static int EAXLISTENER_DEFAULTFLAGS = 
-                                       EAXLISTENERFLAGS_DECAYTIMESCALE |      
-                                       EAXLISTENERFLAGS_REFLECTIONSSCALE |    
+    public final static int EAXLISTENER_DEFAULTFLAGS =
+                                       EAXLISTENERFLAGS_DECAYTIMESCALE |
+                                       EAXLISTENERFLAGS_REFLECTIONSSCALE |
                                        EAXLISTENERFLAGS_REFLECTIONSDELAYSCALE |
                                        EAXLISTENERFLAGS_REVERBSCALE |
                                        EAXLISTENERFLAGS_REVERBDELAYSCALE |
@@ -221,9 +221,9 @@ public interface EAXConstants {
 //     OR these flags with property id
     /**  changes take effect immediately */
     public final static int DSPROPERTY_EAXBUFFER_IMMEDIATE = 0x00000000;
-    /** changes take effect later */ 
+    /** changes take effect later */
     public final static int DSPROPERTY_EAXBUFFER_DEFERRED  = 0x80000000;
-    public final static int DSPROPERTY_EAXBUFFER_COMMITDEFERREDSETTINGS = 
+    public final static int DSPROPERTY_EAXBUFFER_COMMITDEFERREDSETTINGS =
             DSPROPERTY_EAXBUFFER_NONE |
             DSPROPERTY_EAXBUFFER_IMMEDIATE;
 
@@ -239,7 +239,7 @@ public interface EAXConstants {
 //                  myFlags = 0x00000003;
 //
     /** affects DSPROPERTY_EAXBUFFER_DIRECTHF */
-    public final static int EAXBUFFERFLAGS_DIRECTHFAUTO = 0x00000001; 
+    public final static int EAXBUFFERFLAGS_DIRECTHFAUTO = 0x00000001;
     /**  affects DSPROPERTY_EAXBUFFER_ROOM */
     public final static int EAXBUFFERFLAGS_ROOMAUTO     = 0x00000002;
     /** affects DSPROPERTY_EAXBUFFER_ROOMHF */
@@ -297,7 +297,7 @@ public interface EAXConstants {
     public final static float EAXBUFFER_MAXAIRABSORPTIONFACTOR     = 10.0f;
     public final static float EAXBUFFER_DEFAULTAIRABSORPTIONFACTOR = 1.0f;
 
-    public final static int EAXBUFFER_DEFAULTFLAGS =  
+    public final static int EAXBUFFER_DEFAULTFLAGS =
                                                 EAXBUFFERFLAGS_DIRECTHFAUTO |
                                                 EAXBUFFERFLAGS_ROOMAUTO |
                                                 EAXBUFFERFLAGS_ROOMHFAUTO;

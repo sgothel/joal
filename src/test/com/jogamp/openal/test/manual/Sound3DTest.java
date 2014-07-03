@@ -48,27 +48,27 @@ import com.jogamp.openal.test.resources.ResourceLocation;
  */
 public class Sound3DTest {
 
-    public static float lerp(float v1, float v2, float t) {
+    public static float lerp(final float v1, final float v2, final float t) {
         float result = 0;
         result = v1 + ((v2 - v1) * t);
         return result;
     }
 
-    public static void main(String[] args) throws IOException, InterruptedException, UnsupportedAudioFileException {
+    public static void main(final String[] args) throws IOException, InterruptedException, UnsupportedAudioFileException {
 
         AudioSystem3D.init();
 
         // create the initial context - this can be collapsed into the init.
-        Device device = AudioSystem3D.openDevice(null);
-        Context context = AudioSystem3D.createContext(device);
+        final Device device = AudioSystem3D.openDevice(null);
+        final Context context = AudioSystem3D.createContext(device);
         AudioSystem3D.makeContextCurrent(context);
 
         // get the listener object
-        Listener listener = AudioSystem3D.getListener();
+        final Listener listener = AudioSystem3D.getListener();
         listener.setPosition(0, 0, 0);
 
         // load a source and play it
-        Source source1 = AudioSystem3D.loadSource(ResourceLocation.getTestStream0());
+        final Source source1 = AudioSystem3D.loadSource(ResourceLocation.getTestStream0());
         source1.setPosition(0, 0, 0);
         source1.setLooping(true);
         source1.play();
@@ -80,16 +80,16 @@ public class Sound3DTest {
 
         // move the listener
         for (int i = 0; i < 1000; i++) {
-            float t = ((float) i) / 1000f;
-            float lp = lerp(0f, 2f, t);
+            final float t = (i) / 1000f;
+            final float lp = lerp(0f, 2f, t);
             listener.setPosition(lp, lp, lp);
             Thread.sleep(10);
         }
 
         // fade listener out.
         for (int i = 0; i < 1000; i++) {
-            float t = ((float) i) / 1000f;
-            float lp = lerp(1f, 0f, t);
+            final float t = (i) / 1000f;
+            final float lp = lerp(1f, 0f, t);
             listener.setGain(lp);
             Thread.sleep(10);
         }

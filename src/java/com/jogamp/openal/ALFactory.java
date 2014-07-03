@@ -39,6 +39,7 @@ import jogamp.openal.ALImpl;
 import jogamp.openal.Debug;
 
 import com.jogamp.common.os.Platform;
+import com.jogamp.common.util.PropertyAccess;
 
 /**
  * This class provides factory methods for generating AL and ALC objects.
@@ -65,7 +66,7 @@ public class ALFactory {
 
   static {
       Platform.initSingleton();
-      final String choice = Debug.getProperty("joal.openal.lib", true);
+      final String choice = PropertyAccess.getProperty("joal.openal.lib", true);
       boolean useSystem = false; // default on all systems
       if( null != choice ) {
           if( choice.equals("system") ) {
@@ -95,9 +96,9 @@ public class ALFactory {
             System.err.println("AL initialized");
         }
       }
-    } catch (UnsatisfiedLinkError e) {
+    } catch (final UnsatisfiedLinkError e) {
       throw new ALException(e);
-    } catch (ExceptionInInitializerError er) {
+    } catch (final ExceptionInInitializerError er) {
 	  throw new ALException(er);
     }
   }

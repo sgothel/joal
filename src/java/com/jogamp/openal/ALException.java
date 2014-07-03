@@ -4,17 +4,17 @@
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  *
- * -Redistribution of source code must retain the above copyright notice, 
+ * -Redistribution of source code must retain the above copyright notice,
  * this list of conditions and the following disclaimer.
  *
- * -Redistribution in binary form must reproduce the above copyright notice, 
+ * -Redistribution in binary form must reproduce the above copyright notice,
  * this list of conditions and the following disclaimer in the documentation
  * and/or other materials provided with the distribution.
  *
- * Neither the name of Sun Microsystems, Inc. or the names of contributors may 
- * be used to endorse or promote products derived from this software without 
+ * Neither the name of Sun Microsystems, Inc. or the names of contributors may
+ * be used to endorse or promote products derived from this software without
  * specific prior written permission.
- * 
+ *
  * This software is provided "AS IS," without a warranty of any kind.
  * ALL EXPRESS OR IMPLIED CONDITIONS, REPRESENTATIONS AND WARRANTIES, INCLUDING
  * ANY IMPLIED WARRANTY OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE OR
@@ -44,19 +44,19 @@ public class ALException extends RuntimeException {
 
   /** Constructs an ALException object with the specified detail
       message. */
-  public ALException(String message) {
+  public ALException(final String message) {
     super(message);
   }
 
   /** Constructs an ALException object with the specified detail
       message and root cause. */
-  public ALException(String message, Throwable cause) {
+  public ALException(final String message, final Throwable cause) {
     super(message, cause);
   }
 
   /** Constructs an ALException object with the specified root
       cause. */
-  public ALException(Throwable cause) {
+  public ALException(final Throwable cause) {
     super(cause);
   }
 }

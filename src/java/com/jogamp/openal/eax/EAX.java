@@ -39,10 +39,10 @@ import java.nio.Buffer;
  *
  */
 public class EAX implements EAXConstants {
-    
+
     public static final int SOURCE = 0;
     public static final int LISTENER = 1;
-    
+
     private final int sourceGUID;
     private final int listenerGUID;
 
@@ -50,7 +50,7 @@ public class EAX implements EAXConstants {
      * @param sourceGUID
      * @param listenerGUID
      */
-    EAX(int sourceGUID, int listenerGUID) {
+    EAX(final int sourceGUID, final int listenerGUID) {
          this.sourceGUID = sourceGUID;
          this.listenerGUID = listenerGUID;
     }
@@ -60,9 +60,9 @@ public class EAX implements EAXConstants {
      * <br>
      * <b>Interface to C Language function:</b>
      * <pre>ALenum EAXSet(const struct _GUID *propertySetID, ALuint property, ALuint source, ALvoid *value, ALuint size)</pre>
-     * 
+     *
      * @param objectFlag a flag indicating a LISTENER or a SOURCE
-     * @param pname the property being set 
+     * @param pname the property being set
      * @param source the ID of the source, or 0 for Listener properties
      * @param value a direct Buffer to hold the value retrieved
      * @param size the size of the Buffer
@@ -74,9 +74,9 @@ public class EAX implements EAXConstants {
      * <br>
      * <b>Interface to C Language function:</b>
      * <pre>ALenum EAXGet(const struct _GUID *propertySetID, ALuint property, ALuint source, ALvoid *value, ALuint size)</pre>
-     * 
+     *
      * @param objectFlag a flag indicating a LISTENER or a SOURCE
-     * @param pname the property being queried 
+     * @param pname the property being queried
      * @param source the ID of the source, or 0 for Listener properties
      * @param value a direct Buffer to hold the value retrieved
      * @param size the size of the Buffer
@@ -84,40 +84,40 @@ public class EAX implements EAXConstants {
     public native void EAXGet(int objectFlag, int pname, int source, Buffer value, int size);
 
     /**
-     * This method sets a source property. 
+     * This method sets a source property.
      * @param sourceID the ID of the source whose property is being set.
      * @param pname the name of the property being set
      * @param value a direct Buffer containing the value to be set
      */
-    public void setSourceProperty(int sourceID, int pname, Buffer value) {
+    public void setSourceProperty(final int sourceID, final int pname, final Buffer value) {
         EAXSet(sourceGUID, pname, sourceID, value, value.capacity());
     }
 
     /**
-     * This method retrieves a source property. 
+     * This method retrieves a source property.
      * @param sourceID the ID of the source whose property is being retrieved.
      * @param pname the name of the property being retrieved
      * @param value a direct Buffer to hold the value to be retrieved
      */
-    public void getSourceProperty(int pname, int sourceID, Buffer value) {
+    public void getSourceProperty(final int pname, final int sourceID, final Buffer value) {
         EAXGet(sourceGUID, pname, sourceID, value, value.capacity());
     }
 
     /**
-     * This method sets a Listener property. 
+     * This method sets a Listener property.
      * @param pname the name of the property being set
      * @param value a direct Buffer containing the value to be set
      */
-    public void setListenerProperty(int pname, Buffer value) {
+    public void setListenerProperty(final int pname, final Buffer value) {
         EAXSet(listenerGUID, pname, 0, value, value.capacity());
     }
 
     /**
-     * This method retrieves a Listener property. 
+     * This method retrieves a Listener property.
      * @param pname the name of the property being retrieved
      * @param value a direct Buffer to hold the value to be retrieved
      */
-    public void getListenerProperty(int pname, Buffer value) {
+    public void getListenerProperty(final int pname, final Buffer value) {
         EAXGet(listenerGUID, pname, 0, value, value.capacity());
     }
 }

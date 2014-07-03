@@ -48,18 +48,18 @@ public class ALHelpers {
      * AL sample type. If <code>hasSOFTBufferSamples</code> is true,
      * it will be called to find the closest-matching format from
      * <code>AL_SOFT_buffer_samples</code>.
-     * <p> 
+     * <p>
      * Returns {@link ALConstants#AL_NONE} if no supported format can be found.
-     * </p> 
-     * 
+     * </p>
+     *
      * @param alChannelLayout AL channel layout, see {@link #getDefaultALChannelLayout(int)}
      * @param alSampleType AL sample type, see {@link #getALSampleType(int, boolean, boolean)}.
-     * @param hasSOFTBufferSamples true if having extension <code>AL_SOFT_buffer_samples</code>, otherwise false 
+     * @param hasSOFTBufferSamples true if having extension <code>AL_SOFT_buffer_samples</code>, otherwise false
      * @param al AL instance
      * @param alExt ALExt instance
      * @return AL buffer format
      */
-    public static final int getALFormat(final int alChannelLayout, final int alSampleType, 
+    public static final int getALFormat(final int alChannelLayout, final int alSampleType,
                                         final boolean hasSOFTBufferSamples, final AL al, final ALExt alExt) {
         int format = AL_NONE;
 
@@ -226,7 +226,7 @@ public class ALHelpers {
      * @param fixedP true for fixed point value, false for floating point value with a sampleSize of 32 (float) or 64 (double)
      */
     public static final int getDefaultALChannelLayout(final int channelCount) {
-        switch(channelCount) { 
+        switch(channelCount) {
             case 1: return AL_MONO_SOFT;
             case 2: return AL_STEREO_SOFT;
             // case 2: return AL_REAR_SOFT;
@@ -237,12 +237,12 @@ public class ALHelpers {
         }
         return AL_NONE;
     }
-    
+
     /**
      * Returns the readable name of the given AL channel layout
      */
     public static final String alChannelLayoutName(final int alChannelLayout) {
-        switch(alChannelLayout) { 
+        switch(alChannelLayout) {
             case AL_MONO_SOFT: return "Mono";
             case AL_STEREO_SOFT: return "Stereo";
             case AL_REAR_SOFT: return "Rear";
@@ -260,7 +260,7 @@ public class ALHelpers {
      * @param signed true if signed number, false for unsigned
      * @param fixedP true for fixed point value, false for floating point value with a sampleSize of 32 (float) or 64 (double)
      */
-    public static final int getALSampleType(final int sampleSize, boolean signed, boolean fixedP) {
+    public static final int getALSampleType(final int sampleSize, final boolean signed, final boolean fixedP) {
         if( fixedP ) {
             if( signed ) {
                 switch( sampleSize ) {
@@ -281,11 +281,11 @@ public class ALHelpers {
                     case 32: return AL_FLOAT_SOFT;
                     case 64: return AL_DOUBLE_SOFT;
                 }
-            }            
+            }
         }
         return AL_NONE;
     }
-    
+
     /**
      * Returns the readable name of the given AL sample type
      */
@@ -304,22 +304,22 @@ public class ALHelpers {
     }
 
     /**
-     * Returns the byte size of the given AL sample type 
+     * Returns the byte size of the given AL sample type
      * @throws IllegalArgumentException for unknown <code>alChannelLayout</code> or <code>alSampleType</code> values.
      */
     public static final int sizeOfALSampleType(final int alSampleType) throws IllegalArgumentException {
         switch(alSampleType) {
-            case AL_BYTE_SOFT:           
-            case AL_UNSIGNED_BYTE_SOFT:  
+            case AL_BYTE_SOFT:
+            case AL_UNSIGNED_BYTE_SOFT:
                 return 1;
-            case AL_SHORT_SOFT:          
-            case AL_UNSIGNED_SHORT_SOFT: 
+            case AL_SHORT_SOFT:
+            case AL_UNSIGNED_SHORT_SOFT:
                 return 2;
-            case AL_INT_SOFT:            
+            case AL_INT_SOFT:
             case AL_UNSIGNED_INT_SOFT:
-            case AL_FLOAT_SOFT:          
+            case AL_FLOAT_SOFT:
                 return 4;
-            case AL_DOUBLE_SOFT:         
+            case AL_DOUBLE_SOFT:
                 return 8;
             default:
                 throw new IllegalArgumentException("Unknown al-type 0x"+Integer.toHexString(alSampleType));
@@ -349,19 +349,19 @@ public class ALHelpers {
 
         switch(alSampleType) {
             case AL_BYTE_SOFT:
-            case AL_UNSIGNED_BYTE_SOFT:  
+            case AL_UNSIGNED_BYTE_SOFT:
                 break;
             case AL_SHORT_SOFT:
-            case AL_UNSIGNED_SHORT_SOFT: 
-                sampleCount *= 2; 
+            case AL_UNSIGNED_SHORT_SOFT:
+                sampleCount *= 2;
                 break;
             case AL_INT_SOFT:
             case AL_UNSIGNED_INT_SOFT:
-            case AL_FLOAT_SOFT:          
-                sampleCount *= 4; 
+            case AL_FLOAT_SOFT:
+                sampleCount *= 4;
                 break;
-            case AL_DOUBLE_SOFT:         
-                sampleCount *= 8; 
+            case AL_DOUBLE_SOFT:
+                sampleCount *= 8;
                 break;
             default:
                 throw new IllegalArgumentException("Unknown al-type 0x"+Integer.toHexString(alSampleType));

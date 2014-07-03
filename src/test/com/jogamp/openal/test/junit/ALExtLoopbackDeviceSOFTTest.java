@@ -12,6 +12,9 @@ import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
+import com.jogamp.openal.ALCConstants;
+import com.jogamp.openal.ALConstants;
+import com.jogamp.openal.ALExtConstants;
 import com.jogamp.openal.ALFactory;
 import com.jogamp.openal.AL;
 import com.jogamp.openal.ALC;
@@ -37,12 +40,12 @@ public class ALExtLoopbackDeviceSOFTTest extends UITestCase {
         testAlCLoopbackDeviceSOFTImpl(3, 0.8f);
     }
 
-    void testAlCLoopbackDeviceSOFTImpl(int srcIdx, float expAccuracy) throws UnsupportedAudioFileException, IOException {
+    void testAlCLoopbackDeviceSOFTImpl(final int srcIdx, final float expAccuracy) throws UnsupportedAudioFileException, IOException {
     	final ALC alc = ALFactory.getALC();
         final AL al = ALFactory.getAL();
         final ALExt alext = ALFactory.getALExt();
 
-        System.out.println("Available null device OpenAL Extensions:"+alc.alcGetString(null, ALC.ALC_EXTENSIONS));
+        System.out.println("Available null device OpenAL Extensions:"+alc.alcGetString(null, ALCConstants.ALC_EXTENSIONS));
         if ( !alc.alcIsExtensionPresent(null, "ALC_SOFT_loopback") ) {
             System.out.println("No extension ALC_SOFT_loopback present");
             return;
@@ -52,15 +55,15 @@ public class ALExtLoopbackDeviceSOFTTest extends UITestCase {
         final boolean useShort;
         if( 0 == srcIdx ) {
             inputStream = ResourceLocation.getTestStream0();
-            fmtChannels = ALExt.AL_MONO_SOFT;
-            fmtData = ALExt.AL_BYTE_SOFT;
+            fmtChannels = ALExtConstants.AL_MONO_SOFT;
+            fmtData = ALExtConstants.AL_BYTE_SOFT;
             sampleSize = 8;
             channelCount = 1;
             useShort = false;
         } else if( 3 == srcIdx ) {
             inputStream = ResourceLocation.getTestStream3();
-            fmtChannels = ALExt.AL_STEREO_SOFT;
-            fmtData = ALExt.AL_SHORT_SOFT;
+            fmtChannels = ALExtConstants.AL_STEREO_SOFT;
+            fmtData = ALExtConstants.AL_SHORT_SOFT;
             sampleSize = 16;
             channelCount = 2;
             useShort = true;
@@ -99,18 +102,18 @@ public class ALExtLoopbackDeviceSOFTTest extends UITestCase {
                 Assert.assertTrue("Not supported: "+msg, supported);
 
                 context = alc.alcCreateContext(dev, new int[]{
-                        ALExt.ALC_FORMAT_CHANNELS_SOFT,
+                        ALExtConstants.ALC_FORMAT_CHANNELS_SOFT,
                         fmtChannels,
-                        ALExt.ALC_FORMAT_TYPE_SOFT,
+                        ALExtConstants.ALC_FORMAT_TYPE_SOFT,
                         fmtData,
-                        ALC.ALC_FREQUENCY,
+                        ALCConstants.ALC_FREQUENCY,
                         wd.freq,
                         0
                     }, 0);
 
                 final int alcDevError = alc.alcGetError(dev);
                 System.err.printf("CreatedSoftContext: alcError 0x%X, context %s%n", alcDevError, context);
-            } catch (Exception e) {
+            } catch (final Exception e) {
                 ex = e;
             }
             assertNull(ex);
@@ -120,26 +123,26 @@ public class ALExtLoopbackDeviceSOFTTest extends UITestCase {
             try {
                 final int dataSize = Math.min(4096, wd.size);
 
-                int[] source = { 0 };
+                final int[] source = { 0 };
                 al.alGenSources(1, source, 0);
-                assertEquals("Could not gen source", AL.AL_NO_ERROR, al.alGetError());
+                assertEquals("Could not gen source", ALConstants.AL_NO_ERROR, al.alGetError());
 
                 final int[] buffer = new int[1];
                 final int[] tmp = new int[1];
 
                 al.alGenBuffers(1, buffer, 0);
-                assertEquals("Could not generate AL buffer", AL.AL_NO_ERROR, al.alGetError());
+                assertEquals("Could not generate AL buffer", ALConstants.AL_NO_ERROR, al.alGetError());
 
                 al.alBufferData(buffer[0], wd.format, wd.data, dataSize, wd.freq);
-                assertEquals("Could not fill AL source buffer "+buffer[0]+", sz "+dataSize+", "+wd.data, AL.AL_NO_ERROR, al.alGetError());
-                al.alGetBufferi(buffer[0], AL.AL_SIZE, tmp, 0);
-                assertEquals("Could not get buffer size "+buffer[0], AL.AL_NO_ERROR, al.alGetError());
+                assertEquals("Could not fill AL source buffer "+buffer[0]+", sz "+dataSize+", "+wd.data, ALConstants.AL_NO_ERROR, al.alGetError());
+                al.alGetBufferi(buffer[0], ALConstants.AL_SIZE, tmp, 0);
+                assertEquals("Could not get buffer size "+buffer[0], ALConstants.AL_NO_ERROR, al.alGetError());
                 System.err.println("Buffer size "+tmp[0]+" of "+dataSize);
-                al.alSourcei(source[0], AL.AL_BUFFER, buffer[0]);
-                assertEquals("Could source buffer "+buffer[0], AL.AL_NO_ERROR, al.alGetError());
+                al.alSourcei(source[0], ALConstants.AL_BUFFER, buffer[0]);
+                assertEquals("Could source buffer "+buffer[0], ALConstants.AL_NO_ERROR, al.alGetError());
 
                 al.alSourcePlay(source[0]);
-                assertEquals("Could not play source "+source[0], AL.AL_NO_ERROR, al.alGetError());
+                assertEquals("Could not play source "+source[0], ALConstants.AL_NO_ERROR, al.alGetError());
 
                 final ByteBuffer bbSink = ByteBuffer.allocateDirect(dataSize).order(wd.data.order());
 
@@ -150,7 +153,7 @@ public class ALExtLoopbackDeviceSOFTTest extends UITestCase {
                 try {
                     final int samplesPerChannel = dataSize / ( ( sampleSize / 8 ) * channelCount );
                     alext.alcRenderSamplesSOFT(dev, bbSink, samplesPerChannel);
-                } catch (Exception e) {
+                } catch (final Exception e) {
                     ex = e;
                 }
                 assertNull(ex);
@@ -222,7 +225,7 @@ public class ALExtLoopbackDeviceSOFTTest extends UITestCase {
         System.out.println("end testAlCLoopbackDeviceSOFT");
     }
 
-    public static void main(String args[]) throws IOException {
+    public static void main(final String args[]) throws IOException {
         dumpSamples = true;
         org.junit.runner.JUnitCore.main(ALExtLoopbackDeviceSOFTTest.class.getName());
     }

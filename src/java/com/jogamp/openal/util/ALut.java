@@ -4,17 +4,17 @@
 * Redistribution and use in source and binary forms, with or without
 * modification, are permitted provided that the following conditions are met:
 *
-* -Redistribution of source code must retain the above copyright notice, 
+* -Redistribution of source code must retain the above copyright notice,
 * this list of conditions and the following disclaimer.
 *
-* -Redistribution in binary form must reproduce the above copyright notice, 
+* -Redistribution in binary form must reproduce the above copyright notice,
 * this list of conditions and the following disclaimer in the documentation
 * and/or other materials provided with the distribution.
 *
-* Neither the name of Sun Microsystems, Inc. or the names of contributors may 
-* be used to endorse or promote products derived from this software without 
+* Neither the name of Sun Microsystems, Inc. or the names of contributors may
+* be used to endorse or promote products derived from this software without
 * specific prior written permission.
-* 
+*
 * This software is provided "AS IS," without a warranty of any kind.
 * ALL EXPRESS OR IMPLIED CONDITIONS, REPRESENTATIONS AND WARRANTIES, INCLUDING
 * ANY IMPLIED WARRANTY OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE OR
@@ -37,6 +37,7 @@ package com.jogamp.openal.util;
 
 import java.io.*;
 import java.nio.ByteBuffer;
+
 import com.jogamp.openal.*;
 
 /**
@@ -62,12 +63,12 @@ public final class ALut {
     if (alc == null) {
       alc = ALFactory.getALC();
     }
-    String deviceName = null;
-    ALCdevice d = alc.alcOpenDevice(deviceName);
+    final String deviceName = null;
+    final ALCdevice d = alc.alcOpenDevice(deviceName);
     if (d == null) {
       throw new ALException("Error opening default OpenAL device");
     }
-    ALCcontext c = alc.alcCreateContext(d, null);
+    final ALCcontext c = alc.alcCreateContext(d, null);
     if (c == null) {
       alc.alcCloseDevice(d);
       throw new ALException("Error creating OpenAL context");
@@ -102,41 +103,41 @@ public final class ALut {
     initializingThread = null;
   }
 
-  public static void alutLoadWAVFile(String fileName,
-                                     int[] format,
-                                     ByteBuffer[] data,
-                                     int[] size,
-                                     int[] freq,
-                                     int[] loop) throws ALException {
+  public static void alutLoadWAVFile(final String fileName,
+                                     final int[] format,
+                                     final ByteBuffer[] data,
+                                     final int[] size,
+                                     final int[] freq,
+                                     final int[] loop) throws ALException {
     try {
-      WAVData wd = WAVLoader.loadFromFile(fileName);
+      final WAVData wd = WAVLoader.loadFromFile(fileName);
       format[0] = wd.format;
       data[0] = wd.data;
       size[0] = wd.size;
       freq[0] = wd.freq;
-      loop[0] = wd.loop ? AL.AL_TRUE : AL.AL_FALSE;
-    } catch (Exception e) {
+      loop[0] = wd.loop ? ALConstants.AL_TRUE : ALConstants.AL_FALSE;
+    } catch (final Exception e) {
       throw new ALException(e);
     }
   }
 
   public static void alutLoadWAVFile(InputStream stream,
-                                     int[] format,
-                                     ByteBuffer[] data,
-                                     int[] size,
-                                     int[] freq,
-                                     int[] loop) throws ALException {
+                                     final int[] format,
+                                     final ByteBuffer[] data,
+                                     final int[] size,
+                                     final int[] freq,
+                                     final int[] loop) throws ALException {
     try {
       if (!(stream instanceof BufferedInputStream)) {
         stream = new BufferedInputStream(stream);
       }
-      WAVData wd = WAVLoader.loadFromStream(stream);
+      final WAVData wd = WAVLoader.loadFromStream(stream);
       format[0] = wd.format;
       data[0] = wd.data;
       size[0] = wd.size;
       freq[0] = wd.freq;
-      loop[0] = wd.loop ? AL.AL_TRUE : AL.AL_FALSE;
-    } catch (Exception e) {
+      loop[0] = wd.loop ? ALConstants.AL_TRUE : ALConstants.AL_FALSE;
+    } catch (final Exception e) {
       throw new ALException(e);
     }
   }

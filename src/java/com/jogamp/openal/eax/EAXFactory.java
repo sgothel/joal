@@ -46,7 +46,7 @@ public final class EAXFactory {
         ALFactory.getAL();
         DEBUG = ALFactory.DEBUG;
     }
-    
+
     private static EAX eax = null;
     private static boolean eaxTried = false;
 
@@ -62,7 +62,7 @@ public final class EAXFactory {
                     System.err.println("EAX initialized");
                 }
             }
-        } catch (UnsatisfiedLinkError e) {
+        } catch (final UnsatisfiedLinkError e) {
             if(DEBUG) {
                 e.printStackTrace();
             }

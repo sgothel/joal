@@ -23,11 +23,11 @@ public class ALutWAVLoaderTest extends UITestCase {
     @Test
     public void testALutLoadWAVFileStream() throws IOException {
         // variables to load into
-        int[] format = new int[1];
-        int[] size = new int[1];
-        ByteBuffer[] data = new ByteBuffer[1];
-        int[] freq = new int[1];
-        int[] loop = new int[1];
+        final int[] format = new int[1];
+        final int[] size = new int[1];
+        final ByteBuffer[] data = new ByteBuffer[1];
+        final int[] freq = new int[1];
+        final int[] loop = new int[1];
 
         ALut.alutLoadWAVFile(ResourceLocation.getTestStream0(), format, data, size, freq, loop);
         System.out.println("*** ALut.alutLoadWAV Stream0 size "+size[0]);
@@ -41,19 +41,19 @@ public class ALutWAVLoaderTest extends UITestCase {
 
     @Test
     public void testWAVDataLoadStream() throws IOException {
-    	WAVData wd0 = WAVData.loadFromStream(ResourceLocation.getTestStream0(), ResourceLocation.getTestStream0Size(), 1, 8, 22050, ByteOrder.LITTLE_ENDIAN, true);
+    	final WAVData wd0 = WAVData.loadFromStream(ResourceLocation.getTestStream0(), ResourceLocation.getTestStream0Size(), 1, 8, 22050, ByteOrder.LITTLE_ENDIAN, true);
     	System.out.println("*** WAVData.loadFrom Stream0 size "+wd0.data.limit());
     	assertEquals(wd0.data.limit(), ResourceLocation.getTestStream0Size());
 
-        WAVData wd1 = WAVData.loadFromStream(ResourceLocation.getTestStream1(), ResourceLocation.getTestStream1Size(), 2, 16, 44100, ByteOrder.BIG_ENDIAN, true);
+        final WAVData wd1 = WAVData.loadFromStream(ResourceLocation.getTestStream1(), ResourceLocation.getTestStream1Size(), 2, 16, 44100, ByteOrder.BIG_ENDIAN, true);
         System.out.println("*** WAVData.loadFrom Stream1 size "+wd1.data.limit());
         assertEquals(wd1.data.limit(), ResourceLocation.getTestStream1Size());
 
-        WAVData wd2 = WAVData.loadFromStream(ResourceLocation.getTestStream2(), ResourceLocation.getTestStream2Size(), 2, 16, 44100, ByteOrder.LITTLE_ENDIAN, true);
+        final WAVData wd2 = WAVData.loadFromStream(ResourceLocation.getTestStream2(), ResourceLocation.getTestStream2Size(), 2, 16, 44100, ByteOrder.LITTLE_ENDIAN, true);
         System.out.println("*** WAVData.loadFrom Stream2 size "+wd2.data.limit());
         assertEquals(wd2.data.limit(), ResourceLocation.getTestStream2Size());
 
-        WAVData wd3 = WAVData.loadFromStream(ResourceLocation.getTestStream3(), ResourceLocation.getTestStream3Size(), 2, 16, 44100, ByteOrder.LITTLE_ENDIAN, true);
+        final WAVData wd3 = WAVData.loadFromStream(ResourceLocation.getTestStream3(), ResourceLocation.getTestStream3Size(), 2, 16, 44100, ByteOrder.LITTLE_ENDIAN, true);
         System.out.println("*** WAVData.loadFrom Stream3 size "+wd3.data.limit());
         assertEquals(wd3.data.limit(), ResourceLocation.getTestStream3Size());
 
@@ -61,18 +61,18 @@ public class ALutWAVLoaderTest extends UITestCase {
 
     @Test
     public void testWAVLoaderLoadStream() throws IOException {
-    	WAVData wd0 = WAVLoader.loadFromStream(ResourceLocation.getTestStream0());
+    	final WAVData wd0 = WAVLoader.loadFromStream(ResourceLocation.getTestStream0());
     	System.out.println("*** WAVLoader.loadFrom Stream0 size "+wd0.data.limit());
         Assert.assertTrue("Stream0 size "+ResourceLocation.getTestStream0Size()+" < "+wd0.data.limit(), wd0.data.limit() <= ResourceLocation.getTestStream0Size());
 
-        WAVData wd3 = WAVLoader.loadFromStream(ResourceLocation.getTestStream3());
+        final WAVData wd3 = WAVLoader.loadFromStream(ResourceLocation.getTestStream3());
         System.out.println("*** WAVLoader.loadFrom Stream3 size "+wd3.data.limit());
         Assert.assertTrue("Stream3 size "+ResourceLocation.getTestStream3Size()+" < "+wd3.data.limit()+" .. "+wd3.data, wd3.data.limit() <= ResourceLocation.getTestStream3Size());
     }
 
     // TODO test * LoadFile
 
-    public static void main(String args[]) throws IOException {
+    public static void main(final String args[]) throws IOException {
         org.junit.runner.JUnitCore.main(ALutWAVLoaderTest.class.getName());
     }
 }

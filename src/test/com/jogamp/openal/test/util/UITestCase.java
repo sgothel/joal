@@ -78,7 +78,7 @@ public abstract class UITestCase {
         return testSupported;
     }
 
-    public static void setTestSupported(boolean v) {
+    public static void setTestSupported(final boolean v) {
         System.err.println("setTestSupported: "+v);
         testSupported = v;
     }
@@ -88,7 +88,7 @@ public abstract class UITestCase {
             int ml = 0;
             final TestClass tc = new TestClass(getClass());
             final List<FrameworkMethod> testMethods = tc.getAnnotatedMethods(org.junit.Test.class);
-            for(Iterator<FrameworkMethod> iter=testMethods.iterator(); iter.hasNext(); ) {
+            for(final Iterator<FrameworkMethod> iter=testMethods.iterator(); iter.hasNext(); ) {
                 final int l = iter.next().getName().length();
                 if( ml < l ) { ml = l; }
             }
@@ -101,11 +101,11 @@ public abstract class UITestCase {
         return _unitTestName.getMethodName();
     }
 
-    public final String getSimpleTestName(String separator) {
+    public final String getSimpleTestName(final String separator) {
         return getClass().getSimpleName()+separator+getTestMethodName();
     }
 
-    public final String getFullTestName(String separator) {
+    public final String getFullTestName(final String separator) {
         return getClass().getName()+separator+getTestMethodName();
     }
 
@@ -137,12 +137,12 @@ public abstract class UITestCase {
         System.err.println("++++ UITestCase.tearDown: "+getFullTestName(" - "));
     }
 
-    public static void waitForKey(String preMessage) {
-        BufferedReader stdin = new BufferedReader(new InputStreamReader(System.in));
+    public static void waitForKey(final String preMessage) {
+        final BufferedReader stdin = new BufferedReader(new InputStreamReader(System.in));
         System.err.println(preMessage+"> Press enter to continue");
         try {
             System.err.println(stdin.readLine());
-        } catch (IOException e) { }
+        } catch (final IOException e) { }
     }
 
     static final String unsupportedTestMsg = "Test not supported on this platform.";

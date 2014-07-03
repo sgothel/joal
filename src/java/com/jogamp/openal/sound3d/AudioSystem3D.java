@@ -4,17 +4,17 @@
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  *
- * -Redistribution of source code must retain the above copyright notice, 
+ * -Redistribution of source code must retain the above copyright notice,
  * this list of conditions and the following disclaimer.
  *
- * -Redistribution in binary form must reproduce the above copyright notice, 
+ * -Redistribution in binary form must reproduce the above copyright notice,
  * this list of conditions and the following disclaimer in the documentation
  * and/or other materials provided with the distribution.
  *
- * Neither the name of Sun Microsystems, Inc. or the names of contributors may 
- * be used to endorse or promote products derived from this software without 
+ * Neither the name of Sun Microsystems, Inc. or the names of contributors may
+ * be used to endorse or promote products derived from this software without
  * specific prior written permission.
- * 
+ *
  * This software is provided "AS IS," without a warranty of any kind.
  * ALL EXPRESS OR IMPLIED CONDITIONS, REPRESENTATIONS AND WARRANTIES, INCLUDING
  * ANY IMPLIED WARRANTY OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE OR
@@ -74,9 +74,9 @@ public class AudioSystem3D {
    *
    * @return The new Sound3D context.
    */
-  public static Context createContext(Device device) {
+  public static Context createContext(final Device device) {
     Context result = null;
-    ALCcontext realContext = alc.alcCreateContext(device.realDevice, null);
+    final ALCcontext realContext = alc.alcCreateContext(device.realDevice, null);
     result = new Context(alc, realContext, device);
     return result;
   }
@@ -86,7 +86,7 @@ public class AudioSystem3D {
    *
    * @param context the context to make current.
    */
-  public static void makeContextCurrent(Context context) {
+  public static void makeContextCurrent(final Context context) {
     ALCcontext realContext = null;
 
     if (context != null) {
@@ -97,17 +97,17 @@ public class AudioSystem3D {
   }
 
   /**
-   * Opens the specifified audio device. 
+   * Opens the specifified audio device.
    *
-   * @param deviceName The specified device name, On windows this will be 
+   * @param deviceName The specified device name, On windows this will be
    * DirectSound3D. We will be automating device discovery in upcoming versions
    * of this class.
    *
    * @return The device described by the specifed name.
    */
-  public static Device openDevice(String deviceName) {
+  public static Device openDevice(final String deviceName) {
     Device result = null;
-    ALCdevice realDevice = alc.alcOpenDevice(deviceName);
+    final ALCdevice realDevice = alc.alcOpenDevice(deviceName);
     result = new Device(alc, realDevice);
 
     return result;
@@ -120,9 +120,9 @@ public class AudioSystem3D {
    *
    * @return an array of (initially enpty) Sound3D buffers.
    */
-  public static Buffer[] generateBuffers(int numBuffers) {
-    Buffer[] result = new Buffer[numBuffers];
-    int[] arr = new int[numBuffers];
+  public static Buffer[] generateBuffers(final int numBuffers) {
+    final Buffer[] result = new Buffer[numBuffers];
+    final int[] arr = new int[numBuffers];
     al.alGenBuffers(numBuffers, arr, 0);
 
     for (int i = 0; i < numBuffers; i++) {
@@ -141,17 +141,17 @@ public class AudioSystem3D {
    * specified file.
    *
    * @throws IOException If the file cannot be found or some other IO error
-   * occurs. 
+   * occurs.
    * @throws UnsupportedAudioFileException If the format of the audio data is
    * not supported
    */
-  public static Buffer loadBuffer(String filename)
+  public static Buffer loadBuffer(final String filename)
     throws IOException, UnsupportedAudioFileException {
     Buffer result;
-    Buffer[] tmp = generateBuffers(1);
+    final Buffer[] tmp = generateBuffers(1);
     result = tmp[0];
 
-    WAVData wd = WAVLoader.loadFromFile(filename);
+    final WAVData wd = WAVLoader.loadFromFile(filename);
     result.configure(wd.data, wd.format, wd.freq);
 
     return result;
@@ -166,23 +166,23 @@ public class AudioSystem3D {
    * passed stream.
    *
    * @throws IOException If the stream cannot be read or some other IO error
-   * occurs. 
+   * occurs.
    * @throws UnsupportedAudioFileException If the format of the audio data is
    * not supported
    */
   public static Buffer loadBuffer(InputStream stream)
     throws IOException, UnsupportedAudioFileException {
     Buffer result;
-    Buffer[] tmp = generateBuffers(1);
+    final Buffer[] tmp = generateBuffers(1);
     result = tmp[0];
- 
+
     if (!(stream instanceof BufferedInputStream)) {
       stream = new BufferedInputStream(stream);
     }
-    WAVData wd = WAVLoader.loadFromStream(stream);
- 
+    final WAVData wd = WAVLoader.loadFromStream(stream);
+
     result.configure(wd.data, wd.format, wd.freq);
- 
+
     return result;
   }
 
@@ -196,13 +196,13 @@ public class AudioSystem3D {
    * specified file.
    *
    * @throws IOException If the file cannot be found or some other IO error
-   * occurs. 
+   * occurs.
    * @throws UnsupportedAudioFileException If the format of the audio data is
    * not supported
    */
-  public static Source loadSource(String filename)
+  public static Source loadSource(final String filename)
     throws IOException, UnsupportedAudioFileException {
-    Buffer buffer = loadBuffer(filename);
+    final Buffer buffer = loadBuffer(filename);
 
     return generateSource(buffer);
   }
@@ -217,13 +217,13 @@ public class AudioSystem3D {
    * passed stream.
    *
    * @throws IOException If the file cannot be found or some other IO error
-   * occurs. 
+   * occurs.
    * @throws UnsupportedAudioFileException If the format of the audio data is
    * not supported
    */
-  public static Source loadSource(InputStream stream)
+  public static Source loadSource(final InputStream stream)
     throws IOException, UnsupportedAudioFileException {
-    Buffer buffer = loadBuffer(stream);
+    final Buffer buffer = loadBuffer(stream);
 
     return generateSource(buffer);
   }
@@ -235,9 +235,9 @@ public class AudioSystem3D {
    *
    * @return an array of uninitialized sources.
    */
-  public static Source[] generateSources(int numSources) {
-    Source[] result = new Source[numSources];
-    int[] arr = new int[numSources];
+  public static Source[] generateSources(final int numSources) {
+    final Source[] result = new Source[numSources];
+    final int[] arr = new int[numSources];
     al.alGenSources(numSources, arr, 0);
 
     for (int i = 0; i < numSources; i++) {
@@ -254,9 +254,9 @@ public class AudioSystem3D {
    *
    * @return the newly generated Source.
    */
-  public static Source generateSource(Buffer buff) {
+  public static Source generateSource(final Buffer buff) {
     Source result = null;
-    Source[] tmp = generateSources(1);
+    final Source[] tmp = generateSources(1);
     result = tmp[0];
     result.setBuffer(buff);
 
