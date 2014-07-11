@@ -459,14 +459,24 @@
         </antcall>
 
         <!-- Create Java Web Start jar file from built file -->
-        <jar destfile="${build}/jar/joal-natives-${os.and.arch}.jar">
-            <fileset dir="../${rootrel.build}/obj">
-                <include name="*joal.${native.library.suffix}" />
-                <include name="*soft_oal.${native.library.suffix}" />
-                <include name="*openal.${native.library.suffix}" />
-                <exclude name="*openal*.1*.${native.library.suffix}" />
-            </fileset>
-        </jar>
+        <copy file="joalversion-natives"
+          tofile="${build}/tempversion-natives"
+          overwrite="true">
+            <filterset>
+                <filter token="VERSION" value="${jogamp.version}"/>
+                <filter token="BUILD_VERSION" value="${joal.version}"/>
+                <filter token="SCM_BRANCH" value="${joal.build.branch}"/>
+                <filter token="SCM_COMMIT" value="${joal.build.commit}"/>
+                <filter token="BASEVERSION" value="${jogamp.version.base}" />
+                <filter token="JAR_CODEBASE_TAG" value="${jogamp.jar.codebase}"/>
+            </filterset>
+        </copy>
+
+        <native.tag.jar objdir="${build}/obj"
+                        nativejarfile="${build}/jar/joal-natives-${os.and.arch}.jar"
+                        manifestfile="${build}/tempversion-natives" 
+                        module="openal"
+                        includelibs="*joal.${native.library.suffix} *soft_oal.${native.library.suffix} *openal.${native.library.suffix} *openal*.1*.${native.library.suffix}" />
         <!-- Produce duplicates for different configurations, since non-native-jar aliasing (Bug 1023/Bug 1024) -->
         <copy file="${build}/jar/joal-natives-${os.and.arch}.jar" tofile="${build}/jar/joal-android-natives-${os.and.arch}.jar"/>
     </target>
@@ -605,7 +615,7 @@
     <target name="jar" depends="init">
         <!-- Prepare the manifest -->
         <copy file="joalversion"
-          tofile="tempversion"
+          tofile="${build}/tempversion"
           overwrite="true">
             <filterset>
                 <filter token="VERSION" value="${jogamp.version}"/>
@@ -618,7 +628,7 @@
         </copy>
 
         <!-- Build the jar excluding any build specific classes. -->
-        <jar manifest="tempversion" destfile="${joal.jar}">
+        <jar manifest="${build}/tempversion" destfile="${joal.jar}" filesonly="true">
             <fileset dir="${classes}">
                 <include name="com/jogamp/openal/**" />
                 <include name="jogamp/openal/**" />
@@ -627,8 +637,6 @@
         <copy file="${joal.jar}" tofile="${joal-android.jar}"/>
 
         <antcall target="android.package" inheritRefs="true" />
-
-        <delete file="tempversion"/>
     </target>
 
     <target name="android.package" depends="init" if="isAndroid">
@@ -641,7 +649,7 @@
             android.abi="${android.abi}"
             androidmanifest.path="resources/android/AndroidManifest-joal.xml"
             androidresources.path="resources/android/res-joal"
-            jarmanifest.path="tempversion"
+            jarmanifest.path="${build}/tempversion"
             version.code="${jogamp.version.int}"
             version.name="${jogamp.version}" />
     </target>

@@ -49,7 +49,7 @@ public final class ALDynamicLibraryBundleInfo implements DynamicLibraryBundleInf
 
                 if(TempJarCache.isInitialized()) {
                    // only: joal.jar -> joal-natives-<os.and.arch>.jar
-                   JNILibLoaderBase.addNativeJarLibs(new Class<?>[] { ALDynamicLibraryBundleInfo.class }, null );
+                   JNILibLoaderBase.addNativeJarLibs(new Class<?>[] { jogamp.openal.Debug.class }, null );
                 }
                 return null;
             }

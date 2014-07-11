@@ -64,10 +64,12 @@ function jrun() {
     #D_ARGS="-Djogamp.debug.Bitstream"
     #D_ARGS="-Djogamp.debug.NativeLibrary=true -Djoal.debug=true"
     #D_ARGS="-Djoal.debug=all"
+    #D_ARGS="-Djogamp.debug.JNILibLoader"
     #X_ARGS="-verbose:jni"
     #X_ARGS="-Xrs"
 
     export CLASSPATH=$GLUEGEN_BDIR/gluegen-rt.jar:$bdir/jar/joal.jar:$bdir/jar/joal-test.jar:$JUNIT_JAR:$ANT_JARS
+    #export CLASSPATH=$GLUEGEN_BDIR/gluegen-rt.jar:$bdir/jar/joal.jar:$bdir/jar/joal-natives.jar:$bdir/jar/joal-test.jar:$JUNIT_JAR:$ANT_JARS
     echo CLASSPATH $CLASSPATH
 
     echo
