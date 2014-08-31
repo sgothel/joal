@@ -1,7 +1,7 @@
 set THISDIR="C:\JOGL"
 
-set J2RE_HOME=c:\jre1.7.0_67_x32
-set JAVA_HOME=c:\jdk1.7.0_67_x32
+set J2RE_HOME=c:\jre1.8.0_20_x32
+set JAVA_HOME=c:\jdk1.8.0_20_x32
 set ANT_PATH=C:\apache-ant-1.9.4
 set CMAKE_PATH=C:\cmake-2.8.10.2-win32-x86
 
