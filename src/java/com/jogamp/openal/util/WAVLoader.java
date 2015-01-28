@@ -103,7 +103,7 @@ public class WAVLoader {
 		try {
 		    final boolean bigEndian; // FIXME: for all data incl. signatures ?
 
-		    final long riffMarker = bs.readUInt32(true /* msbFirst */, true /* bigEndian */);
+		    final long riffMarker = bs.readUInt32(true /* bigEndian */);
 		    if ( RIFF == riffMarker ) {
 			    bigEndian = false;
 			} else if( RIFX == riffMarker ) {
@@ -111,9 +111,9 @@ public class WAVLoader {
 			} else {
 			    throw new ALException("Invalid RIF header: 0x"+Integer.toHexString((int)riffMarker)+", "+bs);
 			}
-            final long riffLenL = bs.readUInt32(true /*msbFirst*/, bigEndian);
+            final long riffLenL = bs.readUInt32(bigEndian);
 			final int riffLenI = Bitstream.uint32LongToInt(riffLenL);
-            final long wavMarker = bs.readUInt32(true /* msbFirst */, true /* bigEndian */);
+            final long wavMarker = bs.readUInt32(true /* bigEndian */);
 			if ( WAVE != wavMarker ) {
                 throw new ALException("Invalid WAV header: 0x"+Integer.toHexString((int)wavMarker)+", "+bs);
 			}
@@ -125,20 +125,20 @@ public class WAVLoader {
 		    long chunkLength = 0;
 
 			while (!foundData) {
-				final int chunkId = (int)bs.readUInt32(true /* msbFirst */, true /* bigEndian */);
-				chunkLength = bs.readUInt32(true /* msbFirst */, bigEndian);
+				final int chunkId = (int)bs.readUInt32(true /* bigEndian */);
+				chunkLength = bs.readUInt32(bigEndian);
 				switch (chunkId) {
 				case FMT:
 					foundFmt = true;
 					@SuppressWarnings("unused")
-                    final int compressionCode = bs.readUInt16(true /* msbFirst */, bigEndian);
-					sChannels = (short)bs.readUInt16(true /* msbFirst */, bigEndian);
-					sampleRate = bs.readUInt32(true /* msbFirst */, bigEndian);
+                    final int compressionCode = bs.readUInt16(bigEndian);
+					sChannels = (short)bs.readUInt16(bigEndian);
+					sampleRate = bs.readUInt32(bigEndian);
 					@SuppressWarnings("unused")
-                    final long bytesPerSeconds = bs.readUInt32(true /* msbFirst */, bigEndian);
+                    final long bytesPerSeconds = bs.readUInt32(bigEndian);
 					@SuppressWarnings("unused")
-                    final short blockAlignment = (short) bs.readUInt16(true /* msbFirst */, bigEndian);
-					sSampleSizeInBits = (short) bs.readUInt16(true /* msbFirst */, bigEndian);
+                    final short blockAlignment = (short) bs.readUInt16(bigEndian);
+					sSampleSizeInBits = (short) bs.readUInt16(bigEndian);
 					bs.skip( 8 * ( chunkLength - 16 ) );
 					break;
 				case FACT:
