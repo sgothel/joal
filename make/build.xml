@@ -163,7 +163,7 @@
         <!-- The resulting joal.jar. -->
         <property name="joal.jar" value="${build}/jar/joal.jar" />
         <property name="joal-android.jar" value="${build}/jar/joal-android.jar" />
-        <property name="joal-android.apk" value="${build}/jar/joal-android-${android.abi}.apk" />
+        <property name="joal-android.apk" value="${build}/jar/joal-${os.and.arch}.apk" />
 
         <path id="joal_all.classpath">
             <pathelement location="${gluegen-rt.jar}" />
