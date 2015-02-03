@@ -753,6 +753,7 @@
             <classpath refid="joal_all.classpath"/>
             <link offline="true" href="${javadoc.link}" packagelistLoc="${gluegen.root}/make/142-packages" />
             <link offline="false" href="${gluegen.link}" />
+            <arg value="${javadoc.xarg1}"/>
         </javadoc>
         <copy todir="${javadoc.joal.public.path}/resources" overwrite="true">
             <fileset dir="${gluegen.make.dir}/doc/javadoc/resources" includes="*" />
@@ -771,6 +772,7 @@
             <classpath refid="joal_all.classpath"/>
             <link offline="true" href="${javadoc.link}" packagelistLoc="${gluegen.root}/make/142-packages" />
             <link offline="false" href="${gluegen.link}" />
+            <arg value="${javadoc.xarg1}"/>
         </javadoc>
         <copy todir="${javadoc.joal.dev.path}/resources" overwrite="true">
             <fileset dir="${gluegen.make.dir}/doc/javadoc/resources" includes="*" />
