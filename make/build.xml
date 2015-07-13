@@ -491,6 +491,8 @@
             <arg value="../../openal-soft"/>
             <arg value="-DCMAKE_TOOLCHAIN_FILE=../../openal-soft/cmake/toolchain.android.cmake"/>
             <arg value="-DANDROID_API_LEVEL=${android.version}"/>
+            <arg value="-DANDROID_TOOLCHAIN_SYSTEM=${env.HOST_ARCH}"/>
+            <arg value="-DARM32_LINKER_OPTS:STRING=-Wl,--fix-cortex-a8"/>
         </exec>
         <exec dir="${build}/openal-soft" executable="make" logError="true" failonerror="false" failifexecutionfails="false" />
     </target>
@@ -505,8 +507,9 @@
             <arg value="../../openal-soft"/>
             <arg value="-DCMAKE_TOOLCHAIN_FILE=../../openal-soft/cmake/toolchain.android.cmake"/>
             <arg value="-DANDROID_API_LEVEL=${android.version}"/>
-            <arg value="-DNDK_CPU_ARM64=1"/>
             <arg value="-DANDROID_TOOLCHAIN_SYSTEM=${env.HOST_ARCH}"/>
+            <arg value="-DNDK_CPU_ARM64:BOOL=ON"/>
+            <arg value="-DARM64_LINKER_OPTS:STRING="/>
         </exec>
         <exec dir="${build}/openal-soft" executable="make" logError="true" failonerror="false" failifexecutionfails="false" />
     </target>

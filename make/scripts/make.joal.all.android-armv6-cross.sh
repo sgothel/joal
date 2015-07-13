@@ -33,7 +33,7 @@ export TARGET_RT_JAR=/opt-share/jre1.6.0_30/lib/rt.jar
 
 #export GCC_VERSION=4.4.3
 export GCC_VERSION=4.8
-HOST_ARCH=linux-x86_64
+export HOST_ARCH=linux-x86_64
 export TARGET_TRIPLE=arm-linux-androideabi
 
 export NDK_TOOLCHAIN_ROOT=$NDK_ROOT/toolchains/${TARGET_TRIPLE}-${GCC_VERSION}/prebuilt/${HOST_ARCH}
@@ -54,5 +54,5 @@ export JOGAMP_JAR_CODEBASE="Codebase: *.goethel.localnet"
 # BUILD_ARCHIVE=true \
 ant \
     -Drootrel.build=build-android-armv6 \
-    $* 2>&1 | tee -a make.joal-armv6-cross.log
+    $* 2>&1 | tee make.joal-armv6-cross.log
 
