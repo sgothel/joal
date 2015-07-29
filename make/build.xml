@@ -641,6 +641,12 @@
                 <include name="*soft_oal.${native.library.suffix}" />
             </fileset>
         </copy>
+        <delete includeEmptyDirs="false" quiet="true" failonerror="false">
+            <fileset dir="../${rootrel.build}/obj">
+                <include name="libopenal.1.${native.library.suffix}" />
+                <include name="libopenal.1.*.${native.library.suffix}" />
+            </fileset>
+        </delete>
     </target>
 
     <!-- ================================================================== -->
