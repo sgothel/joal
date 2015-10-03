@@ -64,7 +64,7 @@ public class ResourceLocation {
     }
 
     public static InputStream getInputStream(final String fileName, final boolean throwException) {
-        final URLConnection conn = IOUtil.getResource(rl.getClass(), fileName);
+        final URLConnection conn = IOUtil.getResource(fileName, rl.getClass().getClassLoader(), rl.getClass());
         if (conn == null) {
             return null;
         }
