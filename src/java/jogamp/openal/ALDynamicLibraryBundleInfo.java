@@ -86,6 +86,16 @@ public final class ALDynamicLibraryBundleInfo implements DynamicLibraryBundleInf
     }
 
     @Override
+    public final boolean searchToolLibInSystemPath() {
+        return true;
+    }
+
+    @Override
+    public final boolean searchToolLibSystemPathFirst() {
+        return ALFactory.PREFER_SYSTEM_OPENAL;
+    }
+
+    @Override
     public final List<List<String>> getToolLibNames() {
         final List<List<String>> libNamesList = new ArrayList<List<String>>();
 
@@ -105,7 +115,7 @@ public final class ALDynamicLibraryBundleInfo implements DynamicLibraryBundleInf
         {
             // This name is in use by the (installed if any) OpenAL-soft
             alSoftLibNames.add("soft_oal");
-            // These names are in use by the bundled OpenAL-soft
+            // These names are in use by the bundled OpenAL-soft, also generic ones
             alSoftLibNames.add("openal");
             alSoftLibNames.add("OpenAL");
         }
@@ -125,11 +135,6 @@ public final class ALDynamicLibraryBundleInfo implements DynamicLibraryBundleInf
             // Then try the System OpenAL
             alLibNames.addAll(alSystemLibNames);
         }
-
-        // last but not least .. the generic one
-        alLibNames.add("openal");
-        alLibNames.add("OpenAL");
-
         libNamesList.add(alLibNames);
 
         return libNamesList;
