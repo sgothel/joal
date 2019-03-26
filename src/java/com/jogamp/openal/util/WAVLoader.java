@@ -123,6 +123,7 @@ public class WAVLoader {
 		    short sChannels = 0, sSampleSizeInBits = 0;
 		    long sampleRate = 0;
 		    long chunkLength = 0;
+            int dataLength = 0;
 
 			while (!foundData) {
 				final int chunkId = (int)bs.readUInt32(true /* bigEndian */);
@@ -150,6 +151,7 @@ public class WAVLoader {
 						throw new ALException("WAV fmt chunks must be before data chunks: "+bs);
 					}
 					foundData = true;
+                    dataLength = Bitstream.uint32LongToInt(chunkLength);
 					break;
 				default:
 					// unrecognized chunk, skips it
@@ -160,8 +162,8 @@ public class WAVLoader {
 			final int channels = sChannels;
 			final int sampleSizeInBits = sSampleSizeInBits;
 			final float fSampleRate = sampleRate;
-			return WAVData.loadFromStream(bs.getSubStream(), riffLenI, channels, sampleSizeInBits,
-					Math.round(fSampleRate), bigEndian ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN, false);
+			return WAVData.loadFromStream(bs.getSubStream(), dataLength, channels, sampleSizeInBits,
+					Math.round(fSampleRate), bigEndian ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN, false, dataLength);
 		} finally {
 			bs.close();
 		}

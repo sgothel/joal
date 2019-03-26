@@ -89,7 +89,8 @@ public final class WAVData {
      * @param bits
      * @param sampleRate
      * @param byteOrder
-     * @param stream An InputStream for the .WAV stream
+     * @param aIn An InputStream for the .WAV stream
+     * @param size Amount of data to load from buffer (or zero for all available)
      *
      * @return a WAVData object containing the audio data
      *
@@ -98,7 +99,7 @@ public final class WAVData {
      * @throws IOException If the file can no be found or some other IO error
      *                     occurs
      */
-    public static WAVData loadFromStream(InputStream aIn, final int initialCapacity, final int numChannels, final int bits, final int sampleRate, final ByteOrder byteOrder, final boolean loop)
+    public static WAVData loadFromStream(InputStream aIn, final int initialCapacity, final int numChannels, final int bits, final int sampleRate, final ByteOrder byteOrder, final boolean loop, int size)
       throws IOException {
         if( !(aIn instanceof BufferedInputStream) ) {
             aIn = new BufferedInputStream(aIn);
@@ -116,7 +117,9 @@ public final class WAVData {
             format = ALConstants.AL_FORMAT_STEREO16;
         }
         final ByteBuffer buffer = IOUtil.copyStream2ByteBuffer(aIn, initialCapacity);
-        final int size = buffer.limit();
+        if (size==0) {
+            size = buffer.limit();
+        }
 
         // Must byte swap in case endianess mismatch
         if ( bits == 16 && ByteOrder.nativeOrder() != byteOrder ) {
