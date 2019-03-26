@@ -481,6 +481,23 @@
         <copy file="${build}/jar/joal-natives-${os.and.arch}.jar" tofile="${build}/jar/joal-android-natives-${os.and.arch}.jar"/>
     </target>
 
+    <target name="c.build.openal.soft.android.x86" if="isAndroidX86" unless="c.build.openal.soft.done">
+        <property name="c.build.openal.soft.done" value="true" />
+        <mkdir dir="${build}/openal-soft" />
+        <exec dir="${build}/openal-soft" executable="cmake" logError="true" failonerror="false" failifexecutionfails="false">
+            <env key="PATH" value="${env.PATH_VANILLA}"/>
+            <env key="ANDROID_TOOLCHAIN_VERSION" value="${env.GCC_VERSION}"/>
+            <env key="ANDROID_NDK" value="${env.NDK_ROOT}"/>
+            <arg value="../../openal-soft"/>
+            <arg value="-DCMAKE_TOOLCHAIN_FILE=../../openal-soft/cmake/toolchain.android.cmake"/>
+            <arg value="-DNDK_CPU_X86=1"/>
+            <arg value="-DANDROID_API_LEVEL=${android.version}"/>
+            <arg value="-DALSOFT_CPUEXT_SSE4_1=0"/>
+            <arg value="-DALSOFT_CPUEXT_NEON=0"/>
+        </exec>
+        <exec dir="${build}/openal-soft" executable="make" logError="true" failonerror="false" failifexecutionfails="false" />
+    </target>
+
     <target name="c.build.openal.soft.android.arm" if="isAndroidARMv6" unless="c.build.openal.soft.done">
         <property name="c.build.openal.soft.done" value="true" />
         <mkdir dir="${build}/openal-soft" />
@@ -634,7 +651,7 @@
     </target>
 
     <target name="c.build.openal.soft" 
-            depends="init, gluegen.cpptasks.detect.os, gluegen.cpptasks.setup.compiler, c.build.openal.use-blobs, c.build.openal.soft.windows, c.build.openal.soft.android.arm, c.build.openal.soft.android.arm64, c.build.openal.soft.gcc.armv6.soft, c.build.openal.soft.gcc.armv6.hard, c.build.openal.soft.clang.x86_32, c.build.openal.soft.clang.default, c.build.openal.soft.gcc.x86_32, c.build.openal.soft.gcc.default">
+            depends="init, gluegen.cpptasks.detect.os, gluegen.cpptasks.setup.compiler, c.build.openal.use-blobs, c.build.openal.soft.windows, c.build.openal.soft.android.x86, c.build.openal.soft.android.arm, c.build.openal.soft.android.arm64, c.build.openal.soft.gcc.armv6.soft, c.build.openal.soft.gcc.armv6.hard, c.build.openal.soft.clang.x86_32, c.build.openal.soft.clang.default, c.build.openal.soft.gcc.x86_32, c.build.openal.soft.gcc.default">
         <copy todir="../${rootrel.build}/obj" failonerror="false">
             <fileset dir="${build}/openal-soft" erroronmissingdir="false">
                 <include name="*openal.${native.library.suffix}" />
