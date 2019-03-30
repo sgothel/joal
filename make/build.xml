@@ -375,10 +375,6 @@
         <move file="${src}" tofile="${dest}" />
     </target>
 
-    <target name="rename.dylib" if="isOSX">
-        <move file="${src}" tofile="${dest}" />
-    </target>
-
     <macrodef name="c.build">
         <attribute name="compiler.cfg.id" />
         <attribute name="linker.cfg.id" />
@@ -434,11 +430,6 @@
 
                 <linker extends="@{linker.cfg.id}" />
             </cc>
-
-            <antcall target="rename.dylib" inheritRefs="true">
-                <param name="src"  value="${obj}/lib@{output.lib.name}.dylib" />
-                <param name="dest" value="${obj}/lib@{output.lib.name}.jnilib" />
-            </antcall>
 
             <antcall target="rename.mingw.dll" inheritRefs="true">
                 <param name="src"  value="${obj}/lib@{output.lib.name}.so" />
