@@ -47,7 +47,7 @@ public final class ALDynamicLibraryBundleInfo implements DynamicLibraryBundleInf
             public Object run() {
                 Platform.initSingleton();
 
-                if(TempJarCache.isInitialized()) {
+                if( TempJarCache.isInitialized(true) ) {
                    // only: joal.jar -> joal-natives-<os.and.arch>.jar
                    JNILibLoaderBase.addNativeJarLibs(new Class<?>[] { jogamp.openal.Debug.class }, null );
                 }
