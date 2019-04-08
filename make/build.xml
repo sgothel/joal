@@ -188,16 +188,16 @@
         <property name="archive.name"        value="joal-${joal.version}-${os.and.arch}" />
         <property name="archive"             value="${build}/${archive.name}" />
 
-        <condition property="useLinuxARMv6SFOptions">
-            <and>
-                <isset property="isLinuxARMv6"/>
-                <isset property="isAbiEabiGnuArmel"/>
-                <isset property="isCrosscompilation"/>
-            </and>
-        </condition>
         <condition property="useLinuxARMv6HFOptions">
             <and>
                 <isset property="isLinuxARMv6"/>
+                <isset property="isAbiEabiGnuArmhf"/>
+                <isset property="isCrosscompilation"/>
+            </and>
+        </condition>
+        <condition property="useLinuxAARCH64Options">
+            <and>
+                <isset property="isLinuxARM64"/>
                 <isset property="isAbiEabiGnuArmhf"/>
                 <isset property="isCrosscompilation"/>
             </and>
@@ -208,8 +208,8 @@
                 <isset property="isI386"/>
             </and>
         </condition>
-        <echo message="useLinuxARMv6SFOptions ${useLinuxARMv6SFOptions}" />
         <echo message="useLinuxARMv6HFOptions ${useLinuxARMv6HFOptions}" />
+        <echo message="useLinuxAARCH64Options ${useLinuxAARCH64Options}" />
     </target>
 
     <!-- ================================================================== -->
@@ -475,6 +475,7 @@
     <target name="c.build.openal.soft.android.x86" if="isAndroidX86" unless="c.build.openal.soft.done">
         <property name="c.build.openal.soft.done" value="true" />
         <mkdir dir="${build}/openal-soft" />
+        <copy file="lib/bsinc_inc.h" todir="${build}/openal-soft" overwrite="true"/>
         <exec dir="${build}/openal-soft" executable="cmake" logError="true" failonerror="false" failifexecutionfails="false">
             <env key="PATH" value="${env.PATH_VANILLA}"/>
             <env key="ANDROID_TOOLCHAIN_VERSION" value="${env.GCC_VERSION}"/>
@@ -492,6 +493,7 @@
     <target name="c.build.openal.soft.android.arm" if="isAndroidARMv6" unless="c.build.openal.soft.done">
         <property name="c.build.openal.soft.done" value="true" />
         <mkdir dir="${build}/openal-soft" />
+        <copy file="lib/bsinc_inc.h" todir="${build}/openal-soft" overwrite="true"/>
         <exec dir="${build}/openal-soft" executable="cmake" logError="true" failonerror="false" failifexecutionfails="false">
             <env key="PATH" value="${env.PATH_VANILLA}"/>
             <env key="ANDROID_TOOLCHAIN_VERSION" value="${env.GCC_VERSION}"/>
@@ -508,6 +510,7 @@
     <target name="c.build.openal.soft.android.arm64" if="isAndroidARM64" unless="c.build.openal.soft.done">
         <property name="c.build.openal.soft.done" value="true" />
         <mkdir dir="${build}/openal-soft" />
+        <copy file="lib/bsinc_inc.h" todir="${build}/openal-soft" overwrite="true"/>
         <exec dir="${build}/openal-soft" executable="cmake" logError="true" failonerror="false" failifexecutionfails="false">
             <env key="PATH" value="${env.PATH_VANILLA}"/>
             <env key="ANDROID_TOOLCHAIN_VERSION" value="${env.GCC_VERSION}"/>
@@ -525,6 +528,7 @@
     <target name="c.build.openal.soft.windows" if="isWindows" unless="c.build.openal.soft.done">
         <property name="c.build.openal.soft.done" value="true" />
         <mkdir dir="${build}/openal-soft" />
+        <copy file="lib/bsinc_inc.h" todir="${build}/openal-soft" overwrite="true"/>
         <exec dir="${build}/openal-soft" executable="cmake" logError="true" failonerror="false" failifexecutionfails="false">
             <env key="PATH" value="${env.PATH}"/>
             <arg value="../../openal-soft"/>
@@ -555,22 +559,33 @@
         <delete dir="openal-soft-1.15.1-bin" />
     </target>
 
-    <target name="c.build.openal.soft.gcc.armv6.soft" if="useLinuxARMv6SFOptions" unless="c.build.openal.soft.done">
+    <target name="c.build.openal.soft.gcc.armv6.hard" if="useLinuxARMv6HFOptions" unless="c.build.openal.soft.done">
         <property name="c.build.openal.soft.done" value="true" />
         <mkdir dir="${build}/openal-soft" />
+        <copy file="lib/bsinc_inc.h" todir="${build}/openal-soft" overwrite="true"/>
+        <echo message='TARGET_PLATFORM_SYSROOT ${TARGET_PLATFORM_SYSROOT}'/>
+        <echo message='TARGET_PLATFORM_USRROOT ${TARGET_PLATFORM_USRROOT}'/>
+        <echo message='TARGET_PLATFORM_USRLIBS ${TARGET_PLATFORM_USRLIBS}'/>
         <exec dir="${build}/openal-soft" executable="cmake" logError="true" failonerror="false" failifexecutionfails="false">
             <arg value="../../openal-soft"/>
-            <arg value="-DCMAKE_TOOLCHAIN_FILE=../../openal-soft/cmake/toolchain.gcc-armv6.cmake"/>
+            <arg value="-DTARGET_PLATFORM_SYSROOT:FILEPATH=${TARGET_PLATFORM_SYSROOT}"/>
+            <arg value="-DTARGET_PLATFORM_USRROOT:FILEPATH=${TARGET_PLATFORM_USRROOT}"/>
+            <arg value="-DTARGET_PLATFORM_USRLIBS:FILEPATH=${TARGET_PLATFORM_USRLIBS}"/>
+            <arg value="-DCMAKE_TOOLCHAIN_FILE=../../openal-soft/cmake/toolchain.linux-gcc-armv6hf.cmake"/>
         </exec>
         <exec dir="${build}/openal-soft" executable="make" logError="true" failonerror="false" failifexecutionfails="false" />
     </target>
 
-    <target name="c.build.openal.soft.gcc.armv6.hard" if="useLinuxARMv6HFOptions" unless="c.build.openal.soft.done">
+    <target name="c.build.openal.soft.gcc.aarch64" if="useLinuxAARCH64Options" unless="c.build.openal.soft.done">
         <property name="c.build.openal.soft.done" value="true" />
         <mkdir dir="${build}/openal-soft" />
+        <copy file="lib/bsinc_inc.h" todir="${build}/openal-soft" overwrite="true"/>
         <exec dir="${build}/openal-soft" executable="cmake" logError="true" failonerror="false" failifexecutionfails="false">
             <arg value="../../openal-soft"/>
-            <arg value="-DCMAKE_TOOLCHAIN_FILE=../../openal-soft/cmake/toolchain.gcc-armv6hf.cmake"/>
+            <arg value="-DTARGET_PLATFORM_SYSROOT:FILEPATH=${TARGET_PLATFORM_SYSROOT}"/>
+            <arg value="-DTARGET_PLATFORM_USRROOT:FILEPATH=${TARGET_PLATFORM_USRROOT}"/>
+            <arg value="-DTARGET_PLATFORM_USRLIBS:FILEPATH=${TARGET_PLATFORM_USRLIBS}"/>
+            <arg value="-DCMAKE_TOOLCHAIN_FILE=../../openal-soft/cmake/toolchain.linux-gcc-aarch64.cmake"/>
         </exec>
         <exec dir="${build}/openal-soft" executable="make" logError="true" failonerror="false" failifexecutionfails="false" />
     </target>
@@ -642,7 +657,7 @@
     </target>
 
     <target name="c.build.openal.soft" 
-            depends="init, gluegen.cpptasks.detect.os, gluegen.cpptasks.setup.compiler, c.build.openal.use-blobs, c.build.openal.soft.windows, c.build.openal.soft.android.x86, c.build.openal.soft.android.arm, c.build.openal.soft.android.arm64, c.build.openal.soft.gcc.armv6.soft, c.build.openal.soft.gcc.armv6.hard, c.build.openal.soft.clang.x86_32, c.build.openal.soft.clang.default, c.build.openal.soft.gcc.x86_32, c.build.openal.soft.gcc.default">
+            depends="init, gluegen.cpptasks.detect.os, gluegen.cpptasks.setup.compiler, c.build.openal.use-blobs, c.build.openal.soft.windows, c.build.openal.soft.android.x86, c.build.openal.soft.android.arm, c.build.openal.soft.android.arm64, c.build.openal.soft.gcc.armv6.hard, c.build.openal.soft.gcc.aarch64, c.build.openal.soft.clang.x86_32, c.build.openal.soft.clang.default, c.build.openal.soft.gcc.x86_32, c.build.openal.soft.gcc.default">
         <copy todir="../${rootrel.build}/obj" failonerror="false">
             <fileset dir="${build}/openal-soft" erroronmissingdir="false">
                 <include name="*openal.${native.library.suffix}" />

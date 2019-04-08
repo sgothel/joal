@@ -37,7 +37,7 @@ export HOST_ARCH=linux-x86_64
 export TARGET_TRIPLE=aarch64-linux-android
 
 export NDK_TOOLCHAIN_ROOT=$NDK_ROOT/toolchains/${TARGET_TRIPLE}-${GCC_VERSION}/prebuilt/${HOST_ARCH}
-export TARGET_PLATFORM_ROOT=${NDK_ROOT}/platforms/android-${ANDROID_VERSION}/arch-arm64
+export TARGET_PLATFORM_SYSROOT=${NDK_ROOT}/platforms/android-${ANDROID_VERSION}/arch-arm64
 
 # Need to add toolchain bins to the PATH. 
 export PATH_VANILLA=$PATH

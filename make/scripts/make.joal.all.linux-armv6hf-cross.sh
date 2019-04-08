@@ -28,8 +28,10 @@ export TARGET_IP=panda01
 export TARGET_ROOT=/home/jogamp/projects-cross
 export TARGET_ANT_HOME=/usr/share/ant
 
-export TARGET_PLATFORM_LIBS=/opt-linux-armv6-armhf/lib
-export TARGET_JAVA_LIBS=/opt-linux-armv6-armhf/jre/lib/arm
+export TARGET_PLATFORM_SYSROOT=`gcc --print-sysroot`
+export TARGET_PLATFORM_USRROOT=/opt-linux-armv6-armhf
+export TARGET_PLATFORM_USRLIBS=$TARGET_PLATFORM_USRROOT/usr/lib
+export TARGET_JAVA_LIBS=$TARGET_PLATFORM_USRROOT/jre/lib/arm
 
 export GLUEGEN_CPPTASKS_FILE="../../gluegen/make/lib/gluegen-cpptasks-linux-armv6hf.xml"
 
