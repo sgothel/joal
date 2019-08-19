@@ -128,6 +128,9 @@
         <property name="src.java" value="${project.root}/${rootrel.src.java}" />
         <property name="build" value="${project.root}/${rootrel.build}" />
         <property name="tempdir" value="${project.root}/build-temp" />
+        <delete includeEmptyDirs="true" failonerror="false">
+            <fileset dir="${tempdir}" />
+        </delete>
         <mkdir dir="${tempdir}" />
 
         <!-- The generated source directories. -->
@@ -363,6 +366,7 @@
                debug="${javacdebug}" debuglevel="${javacdebuglevel}">
             <src path="${src.java}" />
             <src path="${src.generated.java}" />
+            <!-- compilerarg line="release ${target.releaselevel}"/ -->
         </javac>
     </target>
 
@@ -531,6 +535,7 @@
         <copy file="lib/bsinc_inc.h" todir="${build}/openal-soft" overwrite="true"/>
         <exec dir="${build}/openal-soft" executable="cmake" logError="true" failonerror="false" failifexecutionfails="false">
             <env key="PATH" value="${env.PATH}"/>
+            <arg line="-G 'MinGW Makefiles'"/>
             <arg value="../../openal-soft"/>
             <arg value="-DCMAKE_TOOLCHAIN_FILE=../../openal-soft/cmake/toolchain.windows.cmake"/>
         </exec>
@@ -874,11 +879,18 @@
     <!--
        - Clean up all that is built.
       -->
+    <target name="clean-temp" depends="init">
+      <delete includeEmptyDirs="true" failonerror="false">
+        <fileset dir="${tempdir}" />
+      </delete>
+    </target>    
+
     <target name="clean" depends="init">
         <delete includeEmptyDirs="true" quiet="true">
             <fileset dir="${build}" />
             <fileset dir="${javadoc}" />
             <fileset dir="${javadoc.dev}" />
+            <fileset dir="${tempdir}" />
         </delete>
         <ant antfile="build-test.xml" target="clean"/>
     </target>
@@ -887,7 +899,9 @@
     <!--
        - Build everything.
       -->
-    <target name="all" depends="joal.build, test.compile, tag.build, developer-zip-archive"/>
+    <target name="all" depends="joal.build, test.compile, tag.build, developer-zip-archive">
+        <antcall target="clean-temp" inheritAll="true" inheritRefs="true" />
+    </target>
 
     <target name="joal.build" depends="init">
         <!-- Generate and compile the Java sources. -->

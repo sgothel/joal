@@ -18,9 +18,9 @@ if [ -z "$ANT_PATH" ] ; then
     exit
 fi
 
-export SOURCE_LEVEL=1.6
-export TARGET_LEVEL=1.6
-export TARGET_RT_JAR=/opt-share/jre1.6.0_30/lib/rt.jar
+export SOURCE_LEVEL=1.8
+export TARGET_LEVEL=1.8
+export TARGET_RT_JAR=/opt-share/jre1.8.0_212/lib/rt.jar
 
 export GLUEGEN_PROPERTIES_FILE="lib/gluegen-clang.properties"
 # or -Dgcc.compat.compiler=clang
