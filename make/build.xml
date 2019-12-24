@@ -406,14 +406,16 @@
 
             <echo message="Compiling @{output.lib.name}" />
 
-            <cc outtype="shared" 
-            objdir="${obj}" 
-            outfile="${obj}/@{output.lib.name}"
-            optimize="${c.compiler.optimise}" 
-            debug="${c.compiler.debug}"
-            multithreaded="true" 
-            exceptions="false" 
-            rtti="false">
+            <cc outtype="${output.lib.type}" 
+                usehighleveltool="true"
+                writesoname="true"
+                objdir="${obj}" 
+                outfile="${obj}/@{output.lib.name}"
+                optimize="${c.compiler.optimise}" 
+                debug="${c.compiler.debug}"
+                multithreaded="true" 
+                exceptions="false" 
+                rtti="false">
 
                 <fileset dir="${project.root}">
                     <patternset refid="c.src.files"/>
@@ -482,12 +484,12 @@
         <copy file="lib/bsinc_inc.h" todir="${build}/openal-soft" overwrite="true"/>
         <exec dir="${build}/openal-soft" executable="cmake" logError="true" failonerror="false" failifexecutionfails="false">
             <env key="PATH" value="${env.PATH_VANILLA}"/>
-            <env key="ANDROID_TOOLCHAIN_VERSION" value="${env.GCC_VERSION}"/>
-            <env key="ANDROID_NDK" value="${env.NDK_ROOT}"/>
             <arg value="../../openal-soft"/>
             <arg value="-DCMAKE_TOOLCHAIN_FILE=../../openal-soft/cmake/toolchain.android.cmake"/>
-            <arg value="-DNDK_CPU_X86=1"/>
-            <arg value="-DANDROID_API_LEVEL=${android.version}"/>
+            <arg value="-DANDROID_NDK=${env.ANDROID_NDK}"/>
+            <arg value="-DANDROID_HOST_TAG=${env.ANDROID_HOST_TAG}"/>
+            <arg value="-DNDK_CPU_X86:BOOL=true"/>
+            <arg value="-DANDROID_API_LEVEL=${env.ANDROID_API_LEVEL}"/>
             <arg value="-DALSOFT_CPUEXT_SSE4_1=0"/>
             <arg value="-DALSOFT_CPUEXT_NEON=0"/>
         </exec>
@@ -500,12 +502,12 @@
         <copy file="lib/bsinc_inc.h" todir="${build}/openal-soft" overwrite="true"/>
         <exec dir="${build}/openal-soft" executable="cmake" logError="true" failonerror="false" failifexecutionfails="false">
             <env key="PATH" value="${env.PATH_VANILLA}"/>
-            <env key="ANDROID_TOOLCHAIN_VERSION" value="${env.GCC_VERSION}"/>
-            <env key="ANDROID_NDK" value="${env.NDK_ROOT}"/>
             <arg value="../../openal-soft"/>
             <arg value="-DCMAKE_TOOLCHAIN_FILE=../../openal-soft/cmake/toolchain.android.cmake"/>
-            <arg value="-DANDROID_API_LEVEL=${android.version}"/>
-            <arg value="-DANDROID_TOOLCHAIN_SYSTEM=${env.HOST_ARCH}"/>
+            <arg value="-DANDROID_NDK=${env.ANDROID_NDK}"/>
+            <arg value="-DANDROID_HOST_TAG=${env.ANDROID_HOST_TAG}"/>
+            <arg value="-DNDK_CPU_ARM_V7A:BOOL=true"/>
+            <arg value="-DANDROID_API_LEVEL=${env.ANDROID_API_LEVEL}"/>
             <arg value="-DARM32_LINKER_OPTS:STRING=-Wl,--fix-cortex-a8"/>
         </exec>
         <exec dir="${build}/openal-soft" executable="make" logError="true" failonerror="false" failifexecutionfails="false" />
@@ -517,13 +519,12 @@
         <copy file="lib/bsinc_inc.h" todir="${build}/openal-soft" overwrite="true"/>
         <exec dir="${build}/openal-soft" executable="cmake" logError="true" failonerror="false" failifexecutionfails="false">
             <env key="PATH" value="${env.PATH_VANILLA}"/>
-            <env key="ANDROID_TOOLCHAIN_VERSION" value="${env.GCC_VERSION}"/>
-            <env key="ANDROID_NDK" value="${env.NDK_ROOT}"/>
             <arg value="../../openal-soft"/>
             <arg value="-DCMAKE_TOOLCHAIN_FILE=../../openal-soft/cmake/toolchain.android.cmake"/>
-            <arg value="-DANDROID_API_LEVEL=${android.version}"/>
-            <arg value="-DANDROID_TOOLCHAIN_SYSTEM=${env.HOST_ARCH}"/>
-            <arg value="-DNDK_CPU_ARM64:BOOL=ON"/>
+            <arg value="-DANDROID_NDK=${env.ANDROID_NDK}"/>
+            <arg value="-DANDROID_HOST_TAG=${env.ANDROID_HOST_TAG}"/>
+            <arg value="-DNDK_CPU_ARM64:BOOL=true"/>
+            <arg value="-DANDROID_API_LEVEL=${env.ANDROID_API_LEVEL}"/>
             <arg value="-DARM64_LINKER_OPTS:STRING="/>
         </exec>
         <exec dir="${build}/openal-soft" executable="make" logError="true" failonerror="false" failifexecutionfails="false" />
