@@ -1,4 +1,6 @@
-build*
+build
+build*/
+build-temp
 test/classes
 test/results
 nbproject/private
