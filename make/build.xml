@@ -703,6 +703,19 @@
             </filterset>
         </copy>
 
+        <copy file="joalversion-android"
+          tofile="${build}/tempversion-android"
+          overwrite="true">
+            <filterset>
+                <filter token="VERSION" value="${jogamp.version}"/>
+                <filter token="BUILD_VERSION" value="${joal.version}"/>
+                <filter token="SCM_BRANCH" value="${joal.build.branch}"/>
+                <filter token="SCM_COMMIT" value="${joal.build.commit}"/>
+                <filter token="BASEVERSION" value="${jogamp.version.base}" />
+                <filter token="JAR_CODEBASE_TAG" value="${jogamp.jar.codebase}"/>
+            </filterset>
+        </copy>
+
         <!-- Build the jar excluding any build specific classes. -->
         <jar manifest="${build}/tempversion" destfile="${joal.jar}" filesonly="true">
             <fileset dir="${classes}">
@@ -710,8 +723,13 @@
                 <include name="jogamp/openal/**" />
             </fileset>
         </jar>
-        <copy file="${joal.jar}" tofile="${joal-android.jar}"/>
 
+        <jar manifest="${build}/tempversion-android" destfile="${joal-android.jar}" filesonly="true">
+            <fileset dir="${classes}">
+                <include name="com/jogamp/openal/**" />
+                <include name="jogamp/openal/**" />
+            </fileset>
+        </jar>
         <antcall target="android.package" inheritRefs="true" />
     </target>
 
@@ -725,7 +743,7 @@
             android.abi="${android.abi}"
             androidmanifest.path="resources/android/AndroidManifest-joal.xml"
             androidresources.path="resources/android/res-joal"
-            jarmanifest.path="${build}/tempversion"
+            jarmanifest.path="${build}/tempversion-android"
             version.code="${jogamp.version.int}"
             version.name="${jogamp.version}" />
     </target>
