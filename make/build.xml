@@ -213,6 +213,12 @@
         </condition>
         <echo message="useLinuxARMv6HFOptions ${useLinuxARMv6HFOptions}" />
         <echo message="useLinuxAARCH64Options ${useLinuxAARCH64Options}" />
+
+        <!-- NDK >= r19 using API > 22: 'U __register_atfork'
+             __register_atfork; # introduced=23
+             See https://github.com/android/ndk/issues/964 -->
+        <property name="ANDROID_API_LEVEL_OPENAL_SOFT" value="22" />
+        <!-- property name="ANDROID_API_LEVEL_OPENAL_SOFT" value="${env.ANDROID_API_LEVEL}"/ -->
     </target>
 
     <!-- ================================================================== -->
@@ -489,7 +495,7 @@
             <arg value="-DANDROID_NDK=${env.ANDROID_NDK}"/>
             <arg value="-DANDROID_HOST_TAG=${env.ANDROID_HOST_TAG}"/>
             <arg value="-DNDK_CPU_X86:BOOL=true"/>
-            <arg value="-DANDROID_API_LEVEL=${env.ANDROID_API_LEVEL}"/>
+            <arg value="-DANDROID_API_LEVEL=${ANDROID_API_LEVEL_OPENAL_SOFT}"/>
             <arg value="-DALSOFT_CPUEXT_SSE4_1=0"/>
             <arg value="-DALSOFT_CPUEXT_NEON=0"/>
         </exec>
@@ -507,7 +513,7 @@
             <arg value="-DANDROID_NDK=${env.ANDROID_NDK}"/>
             <arg value="-DANDROID_HOST_TAG=${env.ANDROID_HOST_TAG}"/>
             <arg value="-DNDK_CPU_ARM_V7A:BOOL=true"/>
-            <arg value="-DANDROID_API_LEVEL=${env.ANDROID_API_LEVEL}"/>
+            <arg value="-DANDROID_API_LEVEL=${ANDROID_API_LEVEL_OPENAL_SOFT}"/>
             <arg value="-DARM32_LINKER_OPTS:STRING=-Wl,--fix-cortex-a8"/>
         </exec>
         <exec dir="${build}/openal-soft" executable="make" logError="true" failonerror="false" failifexecutionfails="false" />
@@ -524,7 +530,7 @@
             <arg value="-DANDROID_NDK=${env.ANDROID_NDK}"/>
             <arg value="-DANDROID_HOST_TAG=${env.ANDROID_HOST_TAG}"/>
             <arg value="-DNDK_CPU_ARM64:BOOL=true"/>
-            <arg value="-DANDROID_API_LEVEL=${env.ANDROID_API_LEVEL}"/>
+            <arg value="-DANDROID_API_LEVEL=${ANDROID_API_LEVEL_OPENAL_SOFT}"/>
             <arg value="-DARM64_LINKER_OPTS:STRING="/>
         </exec>
         <exec dir="${build}/openal-soft" executable="make" logError="true" failonerror="false" failifexecutionfails="false" />
