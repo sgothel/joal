@@ -166,7 +166,13 @@
             androidresources.path="resources/android/res-test"
             jarmanifest.path="${build.test}/manifest-test-android.mf"
             version.code="${jogamp.version.int}"
-            version.name="${jogamp.version}" />
+            version.name="${jogamp.version}">
+          <d8-classpaths>
+              <arg line="--classpath ${gluegen-rt-android.jar}"/> 
+              <arg line="--classpath ${junit.jar}"/> 
+              <arg line="--classpath ${build}/jar/joal.jar"/> 
+          </d8-classpaths>
+        </aapt.signed>
     </target>
 
     <target name="test.compile" depends="declare.common" unless="test.compile.skip">

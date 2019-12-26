@@ -745,7 +745,11 @@
             androidresources.path="resources/android/res-joal"
             jarmanifest.path="${build}/tempversion-android"
             version.code="${jogamp.version.int}"
-            version.name="${jogamp.version}" />
+            version.name="${jogamp.version}">
+          <d8-classpaths>
+              <arg line="--classpath ${gluegen-rt.jar}"/> 
+          </d8-classpaths>
+        </aapt.signed>
     </target>
 
     <!-- ================================================================== -->
