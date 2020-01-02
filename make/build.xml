@@ -762,9 +762,9 @@
     <target name="javadoc" depends="init, javadoc.init, javadoc.public, javadoc.dev, javadoc.zip"/>
 
     <!-- copies ${gluegen-javadoc.path}/** to ${javadoc.root.path}/gluegen/ 
-         gluegen-javadoc.path is the parent folder of package-list:
+         gluegen-javadoc.path is the parent folder of element-list:
             gluegen-javadoc.path := build/javadoc/gluegen 
-            with build/javadoc/gluegen/javadoc/package-list
+            with build/javadoc/gluegen/javadoc/element-list
       -->
     <target name="javadoc.gluegen" depends="init" if="gluegen-javadoc.path">
         <delete dir="${javadoc.root.path}/gluegen" includeEmptyDirs="true" quiet="true" failonerror="false" />
@@ -811,7 +811,7 @@
 
         <!-- if gluegen-javadoc.path is not set, check in default location, 
              ${gluegen.root}/${rootrel.build}/javadoc/gluegen -->
-        <available file="${gluegen.build}/javadoc/gluegen/javadoc/package-list" 
+        <available file="${gluegen.build}/javadoc/gluegen/javadoc/element-list" 
                    type="file"
                    property="gluegen-javadoc.path"
                    value="${gluegen.build}/javadoc/gluegen" />
@@ -835,6 +835,7 @@
             <classpath refid="joal_all.classpath"/>
             <link offline="true" href="${javadoc.link}" packagelistLoc="${gluegen.root}/make/142-packages" />
             <link offline="false" href="${gluegen.link}" />
+            <arg value="--frames"/>
             <arg value="${javadoc.xarg1}"/>
         </javadoc>
         <copy todir="${javadoc.joal.public.path}/resources" overwrite="true">
@@ -854,6 +855,7 @@
             <classpath refid="joal_all.classpath"/>
             <link offline="true" href="${javadoc.link}" packagelistLoc="${gluegen.root}/make/142-packages" />
             <link offline="false" href="${gluegen.link}" />
+            <arg value="--frames"/>
             <arg value="${javadoc.xarg1}"/>
         </javadoc>
         <copy todir="${javadoc.joal.dev.path}/resources" overwrite="true">
