@@ -487,7 +487,7 @@
                         nativejarfile="${build}/jar/joal-natives-${os.and.arch}.jar"
                         manifestfile="${build}/tempversion-natives" 
                         module="openal"
-                        includelibs="*joal.${native.library.suffix} *soft_oal.${native.library.suffix} *openal.${native.library.suffix} *openal*.1*.${native.library.suffix} *.symbols" />
+                        includelibs="*joal.${native.library.suffix} *soft_oal.${native.library.suffix} *openal.${native.library.suffix} *openal*.1*.${native.library.suffix}" />
         <!-- Produce duplicates for different configurations, since non-native-jar aliasing (Bug 1023/Bug 1024) -->
         <copy file="${build}/jar/joal-natives-${os.and.arch}.jar" tofile="${build}/jar/joal-android-natives-${os.and.arch}.jar"/>
     </target>
