@@ -34,16 +34,16 @@ import com.jogamp.common.os.DynamicLibraryBundleInfo;
 import com.jogamp.common.os.Platform;
 import com.jogamp.common.util.RunnableExecutor;
 import com.jogamp.common.util.cache.TempJarCache;
+import com.jogamp.common.util.SecurityUtil;
 import com.jogamp.openal.ALFactory;
 
-import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.*;
 
 public final class ALDynamicLibraryBundleInfo implements DynamicLibraryBundleInfo  {
     private static final List<String> glueLibNames;
     static {
-        AccessController.doPrivileged(new PrivilegedAction<Object>() {
+        SecurityUtil.doPrivileged(new PrivilegedAction<Object>() {
             public Object run() {
                 Platform.initSingleton();
 
