@@ -554,7 +554,7 @@
             <arg value="../../openal-soft"/>
             <arg value="-DCMAKE_TOOLCHAIN_FILE=../../openal-soft/cmake/toolchain.windows.cmake"/>
         </exec>
-        <exec dir="${build}/openal-soft" executable="make" logError="true" failonerror="false" failifexecutionfails="false" />
+        <exec dir="${build}/openal-soft" executable="mingw32-make.exe" logError="true" failonerror="false" failifexecutionfails="false" />
     </target>
 
     <target name="c.download.openal.soft.windows">
