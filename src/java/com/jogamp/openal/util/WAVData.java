@@ -116,7 +116,7 @@ public final class WAVData {
         } else if ((bits == 16) && (numChannels == 2)) {
             format = ALConstants.AL_FORMAT_STEREO16;
         }
-        final ByteBuffer buffer = IOUtil.copyStream2ByteBuffer(aIn, initialCapacity);
+        final ByteBuffer buffer = IOHelpers.copyFromStream2ByteBuffer(aIn, initialCapacity);
         if (size==0) {
             size = buffer.limit();
         }
