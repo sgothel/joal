@@ -163,7 +163,7 @@ public class WAVLoader {
 			final int sampleSizeInBits = sSampleSizeInBits;
 			final float fSampleRate = sampleRate;
 			return WAVData.loadFromStream(bs.getSubStream(), dataLength, channels, sampleSizeInBits,
-					Math.round(fSampleRate), bigEndian ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN, false, dataLength);
+					Math.round(fSampleRate), bigEndian ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN, false);
 		} finally {
 			bs.close();
 		}

@@ -41,19 +41,19 @@ public class ALutWAVLoaderTest extends UITestCase {
 
     @Test
     public void testWAVDataLoadStream() throws IOException {
-    	final WAVData wd0 = WAVData.loadFromStream(ResourceLocation.getTestStream0(), ResourceLocation.getTestStream0Size(), 1, 8, 22050, ByteOrder.LITTLE_ENDIAN, true, 0);
+    	final WAVData wd0 = WAVData.loadFromStream(ResourceLocation.getTestStream0(), ResourceLocation.getTestStream0Size(), 1, 8, 22050, ByteOrder.LITTLE_ENDIAN, true);
     	System.out.println("*** WAVData.loadFrom Stream0 size "+wd0.data.limit());
     	assertEquals(wd0.data.limit(), ResourceLocation.getTestStream0Size());
 
-        final WAVData wd1 = WAVData.loadFromStream(ResourceLocation.getTestStream1(), ResourceLocation.getTestStream1Size(), 2, 16, 44100, ByteOrder.BIG_ENDIAN, true, 0);
+        final WAVData wd1 = WAVData.loadFromStream(ResourceLocation.getTestStream1(), ResourceLocation.getTestStream1Size(), 2, 16, 44100, ByteOrder.BIG_ENDIAN, true);
         System.out.println("*** WAVData.loadFrom Stream1 size "+wd1.data.limit());
         assertEquals(wd1.data.limit(), ResourceLocation.getTestStream1Size());
 
-        final WAVData wd2 = WAVData.loadFromStream(ResourceLocation.getTestStream2(), ResourceLocation.getTestStream2Size(), 2, 16, 44100, ByteOrder.LITTLE_ENDIAN, true, 0);
+        final WAVData wd2 = WAVData.loadFromStream(ResourceLocation.getTestStream2(), ResourceLocation.getTestStream2Size(), 2, 16, 44100, ByteOrder.LITTLE_ENDIAN, true);
         System.out.println("*** WAVData.loadFrom Stream2 size "+wd2.data.limit());
         assertEquals(wd2.data.limit(), ResourceLocation.getTestStream2Size());
 
-        final WAVData wd3 = WAVData.loadFromStream(ResourceLocation.getTestStream3(), ResourceLocation.getTestStream3Size(), 2, 16, 44100, ByteOrder.LITTLE_ENDIAN, true, 0);
+        final WAVData wd3 = WAVData.loadFromStream(ResourceLocation.getTestStream3(), ResourceLocation.getTestStream3Size(), 2, 16, 44100, ByteOrder.LITTLE_ENDIAN, true);
         System.out.println("*** WAVData.loadFrom Stream3 size "+wd3.data.limit());
         assertEquals(wd3.data.limit(), ResourceLocation.getTestStream3Size());
 

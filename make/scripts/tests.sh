@@ -88,6 +88,7 @@ function testnormal() {
 }
 
 
+#testnotmal com.jogamp.openal.JoalVersion $*
 testnormal com.jogamp.openal.test.manual.OpenALTest $*
 #testnormal com.jogamp.openal.test.manual.Sound3DTest $*
 #testnormal com.jogamp.openal.test.junit.ALutWAVLoaderTest $*
