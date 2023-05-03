@@ -113,11 +113,12 @@ public final class ALDynamicLibraryBundleInfo implements DynamicLibraryBundleInf
         }
         final List<String> alSoftLibNames = new ArrayList<String>();
         {
-            // This name is in use by the (installed if any) OpenAL-soft
-            alSoftLibNames.add("soft_oal");
             // These names are in use by the bundled OpenAL-soft, also generic ones
             alSoftLibNames.add("openal");
             alSoftLibNames.add("OpenAL");
+            alSoftLibNames.add("OpenAL32");
+            // This name is in use by the (installed if any) OpenAL-soft
+            alSoftLibNames.add("soft_oal");
         }
 
         final List<String> alLibNames = new ArrayList<String>();
