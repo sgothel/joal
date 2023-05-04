@@ -47,12 +47,16 @@ Additionally the following packages and tools have been used:
 
 * Linux:
   -- cmake
-  -- OpenAL Soft: OpenAL: PulseAudio, ALSA, OSS, SndIO (linked), WaveFile, Null
+  -- OpenAL Soft: OpenAL: PipeWire, PulseAudio, ALSA, OSS, SndIO (linked), WaveFile, Null
      
      apt-get install cmake autoconf \
+             libpipewire-0.3-dev \
              libpulse-dev libpulse0:amd64 libpulse0:i386 pulseaudio \
              libsndio-dev \
              libasound2-dev libasound2:amd64 libasound2:i386
+
+     On Debian 11 Bullseye, use bullseye-backports `apt -t bullseye-backports install libpipewire-0.3-dev`
+     to have libpipewire-0.3>=0.3.23, i.e. version 0.3.65.
 
 * OSX
   -- OSX 10.2 or later
