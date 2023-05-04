@@ -1,16 +1,14 @@
 function print_usage() {
-    echo "Usage: $0 java-exe java-xargs joal-build-dir"
+    echo "Usage: $0 java-exe joal-build-dir"
     echo "e.g.: bash scripts/tests.sh `which java` -d64 ../build-x86_64"
 }
     
-if [ -z "$1" -o -z "$2" -o -z "$3" ] ; then
+if [ -z "$1" -o -z "$2" ] ; then
     print_usage
     exit 0
 fi
 
 javaexe="$1"
-shift
-javaxargs=$1
 shift
 bdir=$1
 shift
@@ -88,8 +86,9 @@ function testnormal() {
 }
 
 
-#testnotmal com.jogamp.openal.JoalVersion $*
-testnormal com.jogamp.openal.test.manual.OpenALTest $*
+#testnormal com.jogamp.openal.JoalVersion $*
+#testnormal com.jogamp.openal.test.manual.OpenALTest $*
 #testnormal com.jogamp.openal.test.manual.Sound3DTest $*
+testnormal com.jogamp.openal.test.junit.ALVersionTest $*
 #testnormal com.jogamp.openal.test.junit.ALutWAVLoaderTest $*
 #testnormal com.jogamp.openal.test.junit.ALExtLoopbackDeviceSOFTTest $*

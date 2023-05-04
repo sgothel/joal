@@ -44,6 +44,7 @@ import com.jogamp.openal.ALCcontext;
 import com.jogamp.openal.ALCdevice;
 import com.jogamp.openal.ALConstants;
 import com.jogamp.openal.ALFactory;
+import com.jogamp.openal.ALVersion;
 import com.jogamp.openal.UnsupportedAudioFileException;
 import com.jogamp.openal.eax.EAX;
 import com.jogamp.openal.eax.EAXConstants;
@@ -73,8 +74,9 @@ public class OpenALTest {
         device = alc.alcOpenDevice(null);
         context = alc.alcCreateContext(device, null);
         alc.alcMakeContextCurrent(context);
-        al = ALFactory.getAL();
-        System.out.println("output devices:");
+        al = ALFactory.getAL(); // valid after makeContextCurrent(..)
+        System.out.println("ALVersion: "+new ALVersion(al).toString());
+        System.out.println("Output devices:");
         {
             final String[] outDevices = alc.alcGetDeviceSpecifiers();
             if( null != outDevices ) {
@@ -83,7 +85,7 @@ public class OpenALTest {
                 }
             }
         }
-        System.out.println("capture devices:");
+        System.out.println("Capture devices:");
         {
             final String[] inDevices = alc.alcGetCaptureDeviceSpecifiers();
             if( null != inDevices ) {
@@ -164,6 +166,7 @@ public class OpenALTest {
             sources = null;
         }
         if( null != context ) {
+            alc.alcMakeContextCurrent(null);
             alc.alcDestroyContext(context);
             context = null;
         }

@@ -1,5 +1,5 @@
 /**
- * Copyright 2013 JogAmp Community. All rights reserved.
+ * Copyright 2013-2023 JogAmp Community. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are
  * permitted provided that the following conditions are met:
@@ -56,16 +56,6 @@ public class JoalVersion extends JogampVersion {
         return jogampCommonVersionInfo;
     }
 
-    public StringBuilder toString(StringBuilder sb) {
-        sb = super.toString(sb).append(Platform.getNewline());
-        // getGLInfo(gl, sb);
-        return sb;
-    }
-
-    public String toString() {
-        return toString(null).toString();
-    }
-
     public StringBuilder getBriefOSALBuildInfo(StringBuilder sb) {
         if(null==sb) {
             sb = new StringBuilder();
@@ -77,11 +67,78 @@ public class JoalVersion extends JogampVersion {
         return sb;
     }
 
+    /**
+     * Return {@link JogampVersion} package information and AL informal strings.
+     * <p>
+     * The given {@link ALC} is being used and {@Link ALCdevice} and {@link ALCcontext} are allocated,
+     * made current and finally being released.
+     * </p>
+     * @param alc static {@link ALC} instance
+     * @param sb optional StringBuffer to be reused
+     */
+    public StringBuilder toString(final ALC alc, StringBuilder sb) {
+        sb = super.toString(sb).append(Platform.getNewline());
+        getALStrings(alc, sb);
+        return sb;
+    }
+
+    /**
+     * Return {@link JogampVersion} package information and AL informal strings.
+     * <p>
+     * The given {@link ALC} is being used and {@Link ALCdevice} and {@link ALCcontext} are allocated,
+     * made current and finally being released.
+     * </p>
+     * @param alc static {@link ALC} instance
+     */
+    public String toString(final ALC alc) {
+        return toString(alc, null).toString();
+    }
+
+    /**
+     * Return AL informal strings.
+     * <p>
+     * The given {@link ALC} is being used and {@Link ALCdevice} and {@link ALCcontext} are allocated,
+     * made current and finally being released.
+     * </p>
+     * @param alc static {@link ALC} instance
+     */
+    public StringBuilder getALStrings(final ALC alc, StringBuilder sb) {
+        if( null == sb ) {
+            sb = new StringBuilder();
+        }
+        final ALCdevice device = alc.alcOpenDevice(null);
+        final ALCcontext context = alc.alcCreateContext(device, null);
+        alc.alcMakeContextCurrent(context);
+        final AL al = ALFactory.getAL(); // valid after makeContextCurrent(..)
+        final ALVersion alv = new ALVersion(al);
+
+        alv.toString(true, sb);
+        sb.append("AL_EXTENSIONS  ").append(al.alGetString(ALConstants.AL_EXTENSIONS));
+        sb.append(Platform.getNewline());
+        {
+            final int[] iversion = { 0, 0 };
+            alc.alcGetIntegerv(device, ALCConstants.ALC_MAJOR_VERSION, 1, iversion, 0);
+            alc.alcGetIntegerv(device, ALCConstants.ALC_MINOR_VERSION, 1, iversion, 1);
+            sb.append("ALC_VERSION     ").append(iversion[0]).append(".").append(iversion[1]);
+            sb.append(Platform.getNewline());
+            sb.append("ALC_DEF_OUTPUT  ").append(alc.alcGetString(device, ALCConstants.ALC_DEFAULT_DEVICE_SPECIFIER));
+            sb.append(Platform.getNewline());
+            sb.append("ALC_DEF_CAPTURE ").append(alc.alcGetString(device, ALCConstants.ALC_CAPTURE_DEFAULT_DEVICE_SPECIFIER));
+            sb.append(Platform.getNewline());
+        }
+        alc.alcMakeContextCurrent(null);
+        alc.alcDestroyContext(context);
+        alc.alcCloseDevice(device);
+        return sb;
+    }
+
     public static void main(final String args[]) {
         System.err.println(VersionUtil.getPlatformInfo());
         System.err.println(GlueGenVersion.getInstance());
         // System.err.println(NativeWindowVersion.getInstance());
-        System.err.println(JoalVersion.getInstance());
+        // System.err.println(JoalVersion.getInstance());
+        System.err.println(JoalVersion.getInstance().toString(ALFactory.getALC()));
+
     }
 }
 
