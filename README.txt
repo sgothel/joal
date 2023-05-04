@@ -47,10 +47,11 @@ Additionally the following packages and tools have been used:
 
 * Linux:
   -- cmake
-  -- OpenAL Soft: OpenAL: ALSA, OSS, PulseAudio, WaveFile, Null
+  -- OpenAL Soft: OpenAL: PulseAudio, ALSA, OSS, SndIO (linked), WaveFile, Null
      
      apt-get install cmake autoconf \
              libpulse-dev libpulse0:amd64 libpulse0:i386 pulseaudio \
+             libsndio-dev \
              libasound2-dev libasound2:amd64 libasound2:i386
 
 * OSX
