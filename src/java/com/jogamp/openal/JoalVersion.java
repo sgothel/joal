@@ -106,6 +106,10 @@ public class JoalVersion extends JogampVersion {
         if( null == sb ) {
             sb = new StringBuilder();
         }
+        if( null == alc ) {
+            sb.append("ALC null");
+            return sb;
+        }
         final ALCdevice device = alc.alcOpenDevice(null);
         final ALCcontext context = alc.alcCreateContext(device, null);
         alc.alcMakeContextCurrent(context);
