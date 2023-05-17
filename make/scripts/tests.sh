@@ -61,12 +61,20 @@ function jrun() {
     #D_ARGS="-Djogamp.debug=all"
     #D_ARGS="-Djogamp.debug.Bitstream"
     #D_ARGS="-Djogamp.debug.NativeLibrary=true -Djoal.debug=true"
-    #D_ARGS="-Djoal.debug.AudioSink"
-    #D_ARGS="-Djoal.debug.AudioSink -Djogl.debug.AudioSink.trace"
+    #D_ARGS="-Djogamp.debug.AudioSink"
+    #D_ARGS="-Djogamp.debug.AudioSink -Djoal.debug.AudioSink.trace"
+    #D_ARGS="-Djoal.debug.AudioSink.trace"
     #D_ARGS="-Djoal.debug=all"
     #D_ARGS="-Djogamp.debug.JNILibLoader"
     #X_ARGS="-verbose:jni"
     #X_ARGS="-Xrs"
+
+    # StartFlightRecording: delay=10s,
+    # FlightRecorderOptions: stackdepth=2048
+    # Enable remote connection to jmc: jcmd <PID> ManagementAgent.start jmxremote.authenticate=false jmxremote.ssl=false jmxremote.port=7091
+    # X_ARGS="-XX:+UnlockDiagnosticVMOptions -XX:+DebugNonSafepoints $X_ARGS"
+    # X_ARGS="-XX:FlightRecorderOptions=stackdepth=2048,threadbuffersize=16k $X_ARGS"
+    # X_ARGS="-XX:StartFlightRecording=delay=10s,dumponexit=true,filename=java-run.jfr $X_ARGS"
 
     export CLASSPATH=$GLUEGEN_BDIR/gluegen-rt.jar:$bdir/jar/joal.jar:$bdir/jar/joal-test.jar:$JUNIT_JAR:$ANT_JARS
     #export CLASSPATH=$GLUEGEN_BDIR/gluegen-rt.jar:$bdir/jar/joal.jar:$bdir/jar/joal-natives.jar:$bdir/jar/joal-test.jar:$JUNIT_JAR:$ANT_JARS
