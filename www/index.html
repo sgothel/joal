@@ -29,9 +29,10 @@
                     <h3>Useful Links</h3>
                     <ul>
                         <li><a href="http://www.openal.org">OpenAL Home</a></li>
-                        <li><a href="http://connect.creativelabs.com/openal/Documentation/OpenAL%201.1%20Specification.pdf">OpenAL Specification</a></li>
-                        <li><a href="http://connect.creativelabs.com/openal/Documentation/OpenAL_Programmers_Guide.pdf">OpenAL Programmer's Guide</a></li>
-                        <li><a href="http://kcat.strangesoft.net/openal.html">OpenAL-Soft</a></li>
+                        <li><a href="https://www.openal.org/documentation/openal-1.1-specification.pdf">OpenAL 1.1 Specification</a></li>
+                        <li><a href="https://www.openal.org/documentation/OpenAL_Programmers_Guide.pdf">OpenAL Programmer's Guide</a></li>
+                        <li><a href="https://openal-soft.org/">OpenAL-Soft Homepage</a></li>
+                        <li><a href="https://github.com/kcat/openal-soft">OpenAL-Soft git-repository</a></li>
                         <li><a href="../../joal-demos/www/">JOAL Tutorials and Demos</a></li>
                         <li><a href="http://forum.jogamp.org/joal-f951297.html">JOAL Forums</a></li>
                         <li><a href="../../deployment/jogamp-next/javadoc/joal/javadoc/">JOAL / Sound3D JavaDoc</a></li>
@@ -54,7 +55,45 @@
                     </p>
                     <h3>OpenAL-Soft</h3>
                     <p>
-                        JOAL is tested using <a href="http://kcat.strangesoft.net/openal.html">OpenAL-Soft</a> the cross-platform, software implementation of the OpenAL 3D audio API.
+                        JOAL is tested against <b><a href="https://openal-soft.org/">OpenAL-Soft</a></b>, the cross-platform, software implementation of the OpenAL 3D audio API.
+                    </p>
+                    <p>
+                        All JOAL platform builds also contain a self-build native library of <i><a href="https://openal-soft.org/">OpenAL-Soft</a></i>
+                        <a href="https://jogamp.org/cgit/openal-soft.git/"><b>v1.23.1</b> <i>(from our fork)</i></a>.<br/>
+                        Our builds expose the following audio backends:
+                        <ul>
+                          <li>GNU/Linux
+                            <ul>
+                              <li>PipeWire</li>
+                              <li>PulseAudio</li>
+                              <li>ALSA</li>
+                              <li>OSS</li>
+                              <li>SndIO (linked)</li>
+                              <li>WaveFile</li>
+                              <li>Null</li>
+                            </ul></li>
+                          <li>Android/Linux
+                            <ul>
+                              <li>PipeWire</li>
+                              <li>OpenSL</li>
+                              <li>WaveFile</li>
+                              <li>Null</li>
+                            </ul></li>
+                          <li>Windows
+                            <ul>
+                              <li>WinMM</li>
+                              <li>DirectSound</li>
+                              <li>WASAPI</li>
+                              <li>WaveFile</li>
+                              <li>Null</li>
+                            </ul></li>
+                          <li>MacOS
+                            <ul>
+                              <li>CoreAudio</li>
+                              <li>WaveFile</li>
+                              <li>Null</li>
+                            </ul></li>
+                        </ul>
                     </p>
                 </div>
             </div>

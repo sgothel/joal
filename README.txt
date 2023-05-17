@@ -13,6 +13,7 @@ Author:
     -- This file updated 11/23/2003 by Gregory Pierce <gpierce@gregorypierce.com>    
     -- This file updated 12/21/2005 by Kenneth Russell <kbr@dev.java.net>
     -- This file updated 02/15/2014 by Sven Gothel <sgothel@jausoft.com> (see git log)
+    -- This file updated 05/17/2023 by Sven Gothel <sgothel@jausoft.com> (see git log)
 
 Introduction:
 =============
@@ -32,7 +33,7 @@ interface.
 Build Requirements:
 ===================
 
-This project has been built under Win32, Linux, Android and MacOS. 
+This project has been built under Win32, GNU/Linux, Android/Linux and MacOS. 
 
 Check GlueGen's HowToBuild <https://jogamp.org/gluegen/doc/HowToBuild.html>
 for basic prerequisites.
@@ -41,11 +42,13 @@ Additionally the following packages and tools have been used:
 
 * All Systems:
   -- See GlueGen's HowToBuild <https://jogamp.org/gluegen/doc/HowToBuild.html>
+  -- OpenAL <https://openal-soft.org/>
 
 * Windows:
   -- CMake 3.15.2 <https://cmake.org/download/>
+  -- OpenAL Soft: Audio-Backends: WinMM, DirectSound, WASAPI, WaveFile, Null
 
-* Linux:
+* GNU/Linux:
   -- cmake
   -- OpenAL Soft: OpenAL: PipeWire, PulseAudio, ALSA, OSS, SndIO (linked), WaveFile, Null
      
@@ -58,11 +61,16 @@ Additionally the following packages and tools have been used:
      On Debian 11 Bullseye, use bullseye-backports `apt -t bullseye-backports install libpipewire-0.3-dev`
      to have libpipewire-0.3>=0.3.23, i.e. version 0.3.65.
 
+* Android/Linux:
+  -- cmake
+  -- OpenAL Soft: Audio-Backends: PipeWire, OpenSL, WaveFile, Null
+
 * OSX
   -- OSX 10.2 or later
   -- OSX Developer Tools Xcode
   -- CMake 3.15.2 <https://cmake.org/download/> 
      and install the commandline tools <https://stackoverflow.com/questions/30668601/installing-cmake-command-line-tools-on-a-mac>
+  -- OpenAL Soft: Audio-Backends: CoreAudio, WaveFile, Null
 
 JOAL requires the GlueGen workspace to be checked out as a sibling
 directory to the joal directory. 
