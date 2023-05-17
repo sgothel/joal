@@ -61,6 +61,8 @@ function jrun() {
     #D_ARGS="-Djogamp.debug=all"
     #D_ARGS="-Djogamp.debug.Bitstream"
     #D_ARGS="-Djogamp.debug.NativeLibrary=true -Djoal.debug=true"
+    #D_ARGS="-Djoal.debug.AudioSink"
+    #D_ARGS="-Djoal.debug.AudioSink -Djogl.debug.AudioSink.trace"
     #D_ARGS="-Djoal.debug=all"
     #D_ARGS="-Djogamp.debug.JNILibLoader"
     #X_ARGS="-verbose:jni"
@@ -89,6 +91,8 @@ function testnormal() {
 #testnormal com.jogamp.openal.JoalVersion $*
 #testnormal com.jogamp.openal.test.manual.OpenALTest $*
 #testnormal com.jogamp.openal.test.manual.Sound3DTest $*
-testnormal com.jogamp.openal.test.junit.ALVersionTest $*
+#testnormal com.jogamp.openal.test.manual.Synth01AL $*
+testnormal com.jogamp.openal.test.manual.Synth02AL $*
+#testnormal com.jogamp.openal.test.junit.ALVersionTest $*
 #testnormal com.jogamp.openal.test.junit.ALutWAVLoaderTest $*
 #testnormal com.jogamp.openal.test.junit.ALExtLoopbackDeviceSOFTTest $*
