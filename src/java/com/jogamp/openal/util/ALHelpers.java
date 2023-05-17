@@ -55,12 +55,19 @@ public class ALHelpers {
      * @param alChannelLayout AL channel layout, see {@link #getDefaultALChannelLayout(int)}
      * @param alSampleType AL sample type, see {@link #getALSampleType(int, boolean, boolean)}.
      * @param hasSOFTBufferSamples true if having extension <code>AL_SOFT_buffer_samples</code>, otherwise false
+     * @param hasEXTMcFormats true if having extension <code>AL_EXT_MCFORMATS</code>, otherwise false
+     * @param hasEXTFloat32 true if having extension <code>AL_EXT_FLOAT32</code>, otherwise false
+     * @param hasEXTDouble true if having extension <code>AL_EXT_DOUBLE</code>, otherwise false
      * @param al AL instance
      * @param alExt ALExt instance
      * @return AL buffer format
      */
     public static final int getALFormat(final int alChannelLayout, final int alSampleType,
-                                        final boolean hasSOFTBufferSamples, final AL al, final ALExt alExt) {
+                                        final boolean hasSOFTBufferSamples,
+                                        final boolean hasEXTMcFormats,
+                                        final boolean hasEXTFloat32,
+                                        final boolean hasEXTDouble,
+                                        final AL al, final ALExt alExt) {
         int format = AL_NONE;
 
         /* If using AL_SOFT_buffer_samples, try looking through its formats */
@@ -154,7 +161,7 @@ public class ALHelpers {
                 format = AL_FORMAT_MONO8;
             else if(alChannelLayout == AL_STEREO_SOFT)
                 format = AL_FORMAT_STEREO8;
-            else if(al.alIsExtensionPresent("AL_EXT_MCFORMATS"))
+            else if( hasEXTMcFormats )
             {
                 if(alChannelLayout == AL_QUAD_SOFT)
                     format = al.alGetEnumValue("AL_FORMAT_QUAD8");
@@ -172,7 +179,7 @@ public class ALHelpers {
                 format = AL_FORMAT_MONO16;
             else if(alChannelLayout == AL_STEREO_SOFT)
                 format = AL_FORMAT_STEREO16;
-            else if(al.alIsExtensionPresent("AL_EXT_MCFORMATS"))
+            else if( hasEXTMcFormats )
             {
                 if(alChannelLayout == AL_QUAD_SOFT)
                     format = al.alGetEnumValue("AL_FORMAT_QUAD16");
@@ -184,13 +191,13 @@ public class ALHelpers {
                     format = al.alGetEnumValue("AL_FORMAT_71CHN16");
             }
         }
-        else if(alSampleType == AL_FLOAT_SOFT && al.alIsExtensionPresent("AL_EXT_FLOAT32"))
+        else if(alSampleType == AL_FLOAT_SOFT && hasEXTFloat32)
         {
             if(alChannelLayout == AL_MONO_SOFT)
                 format = al.alGetEnumValue("AL_FORMAT_MONO_FLOAT32");
             else if(alChannelLayout == AL_STEREO_SOFT)
                 format = al.alGetEnumValue("AL_FORMAT_STEREO_FLOAT32");
-            else if(al.alIsExtensionPresent("AL_EXT_MCFORMATS"))
+            else if( hasEXTMcFormats )
             {
                 if(alChannelLayout == AL_QUAD_SOFT)
                     format = al.alGetEnumValue("AL_FORMAT_QUAD32");
@@ -202,7 +209,7 @@ public class ALHelpers {
                     format = al.alGetEnumValue("AL_FORMAT_71CHN32");
             }
         }
-        else if(alSampleType == AL_DOUBLE_SOFT && al.alIsExtensionPresent("AL_EXT_DOUBLE"))
+        else if(alSampleType == AL_DOUBLE_SOFT && hasEXTDouble)
         {
             if(alChannelLayout == AL_MONO_SOFT)
                 format = al.alGetEnumValue("AL_FORMAT_MONO_DOUBLE");
