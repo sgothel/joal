@@ -71,6 +71,7 @@ public class ALAudioSink implements AudioSink {
     private AudioFormat preferredAudioFormat;
     private ALCcontext context;
     private final RecursiveLock lock = LockFactory.createRecursiveLock();
+    private volatile Thread exclusiveThread = null;
 
     /** Playback speed, range [0.5 - 2.0], default 1.0. */
     private float playSpeed;
@@ -265,7 +266,23 @@ public class ALAudioSink implements AudioSink {
         return sampleRate;
     }
 
+    @Override
+    public final void lockExclusive() {
+        lockContext();
+        exclusiveThread = Thread.currentThread();
+    }
+    @Override
+    public final void unlockExclusive() {
+        exclusiveThread = null;
+        unlockContext();
+    }
     private final void lockContext() {
+        if( null != exclusiveThread ) {
+            if( Thread.currentThread() == exclusiveThread ) {
+                return;
+            }
+            throw new IllegalStateException("Exclusive lock by "+exclusiveThread+", but current is "+Thread.currentThread());
+        }
         lock.lock();
         if( hasALC_thread_local_context ) {
             alExt.alcSetThreadContext(context);
@@ -289,6 +306,12 @@ public class ALAudioSink implements AudioSink {
         }
     }
     private final void unlockContext() {
+        if( null != exclusiveThread ) {
+            if( Thread.currentThread() == exclusiveThread ) {
+                return;
+            }
+            throw new IllegalStateException("Exclusive lock by "+exclusiveThread+", but current is "+Thread.currentThread());
+        }
         if( hasALC_thread_local_context ) {
             alExt.alcSetThreadContext(null);
         } else {
