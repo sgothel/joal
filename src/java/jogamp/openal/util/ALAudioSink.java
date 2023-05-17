@@ -354,7 +354,7 @@ public class ALAudioSink implements AudioSink {
         return "ALAudioSink[avail "+available+", playRequested "+playRequested+", device "+deviceSpecifier+", ctx "+toHexString(ctxHash)+", alSource "+alSrcName+
                ", chosen "+chosenFormat+
                ", al[chan "+ALHelpers.alChannelLayoutName(alChannelLayout)+", type "+ALHelpers.alSampleTypeName(alSampleType)+
-               ", fmt "+toHexString(alFormat)+", soft "+hasSOFTBufferSamples+
+               ", fmt "+toHexString(alFormat)+", tlc "+hasALC_thread_local_context+", soft "+hasSOFTBufferSamples+
                "], playSpeed "+playSpeed+", buffers[total "+alBuffersLen+", avail "+alFramesAvailSize+", "+
                "queued["+alFramesPlayingSize+", apts "+getPTS()+", "+getQueuedTime() + " ms, " + alBufferBytesQueued+" bytes], "+
                "queue[g "+frameGrowAmount+", l "+frameLimit+"]";
