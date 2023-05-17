@@ -30,11 +30,13 @@ package jogamp.openal.util;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
+import java.util.concurrent.TimeUnit;
 
 import jogamp.openal.Debug;
 
 import com.jogamp.common.ExceptionUtils;
 import com.jogamp.common.av.AudioSink;
+import com.jogamp.common.os.Clock;
 import com.jogamp.common.util.LFRingbuffer;
 import com.jogamp.common.util.PropertyAccess;
 import com.jogamp.common.util.Ringbuffer;
@@ -99,6 +101,7 @@ public class ALAudioSink implements AudioSink {
 
     // private ALAudioFrame[] alFrames = null;
     private int[] alBufferNames = null;
+    private int avgFrameDuration = 0; // [ms]
     private int frameGrowAmount = 0;
     private int frameLimit = 0;
 
@@ -438,6 +441,7 @@ public class ALAudioSink implements AudioSink {
             destroyBuffers();
             {
                 final float useFrameDuration = frameDuration > 1f ? frameDuration : AudioSink.DefaultFrameDuration;
+                avgFrameDuration = (int) useFrameDuration;
                 final int initialFrameCount = requestedFormat.getFrameCount(
                         initialQueueSize > 0 ? initialQueueSize : AudioSink.DefaultInitialQueueSize, useFrameDuration);
                 // frameDuration, int initialQueueSize, int queueGrowAmount, int queueLimit) {
@@ -613,31 +617,54 @@ public class ALAudioSink implements AudioSink {
         if( alBufferBytesQueued > 0 ) {
             final int releaseBufferLimes = Math.max(1, alFramesPlaying.size() / 4 );
             final int[] val=new int[1];
+            final int avgBufferDura = chosenFormat.getBytesDuration( alBufferBytesQueued / alFramesPlaying.size() );
+            final int sleepLimes = releaseBufferLimes * avgBufferDura;
             int i=0;
+            int slept = 0;
+            int releasedBuffers = 0;
+            final long t0 = DEBUG ? Clock.currentNanos() : 0;
             do {
+                val[0] = 0;
                 al.alGetSourcei(alSource[0], ALConstants.AL_BUFFERS_PROCESSED, val, 0);
                 alErr = al.alGetError();
                 if( ALConstants.AL_NO_ERROR != alErr ) {
                     throw new RuntimeException(getThreadName()+": ALError "+toHexString(alErr)+" while quering processed buffers at source. "+this);
                 }
-                if( wait && val[0] < releaseBufferLimes ) {
+                releasedBuffers += val[0];
+                if( wait && releasedBuffers < releaseBufferLimes ) {
                     i++;
-                    // clip wait at [2 .. 100] ms
-                    final int avgBufferDura = chosenFormat.getBytesDuration( alBufferBytesQueued / alFramesPlaying.size() );
-                    final int sleep = Math.max(2, Math.min(100, releaseBufferLimes * avgBufferDura));
-                    if( DEBUG ) {
-                        System.err.println(getThreadName()+": ALAudioSink: Dequeue.wait["+i+"]: avgBufferDura "+avgBufferDura+", releaseBufferLimes "+releaseBufferLimes+", sleep "+sleep+" ms, playImpl "+(ALConstants.AL_PLAYING == getSourceState(false))+", processed "+val[0]+", "+this);
-                    }
-                    unlockContext();
-                    try {
-                        Thread.sleep( sleep - 1 );
-                    } catch (final InterruptedException e) {
-                    } finally {
-                        lockContext();
+                    // clip wait at [avgFrameDuration .. 100] ms
+                    final int sleep = Math.max(avgFrameDuration, Math.min(100, releaseBufferLimes-releasedBuffers * avgBufferDura));
+                    if( slept + sleep <= sleepLimes ) {
+                        if( DEBUG ) {
+                            System.err.println(getThreadName()+": ALAudioSink: Dequeue.wait-sleep["+i+"]: avgBufferDura "+avgBufferDura+", releaseBuffers "+releasedBuffers+"/"+releaseBufferLimes+", sleep "+sleep+"/"+slept+"/"+sleepLimes+" ms, playImpl "+(ALConstants.AL_PLAYING == getSourceState(false))+", processed "+val[0]+", "+shortString());
+                        }
+                        unlockContext();
+                        try {
+                            Thread.sleep( sleep );
+                            slept += sleep;
+                        } catch (final InterruptedException e) {
+                        } finally {
+                            lockContext();
+                        }
+                    } else {
+                        // Empirical best behavior w/ openal-soft (sort of needs min ~21ms to complete processing a buffer even if period < 20ms?)
+                        unlockContext();
+                        try {
+                            Thread.sleep( 1 );
+                            slept += 1;
+                        } catch (final InterruptedException e) {
+                        } finally {
+                            lockContext();
+                        }
                     }
                 }
-            } while ( wait && val[0] < releaseBufferLimes && alBufferBytesQueued > 0 );
-            releaseBufferCount = val[0];
+            } while ( wait && releasedBuffers < releaseBufferLimes && alBufferBytesQueued > 0 );
+            releaseBufferCount = releasedBuffers;
+            if( DEBUG ) {
+                final long t1 = Clock.currentNanos();
+                System.err.println(getThreadName()+": ALAudioSink: Dequeue.wait-done["+i+"]: "+TimeUnit.NANOSECONDS.toMillis(t1-t0)+" ms, avgBufferDura "+avgBufferDura+", releaseBuffers "+releaseBufferCount+"/"+releaseBufferLimes+", slept "+slept+" ms, playImpl "+(ALConstants.AL_PLAYING == getSourceState(false))+", processed "+val[0]+", "+shortString());
+            }
         } else {
             releaseBufferCount = 0;
         }
@@ -741,20 +768,17 @@ public class ALAudioSink implements AudioSink {
         lockContext();
         try {
             final int duration = chosenFormat.getBytesDuration(byteCount);
-            final boolean dequeueDone;
             if( alFramesAvail.isEmpty() ) {
                 // try to dequeue w/o waiting first
-                dequeueDone = dequeueBuffer(false, pts, duration) > 0;
+                dequeueBuffer(false, pts, duration);
                 if( alFramesAvail.isEmpty() ) {
                     // try to grow
                     growBuffers();
                 }
-            } else {
-                dequeueDone = false;
-            }
-            if( !dequeueDone && alFramesPlaying.size() > 0 ) { // dequeue only possible if playing ..
-                final boolean wait = isPlayingImpl0() && alFramesAvail.isEmpty(); // possible if grow failed or already exceeds it's limit!
-                dequeueBuffer(wait, pts, duration);
+                if( alFramesAvail.isEmpty() && alFramesPlaying.size() > 0 && isPlayingImpl0() ) {
+                    // possible if grow failed or already exceeds it's limit - only possible if playing ..
+                    dequeueBuffer(true /* wait */, pts, duration);
+                }
             }
 
             alFrame = alFramesAvail.get();

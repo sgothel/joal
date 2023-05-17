@@ -35,6 +35,7 @@ import java.util.concurrent.TimeUnit;
 
 import com.jogamp.common.av.AudioSink;
 import com.jogamp.common.av.AudioSinkFactory;
+import com.jogamp.common.nio.Buffers;
 import com.jogamp.common.os.Clock;
 import com.jogamp.common.util.InterruptSource;
 import com.jogamp.common.util.InterruptedRuntimeException;
@@ -67,7 +68,7 @@ public final class Synth02AL {
 
     private static final float SHORT_MAX = 32767.0f; // == Short.MAX_VALUE
 
-    public static final int frameDuration = 16; // AudioSink.DefaultFrameDuration; // [ms]
+    public static final int frameDuration = 12; // AudioSink.DefaultFrameDuration; // [ms]
 
     public static final int audioQueueLimit = 3 * frameDuration;
 
@@ -151,6 +152,11 @@ public final class Synth02AL {
         }
     }
 
+    private static ByteBuffer allocate(final int size) {
+        // return ByteBuffer.allocate(size);
+        return Buffers.newDirectByteBuffer(size);
+    }
+
     class SynthWorker extends InterruptSource.Thread {
         private volatile boolean isRunning = false;
         private volatile boolean isPlaying = false;
@@ -161,7 +167,7 @@ public final class Synth02AL {
 
         private final AudioSink audioSink;
         private final AudioSink.AudioFormat audioFormat;
-        private ByteBuffer sampleBuffer = ByteBuffer.allocate(2*1000);
+        private ByteBuffer sampleBuffer = allocate(2*1000);
         private float lastFreq;
         private float nextSin;
         private boolean upSin;
@@ -261,7 +267,7 @@ public final class Synth02AL {
                 if( DEBUG ) {
                     System.err.printf("SampleBuffer grow: %d -> %d%n", sampleBuffer.capacity(), 2*sample_count);
                 }
-                sampleBuffer = ByteBuffer.allocate(2*sample_count);
+                sampleBuffer = allocate(2*sample_count);
             }
 
             {
@@ -347,6 +353,8 @@ public final class Synth02AL {
             setName(getName()+"-SynthWorker_"+SynthWorkerInstanceId);
             SynthWorkerInstanceId++;
 
+            audioSink.lockExclusive();
+
             synchronized ( this ) {
                 isRunning = true;
                 this.notifyAll(); // wake-up ctor()
@@ -378,6 +386,9 @@ public final class Synth02AL {
                     isBlocked = false;
                 }
             }
+
+            audioSink.unlockExclusive();
+
             synchronized ( this ) {
                 isRunning = false;
                 isPlaying = false;
@@ -420,16 +431,21 @@ public final class Synth02AL {
         System.err.println("0: "+o);
         o.play();
         System.err.println("1: "+o);
+        enterValue("Press enter to start");
         {
+            final float min = 100, max = 10000, step = 30;
             final long t0 = Clock.currentNanos();
-            for(float f=100; f<10000; f+=30) {
+            for(float f=min; f<max; f+=step) {
                 o.setFreq(f);
                 try {
                     Thread.sleep(frameDuration);
                 } catch (final InterruptedException e) { }
             }
             final long t1 = Clock.currentNanos();
-            System.err.println("Loop "+TimeUnit.NANOSECONDS.toMillis(t1-t0)+" ms");
+            final int exp = (int)( (max - min) / step ) * frameDuration;
+            final int has = (int)TimeUnit.NANOSECONDS.toMillis(t1-t0);
+            final int diff = has - exp;
+            System.err.println("Loop "+has+" / "+exp+" [ms], diff "+diff+" [ms], "+((float)diff/(float)exp) * 100f+"%");
         }
         o.setFreq( MIDDLE_C );
         System.err.println("c: "+o);
