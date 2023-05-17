@@ -118,10 +118,6 @@ public class OpenALTest {
         al.alGetSourcei(sources[0], ALConstants.AL_LOOPING, loopArray, 0);
         System.err.println("Looping 1: " + (loopArray[0] == ALConstants.AL_TRUE));
 
-        final int[] loopBuffer = new int[1];
-        al.alGetSourcei(sources[0], ALConstants.AL_LOOPING, loopBuffer, 0);
-        System.err.println("Looping 2: " + (loopBuffer[0] == ALConstants.AL_TRUE));
-
         if (eaxPresent && null!=eax) {
             final IntBuffer env = Buffers.newDirectIntBuffer(1);
             env.put(EAXConstants.EAX_ENVIRONMENT_BATHROOM);
