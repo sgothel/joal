@@ -48,8 +48,8 @@ import com.jogamp.common.util.SourcedInterruptedException;
  * allowing to change frequency and amplitude without disturbance.
  * </p>
  * <p>
- * Latency is hardcoded as 1 - 3 times frameDuration, having a frameDuration of 16 ms.
- * Averages around 48 ms.
+ * Latency is hardcoded as 1 - 3 times frameDuration, having a frameDuration of 12 ms.
+ * Averages around 24 ms.
  * </p>
  * <p>
  * Latency needs improvement to have a highly responsive life-music synthesizer.
