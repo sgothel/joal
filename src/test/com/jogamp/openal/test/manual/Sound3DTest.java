@@ -64,7 +64,7 @@ public class Sound3DTest {
 
         // create the initial context - this can be collapsed into the init.
         final Device device = AudioSystem3D.openDevice(null);
-        final Context context = AudioSystem3D.createContext(device);
+        final Context context = new Context(device);
         if( !context.makeCurrent() ) {
             System.err.println("Context.makeCurrent() failed");
             return;

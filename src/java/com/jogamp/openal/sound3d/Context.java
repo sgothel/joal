@@ -75,8 +75,7 @@ public class Context {
      * @param device The device the Context is being created for.
      */
     public Context(final Device device) {
-        this.device = device;
-        this.alCtx = AudioSystem3D.alc.alcCreateContext(device.getALDevice(), null);
+        this(AudioSystem3D.alc.alcCreateContext(device.getALDevice(), null), device);
     }
 
     /**
