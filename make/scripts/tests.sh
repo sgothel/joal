@@ -25,6 +25,11 @@ if [ ! -d $bdir ] ; then
     exit 1
 fi
 
+#
+# See https://github.com/kcat/openal-soft/blob/master/docs/env-vars.txt
+# export ALSOFT_LOGLEVEL=3
+#
+
 rm -f java-run.log
 
 spath=`dirname $0`
