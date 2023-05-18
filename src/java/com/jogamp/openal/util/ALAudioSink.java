@@ -358,27 +358,35 @@ public class ALAudioSink implements AudioSink {
             throw new IllegalStateException("Exclusive lock by "+exclusiveThread+", but current is "+Thread.currentThread());
         }
         lock.lock();
+        final boolean r;
         if( hasALC_thread_local_context ) {
-            alExt.alcSetThreadContext(context);
+            r = alExt.alcSetThreadContext(context);
             threadContextLocked = true;
         } else {
-            alc.alcMakeContextCurrent(context);
+            r = alc.alcMakeContextCurrent(context);
             threadContextLocked = false;
         }
-        final int alcErr = alc.alcGetError(null);
-        if( ALCConstants.ALC_NO_ERROR != alcErr ) {
-            final String err = getThreadName()+": ALCError "+toHexString(alcErr)+" while makeCurrent. "+this;
+        if( !r ) {
+            final int alcErr = alc.alcGetError(null);
+            if( ALCConstants.ALC_NO_ERROR != alcErr ) {
+                final String err = getThreadName()+": ALCError "+toHexString(alcErr)+" while makeCurrent. "+this;
+                System.err.println(err);
+                ExceptionUtils.dumpStack(System.err);
+                lock.unlock();
+                throw new RuntimeException(err);
+            }
+            final int alErr = al.alGetError();
+            if( ALCConstants.ALC_NO_ERROR != alErr ) {
+                if( DEBUG ) {
+                    System.err.println(getThreadName()+": Prev - ALError "+toHexString(alErr)+" @ makeCurrent. "+this);
+                    ExceptionUtils.dumpStack(System.err);
+                }
+            }
+            final String err = getThreadName()+": ALCError makeCurrent failed. "+this;
             System.err.println(err);
             ExceptionUtils.dumpStack(System.err);
             lock.unlock();
             throw new RuntimeException(err);
-        }
-        final int alErr = al.alGetError();
-        if( ALCConstants.ALC_NO_ERROR != alErr ) {
-            if( DEBUG ) {
-                System.err.println(getThreadName()+": Prev - ALError "+toHexString(alErr)+" @ makeCurrent. "+this);
-                ExceptionUtils.dumpStack(System.err);
-            }
         }
     }
     private final void unlockContext() {
@@ -388,10 +396,17 @@ public class ALAudioSink implements AudioSink {
             }
             throw new IllegalStateException("Exclusive lock by "+exclusiveThread+", but current is "+Thread.currentThread());
         }
+        final boolean r;
         if( threadContextLocked ) {
-            alExt.alcSetThreadContext(null);
+            r = alExt.alcSetThreadContext(null);
         } else {
-            alc.alcMakeContextCurrent(null);
+            r = alc.alcMakeContextCurrent(null);
+        }
+        if( DEBUG ) {
+            if( !r ) {
+                System.err.println(getThreadName()+": unlockContext failed. "+this);
+                ExceptionUtils.dumpStack(System.err);
+            }
         }
         lock.unlock();
     }
