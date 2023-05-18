@@ -82,6 +82,7 @@ public class ALAudioSink implements AudioSink {
     private AudioFormat preferredAudioFormat;
     private ALCcontext context;
     private final RecursiveLock lock = LockFactory.createRecursiveLock();
+    private boolean threadContextLocked;
     private volatile Thread exclusiveThread = null;
 
     /** Playback speed, range [0.5 - 2.0], default 1.0. */
@@ -192,18 +193,15 @@ public class ALAudioSink implements AudioSink {
                     if (device == null) {
                         throw new RuntimeException(getThreadName()+": ALAudioSink: Error opening default OpenAL device");
                     }
-                    clearPreALError("init.dev");
                 } else {
                     device = alDevice;
                 }
-                int checkErrIter = 1;
 
                 // Get the device specifier.
                 deviceSpecifier = alc.alcGetString(device, ALCConstants.ALC_DEVICE_SPECIFIER);
                 if (deviceSpecifier == null) {
                     throw new RuntimeException(getThreadName()+": ALAudioSink: Error getting specifier for default OpenAL device");
                 }
-                clearPreALError("init."+checkErrIter++);
 
                 if( null == alContext ) {
                     // Create audio context.
@@ -229,6 +227,7 @@ public class ALAudioSink implements AudioSink {
                     hasEXTDouble = al.alIsExtensionPresent(ALHelpers.AL_EXT_DOUBLE);
                     hasALC_thread_local_context = alc.alcIsExtensionPresent(null, ALHelpers.ALC_EXT_thread_local_context) ||
                                                   alc.alcIsExtensionPresent(device, ALHelpers.ALC_EXT_thread_local_context) ;
+                    int checkErrIter = 1;
                     clearPreALError("init."+checkErrIter++);
                     preferredSampleRate = querySampleRate();
                     preferredAudioFormat = new AudioFormat(preferredSampleRate, DefaultFormat.sampleSize, DefaultFormat.channelCount, DefaultFormat.signed, DefaultFormat.fixedP, DefaultFormat.planar, DefaultFormat.littleEndian);
@@ -361,8 +360,10 @@ public class ALAudioSink implements AudioSink {
         lock.lock();
         if( hasALC_thread_local_context ) {
             alExt.alcSetThreadContext(context);
+            threadContextLocked = true;
         } else {
             alc.alcMakeContextCurrent(context);
+            threadContextLocked = false;
         }
         final int alcErr = alc.alcGetError(null);
         if( ALCConstants.ALC_NO_ERROR != alcErr ) {
@@ -387,7 +388,7 @@ public class ALAudioSink implements AudioSink {
             }
             throw new IllegalStateException("Exclusive lock by "+exclusiveThread+", but current is "+Thread.currentThread());
         }
-        if( hasALC_thread_local_context ) {
+        if( threadContextLocked ) {
             alExt.alcSetThreadContext(null);
         } else {
             alc.alcMakeContextCurrent(null);
@@ -399,6 +400,12 @@ public class ALAudioSink implements AudioSink {
         try {
             if( null != context ) {
                 try {
+                    exclusiveThread = null;
+                    if( threadContextLocked ) {
+                        alExt.alcSetThreadContext(null);
+                    } else {
+                        alc.alcMakeContextCurrent(null);
+                    }
                     alc.alcDestroyContext(context);
                 } catch (final Throwable t) {
                     if( DEBUG ) {
