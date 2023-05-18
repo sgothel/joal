@@ -1,4 +1,5 @@
 /**
+* Copyright (c) 2010-2023 JogAmp Community. All rights reserved.
 * Copyright (c) 2003 Sun Microsystems, Inc. All  Rights Reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -35,7 +36,6 @@ package com.jogamp.openal.sound3d;
 
 import com.jogamp.openal.AL;
 import com.jogamp.openal.ALConstants;
-
 import java.nio.ByteBuffer;
 
 
@@ -46,36 +46,27 @@ import java.nio.ByteBuffer;
  * @author Athomas Goldberg
  */
 public class Buffer {
-     public final static int FORMAT_MONO8 = AL.AL_FORMAT_MONO8;
+    public final static int FORMAT_MONO8 = AL.AL_FORMAT_MONO8;
 
     public final static int FORMAT_MONO16 = AL.AL_FORMAT_MONO16;
 
     public final static int FORMAT_STEREO8 = AL.AL_FORMAT_STEREO8;
 
     public final static int FORMAT_STEREO16 = AL.AL_FORMAT_STEREO16;
-    final int bufferID;
-    private ByteBuffer data;
-    private final boolean isConfigured = false;
-    private final AL al;
 
-    Buffer(final AL al, final int bufferID) {
-        this.bufferID = bufferID;
-        this.al = al;
+    private int alBufferID;
+    private ByteBuffer data;
+
+    public Buffer(final int bufferID) {
+        this.alBufferID = bufferID;
     }
 
-    /**
-     * Configure the Sound3D buffer
-     *
-     * @param data the raw audio data
-     * @param format the format of the data: <code>FORMAT_MONO8, FORMAT_MONO16,
-     *        FORMAT_STEREO8</code> and <code>FORMAT_STEREO16</code>
-     * @param freq the frequency of the data
-     */
-    public void configure(final ByteBuffer data, final int format, final int freq) {
-        if (!isConfigured) {
-            this.data = data;
-            al.alBufferData(bufferID, format, data, data.capacity(), freq);
-        }
+    /** Return the OpenAL buffer ID, -1 if invalid. */
+    public int getID() { return alBufferID; }
+
+    /** Returns whether {@link #getID()} is valid, i.e. not {@link #delete()}'ed */
+    public boolean isValid() {
+        return 0 <= alBufferID && AudioSystem3D.al.alIsBuffer(alBufferID);
     }
 
     /**
@@ -83,7 +74,23 @@ public class Buffer {
      */
     public void delete() {
         data = null;
-        al.alDeleteBuffers(1, new int[] { bufferID }, 0);
+        if( 0 <= alBufferID ) {
+            AudioSystem3D.al.alDeleteBuffers(1, new int[] { alBufferID }, 0);
+            alBufferID = -1;
+        }
+    }
+
+    /**
+     * Configure the Sound3D buffer
+     *
+     * @param data the raw audio data
+     * @param alFormat the OpenAL format of the data, e.g. <code>FORMAT_MONO8, FORMAT_MONO16,
+     *        FORMAT_STEREO8</code> and <code>FORMAT_STEREO16</code>
+     * @param freq the frequency of the data
+     */
+    public void configure(final ByteBuffer data, final int alFormat, final int freq) {
+        this.data = data;
+        AudioSystem3D.al.alBufferData(alBufferID, alFormat, data, data.capacity(), freq);
     }
 
     /**
@@ -93,7 +100,7 @@ public class Buffer {
      */
     public int getBitDepth() {
         final int[] i = new int[1];
-        al.alGetBufferi(bufferID, ALConstants.AL_BITS, i, 0);
+        AudioSystem3D.al.alGetBufferi(alBufferID, ALConstants.AL_BITS, i, 0);
 
         return i[0];
     }
@@ -105,7 +112,7 @@ public class Buffer {
      */
     public int getNumChannels() {
         final int[] i = new int[1];
-        al.alGetBufferi(bufferID, ALConstants.AL_CHANNELS, i, 0);
+        AudioSystem3D.al.alGetBufferi(alBufferID, ALConstants.AL_CHANNELS, i, 0);
 
         return i[0];
     }
@@ -126,7 +133,7 @@ public class Buffer {
      */
     public int getFrequency() {
         final int[] i = new int[1];
-        al.alGetBufferi(bufferID, ALConstants.AL_FREQUENCY, i, 0);
+        AudioSystem3D.al.alGetBufferi(alBufferID, ALConstants.AL_FREQUENCY, i, 0);
 
         return i[0];
     }
@@ -138,7 +145,7 @@ public class Buffer {
      */
     public int getSize() {
         final int[] i = new int[1];
-        al.alGetBufferi(bufferID, ALConstants.AL_SIZE, i, 0);
+        AudioSystem3D.al.alGetBufferi(alBufferID, ALConstants.AL_SIZE, i, 0);
 
         return i[0];
     }

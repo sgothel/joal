@@ -1,4 +1,5 @@
 /**
+ * Copyright (c) 2010-2023 JogAmp Community. All rights reserved.
  * Copyright (c) 2003 Sun Microsystems, Inc. All  Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,13 +40,14 @@ import java.io.InputStream;
 
 import com.jogamp.openal.AL;
 import com.jogamp.openal.ALC;
-import com.jogamp.openal.ALCcontext;
-import com.jogamp.openal.ALCdevice;
 import com.jogamp.openal.ALException;
+import com.jogamp.openal.ALExt;
 import com.jogamp.openal.ALFactory;
 import com.jogamp.openal.UnsupportedAudioFileException;
 import com.jogamp.openal.util.WAVData;
 import com.jogamp.openal.util.WAVLoader;
+
+import jogamp.openal.Debug;
 
 /**
  * The AudioSystem3D class provides a set of methods for creating and
@@ -54,17 +56,51 @@ import com.jogamp.openal.util.WAVLoader;
  * @author Athomas Goldberg
  */
 public class AudioSystem3D {
-  private static AL al;
-  private static ALC alc;
-  private static Listener listener;
+  static boolean DEBUG = Debug.debug("AudioSystem3D");
+  static final AL al;
+  static final ALC alc;
+  static final ALExt alExt;
+  static final boolean staticAvailable;
+  static Listener listener;
+
+  static {
+      ALC _alc = null;
+      AL _al = null;
+      ALExt _alExt = null;
+      try {
+          _alc = ALFactory.getALC();
+          _al = ALFactory.getAL();
+          _alExt = ALFactory.getALExt();
+      } catch(final Throwable t) {
+          if( DEBUG ) {
+              System.err.println("AudioSystem3D: Caught "+t.getClass().getName()+": "+t.getMessage());
+              t.printStackTrace();
+          }
+      }
+      alc = _alc;
+      al = _al;
+      alExt = _alExt;
+      staticAvailable = null != alc && null != al && null != alExt;
+  }
 
   /**
-   * Iniitalize the Sound3D environment. This must be called before
-   * other methods in the class can be used.
+   * Initialize the Sound3D environment.
+   * @deprecated Not required to be called due to static initialization
    */
-  public static void init() throws ALException {
-    al = ALFactory.getAL();
-    alc = ALFactory.getALC();
+  @Deprecated
+  public static void init() throws ALException {  }
+
+  /**
+   * Returns the <code>available state</code> of this instance.
+   * <p>
+   * The <code>available state</code> is affected by this instance
+   * overall availability, i.e. after instantiation.
+   * </p>
+   */
+  public static boolean isAvailable() { return staticAvailable; }
+
+  public int getALError() {
+      return al.alGetError();
   }
 
   /**
@@ -75,10 +111,7 @@ public class AudioSystem3D {
    * @return The new Sound3D context.
    */
   public static Context createContext(final Device device) {
-    Context result = null;
-    final ALCcontext realContext = alc.alcCreateContext(device.realDevice, null);
-    result = new Context(alc, realContext, device);
-    return result;
+      return new Context(device);
   }
 
   /**
@@ -86,31 +119,28 @@ public class AudioSystem3D {
    *
    * @param context the context to make current.
    */
-  public static void makeContextCurrent(final Context context) {
-    ALCcontext realContext = null;
-
-    if (context != null) {
-      realContext = context.realContext;
-    }
-
-    alc.alcMakeContextCurrent(realContext);
+  public static boolean makeContextCurrent(final Context context) {
+    return context.makeCurrent();
   }
 
   /**
-   * Opens the specifified audio device.
+   * Release the specified context.
    *
-   * @param deviceName The specified device name, On windows this will be
-   * DirectSound3D. We will be automating device discovery in upcoming versions
-   * of this class.
+   * @param context the context to release.
+   */
+  public static boolean releaseContext(final Context context) {
+    return context.release();
+  }
+
+  /**
+   * Opens the named audio device.
    *
-   * @return The device described by the specifed name.
+   * @param deviceName The specified device name, null for default.
+   *
+   * @return The device described by the specified name
    */
   public static Device openDevice(final String deviceName) {
-    Device result = null;
-    final ALCdevice realDevice = alc.alcOpenDevice(deviceName);
-    result = new Device(alc, realDevice);
-
-    return result;
+    return new Device(deviceName);
   }
 
   /**
@@ -126,7 +156,7 @@ public class AudioSystem3D {
     al.alGenBuffers(numBuffers, arr, 0);
 
     for (int i = 0; i < numBuffers; i++) {
-      result[i] = new Buffer(al, arr[i]);
+      result[i] = new Buffer(arr[i]);
     }
 
     return result;
@@ -241,7 +271,7 @@ public class AudioSystem3D {
     al.alGenSources(numSources, arr, 0);
 
     for (int i = 0; i < numSources; i++) {
-      result[i] = new Source(al, arr[i]);
+      result[i] = new Source(arr[i]);
     }
 
     return result;
@@ -250,7 +280,7 @@ public class AudioSystem3D {
   /**
    * Generate a Sound3D source from an initialized Buffer.
    *
-   * @param buff The buffer to generate the source from.
+   * @param buff The buffer to be associate with the source.
    *
    * @return the newly generated Source.
    */
@@ -270,9 +300,8 @@ public class AudioSystem3D {
    */
   public static Listener getListener() {
     if (listener == null) {
-      listener = new Listener(al);
+      listener = new Listener();
     }
-
     return listener;
   }
 }

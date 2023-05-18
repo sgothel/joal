@@ -1,4 +1,5 @@
 /**
+* Copyright (c) 2010-2023 JogAmp Community. All rights reserved.
 * Copyright (c) 2003 Sun Microsystems, Inc. All  Rights Reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -33,9 +34,7 @@
 
 package com.jogamp.openal.sound3d;
 
-import com.jogamp.openal.AL;
 import com.jogamp.openal.ALConstants;
-
 
 /**
  * This class represents the human listener in the Sound3D environment. It
@@ -45,10 +44,7 @@ import com.jogamp.openal.ALConstants;
  * @author Athomas Goldberg
  */
 public class Listener {
-    private final AL al;
-
-    Listener(final AL al) {
-        this.al = al;
+    public Listener() {
     }
 
     /**
@@ -58,7 +54,7 @@ public class Listener {
      * @param gain the gain, or volume
      */
     public void setGain(final float gain) {
-        al.alListenerf(ALConstants.AL_GAIN, gain);
+        AudioSystem3D.al.alListenerf(ALConstants.AL_GAIN, gain);
     }
 
     /**
@@ -69,7 +65,7 @@ public class Listener {
      */
     public float getGain() {
         final float[] f = new float[1];
-        al.alGetListenerf(ALConstants.AL_GAIN, f, 0);
+        AudioSystem3D.al.alGetListenerf(ALConstants.AL_GAIN, f, 0);
 
         return f[0];
     }
@@ -86,7 +82,7 @@ public class Listener {
      * environment
      */
     public void setPosition(final float x, final float y, final float z) {
-        al.alListener3f(ALConstants.AL_POSITION, x, y, z);
+        AudioSystem3D.al.alListener3f(ALConstants.AL_POSITION, x, y, z);
     }
 
     /**
@@ -97,7 +93,7 @@ public class Listener {
      * Listener.
      */
     public void setPosition(final Vec3f position) {
-        al.alListener3f(ALConstants.AL_POSITION, position.v1, position.v2, position.v3);
+        AudioSystem3D.al.alListener3f(ALConstants.AL_POSITION, position.v1, position.v2, position.v3);
     }
 
     /**
@@ -110,7 +106,7 @@ public class Listener {
     public Vec3f getPosition() {
         Vec3f result = null;
         final float[] tmp = new float[3];
-        al.alGetListenerfv(ALConstants.AL_POSITION, tmp, 0);
+        AudioSystem3D.al.alGetListenerfv(ALConstants.AL_POSITION, tmp, 0);
         result = new Vec3f(tmp[0], tmp[1], tmp[2]);
 
         return result;
@@ -124,7 +120,7 @@ public class Listener {
      * x,y and z coordinates of Listener.
      */
     public void setVelocity(final Vec3f velocity) {
-        al.alListener3f(ALConstants.AL_VELOCITY, velocity.v1, velocity.v2, velocity.v3);
+        AudioSystem3D.al.alListener3f(ALConstants.AL_VELOCITY, velocity.v1, velocity.v2, velocity.v3);
     }
 
     /**
@@ -137,7 +133,7 @@ public class Listener {
     public Vec3f getVelocity() {
         Vec3f result = null;
         final float[] tmp = new float[3];
-        al.alGetListenerfv(ALConstants.AL_VELOCITY, tmp, 0);
+        AudioSystem3D.al.alGetListenerfv(ALConstants.AL_VELOCITY, tmp, 0);
         result = new Vec3f(tmp[0], tmp[1], tmp[2]);
 
         return result;
@@ -152,7 +148,7 @@ public class Listener {
      * look-at vector.
      */
     public void setOrientation(final float[] orientation) {
-        al.alListenerfv(ALConstants.AL_ORIENTATION, orientation, 0);
+        AudioSystem3D.al.alListenerfv(ALConstants.AL_ORIENTATION, orientation, 0);
     }
 
     /**
@@ -166,7 +162,7 @@ public class Listener {
      */
     public float[] getOrientation() {
         final float[] tmp = new float[6];
-        al.alGetListenerfv(ALConstants.AL_ORIENTATION, tmp, 0);
+        AudioSystem3D.al.alGetListenerfv(ALConstants.AL_ORIENTATION, tmp, 0);
         return tmp;
     }
 }

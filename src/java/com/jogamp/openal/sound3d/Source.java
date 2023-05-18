@@ -1,4 +1,5 @@
 /**
+* Copyright (c) 2010-2023 JogAmp Community. All rights reserved.
 * Copyright (c) 2003 Sun Microsystems, Inc. All  Rights Reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -33,7 +34,6 @@
 
 package com.jogamp.openal.sound3d;
 
-import com.jogamp.openal.AL;
 import com.jogamp.openal.ALConstants;
 
 /**
@@ -45,48 +45,68 @@ import com.jogamp.openal.ALConstants;
  * @author Athomas Goldberg
  */
 public final class Source {
-    private final AL al;
-    private final int sourceID;
+    private int sourceID;
     private Buffer buffer;
 
-    Source(final AL al, final int sourceID) {
-        this.al = al;
+    public Source(final int sourceID) {
         this.sourceID = sourceID;
     }
 
-    /**
-     * Beginning playing the audio in this source.
-     */
-    public void play() {
-        al.alSourcePlay(sourceID);
-    }
+    /** Return the OpenAL source ID, -1 if invalid. */
+    public int getID() { return sourceID; }
 
-    /**
-     * pauses the audio in this Source.
-     */
-    public void pause() {
-        al.alSourcePause(sourceID);
-    }
-
-    /**
-     * Stops the audio in this Source
-     */
-    public void stop() {
-        al.alSourceStop(sourceID);
-    }
-
-    /**
-     * Rewinds the audio in this source
-     */
-    public void rewind() {
-        al.alSourceRewind(sourceID);
+    /** Returns whether {@link #getID()} is valid, i.e. not {@link #delete()}'ed */
+    public boolean isValid() {
+        return 0 <= sourceID && AudioSystem3D.al.alIsSource(sourceID);
     }
 
     /**
      * Delete this source, freeing its resources.
      */
     public void delete() {
-        al.alDeleteSources(1, new int[] { sourceID }, 0);
+        if( 0 <= sourceID ) {
+            final Buffer b = buffer;
+            stop();
+            if( null != b ) {
+                setBuffer(null); // buffer = null
+            }
+            AudioSystem3D.al.alDeleteSources(1, new int[] { sourceID }, 0);
+            if( null != b ) {
+                b.delete();
+            }
+            sourceID = -1;
+        } else if( null != buffer ) {
+            buffer.delete();
+            buffer = null;
+        }
+    }
+
+    /**
+     * Beginning playing the audio in this source.
+     */
+    public void play() {
+        AudioSystem3D.al.alSourcePlay(sourceID);
+    }
+
+    /**
+     * pauses the audio in this Source.
+     */
+    public void pause() {
+        AudioSystem3D.al.alSourcePause(sourceID);
+    }
+
+    /**
+     * Stops the audio in this Source
+     */
+    public void stop() {
+        AudioSystem3D.al.alSourceStop(sourceID);
+    }
+
+    /**
+     * Rewinds the audio in this source
+     */
+    public void rewind() {
+        AudioSystem3D.al.alSourceRewind(sourceID);
     }
 
     /**
@@ -96,7 +116,7 @@ public final class Source {
      */
     public boolean isPlaying() {
         final int[] result = new int[1];
-        al.alGetSourcei(sourceID, ALConstants.AL_SOURCE_STATE, result, 0);
+        AudioSystem3D.al.alGetSourcei(sourceID, ALConstants.AL_SOURCE_STATE, result, 0);
         return result[0] == ALConstants.AL_PLAYING;
     }
 
@@ -107,7 +127,7 @@ public final class Source {
      * @param pitch the pitch value of this source.
      */
     public void setPitch(final float pitch) {
-        al.alSourcef(sourceID, ALConstants.AL_PITCH, pitch);
+        AudioSystem3D.al.alSourcef(sourceID, ALConstants.AL_PITCH, pitch);
     }
 
     /**
@@ -118,7 +138,7 @@ public final class Source {
      */
     public float getPitch() {
         final float[] result = new float[1];
-        al.alGetSourcef(sourceID, ALConstants.AL_PITCH, result, 0);
+        AudioSystem3D.al.alGetSourcef(sourceID, ALConstants.AL_PITCH, result, 0);
 
         return result[0];
     }
@@ -130,7 +150,7 @@ public final class Source {
      * @param gain the gain of the audio on this source
      */
     public void setGain(final float gain) {
-        al.alSourcef(sourceID, ALConstants.AL_GAIN, gain);
+        AudioSystem3D.al.alSourcef(sourceID, ALConstants.AL_GAIN, gain);
     }
 
     /**
@@ -141,7 +161,7 @@ public final class Source {
      */
     public float getGain() {
         final float[] result = new float[1];
-        al.alGetSourcef(sourceID, ALConstants.AL_GAIN, result, 0);
+        AudioSystem3D.al.alGetSourcef(sourceID, ALConstants.AL_GAIN, result, 0);
 
         return result[0];
     }
@@ -153,7 +173,7 @@ public final class Source {
      * @param maxDistance the max ditance for source attentuation.
      */
     public void setMaxDistance(final float maxDistance) {
-        al.alSourcef(sourceID, ALConstants.AL_MAX_DISTANCE, maxDistance);
+        AudioSystem3D.al.alSourcef(sourceID, ALConstants.AL_MAX_DISTANCE, maxDistance);
     }
 
     /**
@@ -164,7 +184,7 @@ public final class Source {
      */
     public float getMaxDistance() {
         final float[] result = new float[1];
-        al.alGetSourcef(sourceID, ALConstants.AL_MAX_DISTANCE, result, 0);
+        AudioSystem3D.al.alGetSourcef(sourceID, ALConstants.AL_MAX_DISTANCE, result, 0);
 
         return result[0];
     }
@@ -175,7 +195,7 @@ public final class Source {
      * @param rolloffFactor the rolloff rate of the source.
      */
     public void setRolloffFactor(final float rolloffFactor) {
-        al.alSourcef(sourceID, ALConstants.AL_ROLLOFF_FACTOR, rolloffFactor);
+        AudioSystem3D.al.alSourcef(sourceID, ALConstants.AL_ROLLOFF_FACTOR, rolloffFactor);
     }
 
     /**
@@ -185,7 +205,7 @@ public final class Source {
      */
     public float getRolloffFactor() {
         final float[] result = new float[1];
-        al.alGetSourcef(sourceID, ALConstants.AL_ROLLOFF_FACTOR, result, 0);
+        AudioSystem3D.al.alGetSourcef(sourceID, ALConstants.AL_ROLLOFF_FACTOR, result, 0);
 
         return result[0];
     }
@@ -197,7 +217,7 @@ public final class Source {
      * @param referenceDistance the reference distance for the source.
      */
     public void setReferenceDistance(final float referenceDistance) {
-        al.alSourcef(sourceID, ALConstants.AL_REFERENCE_DISTANCE, referenceDistance);
+        AudioSystem3D.al.alSourcef(sourceID, ALConstants.AL_REFERENCE_DISTANCE, referenceDistance);
     }
 
     /**
@@ -208,7 +228,7 @@ public final class Source {
      */
     public float getReferenceDistance() {
         final float[] result = new float[1];
-        al.alGetSourcef(sourceID, ALConstants.AL_REFERENCE_DISTANCE, result, 0);
+        AudioSystem3D.al.alGetSourcef(sourceID, ALConstants.AL_REFERENCE_DISTANCE, result, 0);
 
         return result[0];
     }
@@ -219,7 +239,7 @@ public final class Source {
      * @param minGain the minimum gain for this source.
      */
     public void setMinGain(final float minGain) {
-        al.alSourcef(sourceID, ALConstants.AL_MIN_GAIN, minGain);
+        AudioSystem3D.al.alSourcef(sourceID, ALConstants.AL_MIN_GAIN, minGain);
     }
 
     /**
@@ -229,7 +249,7 @@ public final class Source {
      */
     public float getMinGain() {
         final float[] result = new float[1];
-        al.alGetSourcef(sourceID, ALConstants.AL_MIN_GAIN, result, 0);
+        AudioSystem3D.al.alGetSourcef(sourceID, ALConstants.AL_MIN_GAIN, result, 0);
 
         return result[0];
     }
@@ -240,7 +260,7 @@ public final class Source {
      * @param maxGain the maximum gain for this source
      */
     public void setMaxGain(final float maxGain) {
-        al.alSourcef(sourceID, ALConstants.AL_MAX_GAIN, maxGain);
+        AudioSystem3D.al.alSourcef(sourceID, ALConstants.AL_MAX_GAIN, maxGain);
     }
 
     /**
@@ -250,7 +270,7 @@ public final class Source {
      */
     public float getMaxGain() {
         final float[] result = new float[1];
-        al.alGetSourcef(sourceID, ALConstants.AL_MAX_GAIN, result, 0);
+        AudioSystem3D.al.alGetSourcef(sourceID, ALConstants.AL_MAX_GAIN, result, 0);
 
         return result[0];
     }
@@ -261,7 +281,7 @@ public final class Source {
      * @param coneOuterGain the gain when outside the oriented cone.
      */
     public void setConeOuterGain(final float coneOuterGain) {
-        al.alSourcef(sourceID, ALConstants.AL_CONE_OUTER_GAIN, coneOuterGain);
+        AudioSystem3D.al.alSourcef(sourceID, ALConstants.AL_CONE_OUTER_GAIN, coneOuterGain);
     }
 
     /**
@@ -271,7 +291,7 @@ public final class Source {
      */
     public float getConeOuterGain() {
         final float[] result = new float[1];
-        al.alGetSourcef(sourceID, ALConstants.AL_CONE_OUTER_GAIN, result, 0);
+        AudioSystem3D.al.alGetSourcef(sourceID, ALConstants.AL_CONE_OUTER_GAIN, result, 0);
 
         return result[0];
     }
@@ -283,7 +303,7 @@ public final class Source {
      * source.
      */
     public void setPosition(final Vec3f position) {
-        al.alSource3f(
+        AudioSystem3D.al.alSource3f(
             sourceID,
             ALConstants.AL_POSITION,
             position.v1,
@@ -299,7 +319,7 @@ public final class Source {
      * @param z the z position of the source.
      */
     public void setPosition(final float x, final float y, final float z) {
-        al.alSource3f(sourceID, ALConstants.AL_POSITION, x, y, z);
+        AudioSystem3D.al.alSource3f(sourceID, ALConstants.AL_POSITION, x, y, z);
     }
 
     /**
@@ -311,7 +331,7 @@ public final class Source {
     public Vec3f getPosition() {
         Vec3f result = null;
         final float[] pos = new float[3];
-        al.alGetSourcefv(sourceID, ALConstants.AL_POSITION, pos, 0);
+        AudioSystem3D.al.alGetSourcefv(sourceID, ALConstants.AL_POSITION, pos, 0);
         result = new Vec3f(pos[0], pos[1], pos[2]);
 
         return result;
@@ -323,7 +343,7 @@ public final class Source {
      * @param velocity the velocity vector of the source
      */
     public void setVelocity(final Vec3f velocity) {
-        al.alSource3f(
+        AudioSystem3D.al.alSource3f(
             sourceID,
             ALConstants.AL_VELOCITY,
             velocity.v1,
@@ -339,7 +359,7 @@ public final class Source {
      * @param z the z velocity of the source.
      */
     public void setVelocity(final float x, final float y, final float z) {
-        al.alSource3f(sourceID, ALConstants.AL_VELOCITY, x, y, z);
+        AudioSystem3D.al.alSource3f(sourceID, ALConstants.AL_VELOCITY, x, y, z);
     }
 
     /**
@@ -350,7 +370,7 @@ public final class Source {
     public Vec3f getVelocity() {
         Vec3f result = null;
         final float[] vel = new float[3];
-        al.alGetSourcefv(sourceID, ALConstants.AL_VELOCITY, vel, 0);
+        AudioSystem3D.al.alGetSourcefv(sourceID, ALConstants.AL_VELOCITY, vel, 0);
         result = new Vec3f(vel[0], vel[1], vel[2]);
 
         return result;
@@ -362,7 +382,7 @@ public final class Source {
      * @param direction the direction vector of the source.
      */
     public void setDirection(final Vec3f direction) {
-        al.alSource3f(
+        AudioSystem3D.al.alSource3f(
             sourceID,
             ALConstants.AL_DIRECTION,
             direction.v1,
@@ -378,7 +398,7 @@ public final class Source {
      * @param z the z direction of the source.
      */
     public void setDirection(final float x, final float y, final float z) {
-        al.alSource3f(sourceID, ALConstants.AL_DIRECTION, x, y, z);
+        AudioSystem3D.al.alSource3f(sourceID, ALConstants.AL_DIRECTION, x, y, z);
     }
 
     /**
@@ -389,7 +409,7 @@ public final class Source {
     public Vec3f getDirection() {
         Vec3f result = null;
         final float[] dir = new float[3];
-        al.alGetSourcefv(sourceID, ALConstants.AL_DIRECTION, dir, 0);
+        AudioSystem3D.al.alGetSourcefv(sourceID, ALConstants.AL_DIRECTION, dir, 0);
         result = new Vec3f(dir[0], dir[1], dir[2]);
 
         return result;
@@ -404,7 +424,7 @@ public final class Source {
      */
     public void setSourceRelative(final boolean isRelative) {
         final int rel = isRelative ? 1 : 0;
-        al.alSourcei(sourceID, ALConstants.AL_SOURCE_RELATIVE, rel);
+        AudioSystem3D.al.alSourcei(sourceID, ALConstants.AL_SOURCE_RELATIVE, rel);
     }
 
     /**
@@ -416,7 +436,7 @@ public final class Source {
      */
     public boolean isSourceRelative() {
         final int[] result = new int[1];
-        al.alGetSourcei(sourceID, ALConstants.AL_SOURCE_RELATIVE, result, 0);
+        AudioSystem3D.al.alGetSourcei(sourceID, ALConstants.AL_SOURCE_RELATIVE, result, 0);
 
         return result[0] == 1;
     }
@@ -428,7 +448,7 @@ public final class Source {
      */
     public void setLooping(final boolean isLooping) {
         final int loop = isLooping ? 1 : 0;
-        al.alSourcei(sourceID, ALConstants.AL_LOOPING, loop);
+        AudioSystem3D.al.alSourcei(sourceID, ALConstants.AL_LOOPING, loop);
     }
 
     /**
@@ -437,9 +457,8 @@ public final class Source {
      * @return true-looping is on, false-looping is off
      */
     public boolean getLooping() {
-        final boolean result = false;
         final int[] tmp = new int[1];
-        al.alGetSourcei(sourceID, ALConstants.AL_LOOPING, tmp, 0);
+        AudioSystem3D.al.alGetSourcei(sourceID, ALConstants.AL_LOOPING, tmp, 0);
         return tmp[0] == ALConstants.AL_TRUE;
     }
 
@@ -450,7 +469,7 @@ public final class Source {
      */
     public int getBuffersQueued() {
         final int[] result = new int[1];
-        al.alGetSourcei(sourceID, ALConstants.AL_BUFFERS_QUEUED, result, 0);
+        AudioSystem3D.al.alGetSourcei(sourceID, ALConstants.AL_BUFFERS_QUEUED, result, 0);
 
         return result[0];
     }
@@ -461,18 +480,24 @@ public final class Source {
      */
     public int getBuffersProcessed() {
         final int[] result = new int[1];
-        al.alGetSourcei(sourceID, ALConstants.AL_BUFFERS_PROCESSED, result, 0);
+        AudioSystem3D.al.alGetSourcei(sourceID, ALConstants.AL_BUFFERS_PROCESSED, result, 0);
 
         return result[0];
     }
 
     /**
-     * Sets the buffer associated with this source.
+     * Associates the buffer with this source if buffer is not null,
+     * otherwise disassociates the previously associated buffer from this source.
      *
-     * @param buffer the buffer associated with this source
+     * @param buffer the buffer to be associated with this source if not null.
+     *               If null, disassociates the current buffer from this source.
      */
     public void setBuffer(final Buffer buffer) {
-        al.alSourcei(sourceID, ALConstants.AL_BUFFER, buffer.bufferID);
+        if( null != buffer ) {
+            AudioSystem3D.al.alSourcei(sourceID, ALConstants.AL_BUFFER, buffer.getID());
+        } else {
+            AudioSystem3D.al.alSourcei(sourceID, ALConstants.AL_BUFFER, 0);
+        }
         this.buffer = buffer;
     }
 
@@ -496,10 +521,10 @@ public final class Source {
         final int[] arr = new int[numBuffers];
 
         for (int i = 0; i < numBuffers; i++) {
-            arr[i] = buffers[i].bufferID;
+            arr[i] = buffers[i].getID();
         }
 
-        al.alSourceQueueBuffers(sourceID, numBuffers, arr, 0);
+        AudioSystem3D.al.alSourceQueueBuffers(sourceID, numBuffers, arr, 0);
     }
 
     /**
@@ -512,9 +537,9 @@ public final class Source {
         final int[] arr = new int[numBuffers];
 
         for (int i = 0; i < numBuffers; i++) {
-            arr[i] = buffers[i].bufferID;
+            arr[i] = buffers[i].getID();
         }
 
-        al.alSourceUnqueueBuffers(sourceID, numBuffers, arr, 0);
+        AudioSystem3D.al.alSourceUnqueueBuffers(sourceID, numBuffers, arr, 0);
     }
 }

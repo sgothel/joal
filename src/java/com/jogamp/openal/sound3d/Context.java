@@ -1,4 +1,5 @@
 /**
+* Copyright (c) 2010-2023 JogAmp Community. All rights reserved.
 * Copyright (c) 2003 Sun Microsystems, Inc. All  Rights Reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -33,7 +34,10 @@
 
 package com.jogamp.openal.sound3d;
 
+import com.jogamp.common.util.locks.LockFactory;
+import com.jogamp.common.util.locks.RecursiveLock;
 import com.jogamp.openal.*;
+import com.jogamp.openal.util.ALHelpers;
 
 
 /**
@@ -42,28 +46,116 @@ import com.jogamp.openal.*;
  * @author Athomas Goldberg
  */
 public class Context {
-    private final ALC alc;
-    final ALCcontext realContext;
-    final Device device;
+    private final RecursiveLock lock = LockFactory.createRecursiveLock();
+    private Device device;
+    private ALCcontext alCtx;
+    private boolean threadContextLocked;
+    private boolean hasALC_thread_local_context;
 
-    Context(final ALC alc, final ALCcontext realContext, final Device device) {
-        this.alc = alc;
-        this.realContext = realContext;
+    public Context(final ALCcontext realContext, final Device device) {
         this.device = device;
+        this.alCtx = realContext;
+        {
+            hasALC_thread_local_context = false;
+            final boolean v;
+            if( makeCurrent() ) {
+                v = AudioSystem3D.alc.alcIsExtensionPresent(null, ALHelpers.ALC_EXT_thread_local_context) ||
+                    AudioSystem3D.alc.alcIsExtensionPresent(device.getALDevice(), ALHelpers.ALC_EXT_thread_local_context);
+                release();
+            } else {
+                v = false;
+            }
+            hasALC_thread_local_context = v;
+        }
     }
 
     /**
-     * Suspend this context
+     * Creates a new Context for a specified device.
+     *
+     * @param device The device the Context is being created for.
      */
-    public void suspend() {
-        alc.alcSuspendContext(realContext);
+    public Context(final Device device) {
+        this.device = device;
+        this.alCtx = AudioSystem3D.alc.alcCreateContext(device.getALDevice(), null);
+    }
+
+    /**
+     * Returns the OpenAL context.
+     */
+    public ALCcontext getALContext() {
+        return alCtx;
+    }
+
+    /** Returns whether {@link #getALContext()} is valid, i.e. not null, e.g. not {@link #destroy()}'ed. */
+    public boolean isValid() { return null != alCtx; }
+
+    public int getALCError() {
+        return AudioSystem3D.alc.alcGetError(device.getALDevice());
     }
 
     /**
      * destroys this context freeing its resources.
      */
     public void destroy() {
-        alc.alcDestroyContext(realContext);
+        lock.lock();
+        try {
+            if( null != alCtx ) {
+                if( threadContextLocked ) {
+                    AudioSystem3D.alExt.alcSetThreadContext(null);
+                } else {
+                    AudioSystem3D.alc.alcMakeContextCurrent(null);
+                }
+                AudioSystem3D.alc.alcDestroyContext(alCtx);
+                alCtx = null;
+            }
+            device = null;
+            // unroll lock !
+            while(lock.getHoldCount() > 1) {
+                lock.unlock();
+            }
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    /**
+     * Makes this context current.
+     */
+    public boolean makeCurrent() {
+        final boolean r;
+        lock.lock();
+        if( hasALC_thread_local_context ) {
+            threadContextLocked = true;
+            r = AudioSystem3D.alExt.alcSetThreadContext(alCtx);
+        } else {
+            threadContextLocked = false;
+            r = AudioSystem3D.alc.alcMakeContextCurrent(alCtx);
+        }
+        if( !r ) {
+            lock.unlock();
+        }
+        return r;
+    }
+
+    /**
+     * Release this context.
+     */
+    public boolean release() {
+        final boolean r;
+        if( threadContextLocked ) {
+            r = AudioSystem3D.alExt.alcSetThreadContext(null);
+        } else {
+            r = AudioSystem3D.alc.alcMakeContextCurrent(null);
+        }
+        lock.unlock();
+        return r;
+    }
+
+    /**
+     * Suspend this context
+     */
+    public void suspend() {
+        AudioSystem3D.alc.alcSuspendContext(alCtx);
     }
 
     /**

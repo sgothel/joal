@@ -1,6 +1,5 @@
-package com.jogamp.openal.test.manual;
-
 /**
+ * Copyright (c) 2010-2023 JogAmp Community. All rights reserved.
  * Copyright (c) 2003 Sun Microsystems, Inc. All  Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,6 +31,8 @@ package com.jogamp.openal.test.manual;
  * You acknowledge that this software is not designed or intended for use in the
  * design, construction, operation or maintenance of any nuclear facility.
  */
+package com.jogamp.openal.test.manual;
+
 import java.io.IOException;
 
 import com.jogamp.openal.UnsupportedAudioFileException;
@@ -56,12 +57,18 @@ public class Sound3DTest {
 
     public static void main(final String[] args) throws IOException, InterruptedException, UnsupportedAudioFileException {
 
-        AudioSystem3D.init();
+        if( !AudioSystem3D.isAvailable() ) {
+            System.err.println("AudioSystem3D is not available, static initialization failed");
+            return;
+        }
 
         // create the initial context - this can be collapsed into the init.
         final Device device = AudioSystem3D.openDevice(null);
         final Context context = AudioSystem3D.createContext(device);
-        AudioSystem3D.makeContextCurrent(context);
+        if( !context.makeCurrent() ) {
+            System.err.println("Context.makeCurrent() failed");
+            return;
+        }
 
         // get the listener object
         final Listener listener = AudioSystem3D.getListener();

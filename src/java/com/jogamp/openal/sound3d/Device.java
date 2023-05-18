@@ -1,4 +1,5 @@
 /**
+* Copyright (c) 2010-2023 JogAmp Community. All rights reserved.
 * Copyright (c) 2003 Sun Microsystems, Inc. All  Rights Reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -42,18 +43,36 @@ import com.jogamp.openal.*;
  * @author Athomas Goldberg
  */
 public class Device {
-    private final ALC alc;
-    final ALCdevice realDevice;
+    private ALCdevice alDev;
 
-    Device(final ALC alc, final ALCdevice realDevice) {
-        this.alc = alc;
-        this.realDevice = realDevice;
+    public Device(final ALCdevice realDevice) {
+        this.alDev = realDevice;
     }
+
+    /**
+     * Create a new device by opening the named audio device.
+     *
+     * @param deviceName The specified device name, null for default.
+     */
+    public Device(final String deviceName) {
+        this.alDev = AudioSystem3D.alc.alcOpenDevice(deviceName);
+    }
+
+    /**
+     * Returns the OpenAL context.
+     */
+    public ALCdevice getALDevice() {
+        return alDev;
+    }
+
+    /** Returns whether {@link #getALDevice()} is valid, i.e. not null, e.g. not {@link #close()}. */
+    public boolean isValid() { return null != alDev; }
 
     /**
      * closes the device, freeing its resources.
      */
     public void close() {
-        alc.alcCloseDevice(realDevice);
+        AudioSystem3D.alc.alcCloseDevice(alDev);
+        alDev = null;
     }
 }

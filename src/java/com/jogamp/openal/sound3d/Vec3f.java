@@ -1,4 +1,5 @@
 /**
+* Copyright (c) 2010-2023 JogAmp Community. All rights reserved.
 * Copyright (c) 2003 Sun Microsystems, Inc. All  Rights Reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -34,7 +35,7 @@
 package com.jogamp.openal.sound3d;
 
 /**
- * A onvenience class representing a 3-element float vector
+ * A convenience class representing a 3-element float vector
  *
  * @author Athomas Goldberg
  */
