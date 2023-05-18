@@ -33,6 +33,7 @@ import java.io.InputStreamReader;
 import java.nio.ByteBuffer;
 import java.util.concurrent.TimeUnit;
 
+import com.jogamp.common.av.AudioFormat;
 import com.jogamp.common.av.AudioSink;
 import com.jogamp.common.av.AudioSinkFactory;
 import com.jogamp.common.nio.Buffers;
@@ -166,7 +167,7 @@ public final class Synth02AL {
         private volatile boolean shallStop = false;
 
         private final AudioSink audioSink;
-        private final AudioSink.AudioFormat audioFormat;
+        private final AudioFormat audioFormat;
         private ByteBuffer sampleBuffer = allocate(2*1000);
         private float lastFreq;
         private float nextSin;
@@ -184,7 +185,7 @@ public final class Synth02AL {
             synchronized(this) {
                 lastAudioPTS = 0;
                 audioSink = AudioSinkFactory.createDefault(Synth02AL.class.getClassLoader());
-                audioFormat = new AudioSink.AudioFormat(audioSink.getPreferredSampleRate(), 16, 1, true /* signed */,
+                audioFormat = new AudioFormat(audioSink.getPreferredSampleRate(), 16, 1, true /* signed */,
                                                         true /* fixed point */, false /* planar */, true /* littleEndian */);
                 audioSink.init(audioFormat, frameDuration, audioQueueLimit, 0, audioQueueLimit);
                 lastFreq = 0;

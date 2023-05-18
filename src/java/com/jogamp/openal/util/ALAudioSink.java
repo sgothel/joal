@@ -25,7 +25,7 @@
  * authors and should not be interpreted as representing official policies, either expressed
  * or implied, of JogAmp Community.
  */
-package jogamp.openal.util;
+package com.jogamp.openal.util;
 
 
 import java.nio.ByteBuffer;
@@ -35,7 +35,9 @@ import java.util.concurrent.TimeUnit;
 import jogamp.openal.Debug;
 
 import com.jogamp.common.ExceptionUtils;
+import com.jogamp.common.av.AudioFormat;
 import com.jogamp.common.av.AudioSink;
+import com.jogamp.common.av.AudioSink.AudioFrame;
 import com.jogamp.common.os.Clock;
 import com.jogamp.common.util.LFRingbuffer;
 import com.jogamp.common.util.PropertyAccess;
@@ -50,24 +52,19 @@ import com.jogamp.openal.ALCdevice;
 import com.jogamp.openal.ALConstants;
 import com.jogamp.openal.ALExt;
 import com.jogamp.openal.ALFactory;
-import com.jogamp.openal.util.ALHelpers;
 
 /***
- * OpenAL Audio Sink
+ * OpenAL {@link AudioSink} implementation.
+ * <p>
+ * Besides given {@link AudioSink} functionality, implementation is fully functional regarding {@link AudioFormat} and all OpenAL parameter.<br/>
+ * <ul>
+ * <li>All OpenAL parameter can be queried</li>
+ * <li>Instance can be constructed with an OpenAL device and context, see {@link #ALAudioSink(ALCdevice, ALCcontext)}</li>
+ * <li>Initialization can be performed with OpenAL paramters, see {@link #init(int, int, int, int, int, float, int, int, int)}</li>
+ * </ul>
+ * </p>
  */
 public class ALAudioSink implements AudioSink {
-
-    /**
-     * [openal-soft >= 1.18.0](https://github.com/kcat/openal-soft/blob/master/ChangeLog)
-     * - Removed support for the AL_SOFT_buffer_samples and AL_SOFT_buffer_sub_data
-     *   extensions. Due to conflicts with AL_EXT_SOURCE_RADIUS.
-     */
-    private static final String AL_SOFT_buffer_samples = "AL_SOFT_buffer_samples";
-    private static final String AL_EXT_MCFORMATS = "AL_EXT_MCFORMATS";
-    private static final String AL_EXT_FLOAT32 = "AL_EXT_FLOAT32";
-    private static final String AL_EXT_DOUBLE = "AL_EXT_DOUBLE";
-
-    private static final String ALC_EXT_thread_local_context = "ALC_EXT_thread_local_context";
     private static final boolean DEBUG_TRACE;
     private static final ALC alc;
     private static final AL al;
@@ -111,7 +108,6 @@ public class ALAudioSink implements AudioSink {
         }
     }
 
-    // private ALAudioFrame[] alFrames = null;
     private int[] alBufferNames = null;
     private int avgFrameDuration = 0; // [ms]
     private int frameGrowAmount = 0;
@@ -123,7 +119,7 @@ public class ALAudioSink implements AudioSink {
     private volatile int playingPTS = AudioFrame.INVALID_PTS;
     private volatile int enqueuedFrameCount;
 
-    private int[] alSource = null;
+    private final int[] alSource = { -1 }; // actually ALuint, but JOAL expects INT_MAX limit is ok!
     private AudioFormat chosenFormat;
     private int alChannelLayout;
     private int alSampleType;
@@ -168,7 +164,20 @@ public class ALAudioSink implements AudioSink {
         return ok;
     }
 
+    /**
+     * Create a new instance with all new OpenAL objects, i.e. opened default {@link ALCdevice} and new {@link ALCcontext}.
+     */
     public ALAudioSink() {
+        this(null, null);
+    }
+
+    /**
+     * Create a new instance based on optional given OpenAL objects.
+     *
+     * @param alDevice optional OpenAL device, a default device is opened if null.
+     * @param alContext optional OpenAL context associated to the given device, a new context is created if null.
+     */
+    public ALAudioSink(final ALCdevice alDevice, final ALCcontext alContext) {
         available = false;
         chosenFormat = null;
 
@@ -177,27 +186,35 @@ public class ALAudioSink implements AudioSink {
         }
         synchronized(ALAudioSink.class) {
             try {
-                // Get handle to default device.
-                device = alc.alcOpenDevice(null);
-                if (device == null) {
-                    throw new RuntimeException(getThreadName()+": ALAudioSink: Error opening default OpenAL device");
+                if( null == alDevice ) {
+                    // Get handle to default device.
+                    device = alc.alcOpenDevice(null);
+                    if (device == null) {
+                        throw new RuntimeException(getThreadName()+": ALAudioSink: Error opening default OpenAL device");
+                    }
+                    clearPreALError("init.dev");
+                } else {
+                    device = alDevice;
                 }
                 int checkErrIter = 1;
-
-                clearPreALError("init."+checkErrIter++);
 
                 // Get the device specifier.
                 deviceSpecifier = alc.alcGetString(device, ALCConstants.ALC_DEVICE_SPECIFIER);
                 if (deviceSpecifier == null) {
                     throw new RuntimeException(getThreadName()+": ALAudioSink: Error getting specifier for default OpenAL device");
                 }
+                clearPreALError("init."+checkErrIter++);
 
-                // Create audio context.
-                // final int[] attrs = new int[] { ALC.ALC_FREQUENCY, DefaultFormat.sampleRate, 0 };
-                // context = alc.alcCreateContext(device, attrs, 0);
-                context = alc.alcCreateContext(device, null);
-                if (context == null) {
-                    throw new RuntimeException(getThreadName()+": ALAudioSink: Error creating OpenAL context for "+deviceSpecifier);
+                if( null == alContext ) {
+                    // Create audio context.
+                    // final int[] attrs = new int[] { ALC.ALC_FREQUENCY, DefaultFormat.sampleRate, 0 };
+                    // context = alc.alcCreateContext(device, attrs, 0);
+                    context = alc.alcCreateContext(device, null);
+                    if (context == null) {
+                        throw new RuntimeException(getThreadName()+": ALAudioSink: Error creating OpenAL context for "+deviceSpecifier);
+                    }
+                } else {
+                    context = alContext;
                 }
 
                 lockContext();
@@ -206,12 +223,12 @@ public class ALAudioSink implements AudioSink {
                     if ( alc.alcGetError(device) != ALCConstants.ALC_NO_ERROR ) {
                         throw new RuntimeException(getThreadName()+": ALAudioSink: Error making OpenAL context current");
                     }
-                    hasSOFTBufferSamples = al.alIsExtensionPresent(AL_SOFT_buffer_samples);
-                    hasEXTMcFormats = al.alIsExtensionPresent(AL_EXT_MCFORMATS);
-                    hasEXTFloat32 = al.alIsExtensionPresent(AL_EXT_FLOAT32);
-                    hasEXTDouble = al.alIsExtensionPresent(AL_EXT_DOUBLE);
-                    hasALC_thread_local_context = alc.alcIsExtensionPresent(null, ALC_EXT_thread_local_context) ||
-                                                  alc.alcIsExtensionPresent(device, ALC_EXT_thread_local_context) ;
+                    hasSOFTBufferSamples = al.alIsExtensionPresent(ALHelpers.AL_SOFT_buffer_samples);
+                    hasEXTMcFormats = al.alIsExtensionPresent(ALHelpers.AL_EXT_MCFORMATS);
+                    hasEXTFloat32 = al.alIsExtensionPresent(ALHelpers.AL_EXT_FLOAT32);
+                    hasEXTDouble = al.alIsExtensionPresent(ALHelpers.AL_EXT_DOUBLE);
+                    hasALC_thread_local_context = alc.alcIsExtensionPresent(null, ALHelpers.ALC_EXT_thread_local_context) ||
+                                                  alc.alcIsExtensionPresent(device, ALHelpers.ALC_EXT_thread_local_context) ;
                     clearPreALError("init."+checkErrIter++);
                     preferredSampleRate = querySampleRate();
                     preferredAudioFormat = new AudioFormat(preferredSampleRate, DefaultFormat.sampleSize, DefaultFormat.channelCount, DefaultFormat.signed, DefaultFormat.fixedP, DefaultFormat.planar, DefaultFormat.littleEndian);
@@ -243,11 +260,10 @@ public class ALAudioSink implements AudioSink {
 
                     // Create source
                     {
-                        alSource = new int[1];
                         al.alGenSources(1, alSource, 0);
                         final int err = al.alGetError();
                         if( ALConstants.AL_NO_ERROR != err ) {
-                            alSource = null;
+                            alSource[0] = -1;
                             throw new RuntimeException(getThreadName()+": ALAudioSink: Error generating Source: 0x"+Integer.toHexString(err));
                         }
                     }
@@ -286,6 +302,44 @@ public class ALAudioSink implements AudioSink {
         }
         return sampleRate;
     }
+
+    // Expose AudioSink OpenAL implementation specifics
+
+    /** Return OpenAL global {@link AL}. */
+    public static final AL getAL() { return al; }
+    /** Return OpenAL global {@link ALC}. */
+    public static final ALC getALC() { return alc; }
+    /** Return OpenAL global {@link ALExt}. */
+    public static final ALExt getALExt() { return alExt; }
+
+    /** Return this instance's OpenAL {@link ALCdevice}. */
+    public final ALCdevice getDevice() { return device; }
+    /** Return this instance's OpenAL {@link ALCdevice} specifier. */
+    public final String getDeviceSpec() { return deviceSpecifier; }
+    /** Return this instance's OpenAL {@link ALCcontext}. */
+    public final ALCcontext getALContext() { return context; }
+    /** Return this instance's OpenAL source ID. */
+    public final int getALSource() { return alSource[0]; }
+
+    /** Return whether OpenAL extension <code>AL_SOFT_buffer_samples</code> is available. */
+    public final boolean hasSOFTBufferSamples() { return hasSOFTBufferSamples; }
+    /** Return whether OpenAL extension <code>AL_EXT_MCFORMATS</code> is available. */
+    public final boolean hasEXTMcFormats() { return hasEXTMcFormats; }
+    /** Return whether OpenAL extension <code>AL_EXT_FLOAT32</code> is available. */
+    public final boolean hasEXTFloat32() { return hasEXTFloat32; }
+    /** Return whether OpenAL extension <code>AL_EXT_DOUBLE</code> is available. */
+    public final boolean hasEXTDouble() { return hasEXTDouble; }
+    /** Return whether OpenAL extension <code>ALC_EXT_thread_local_context</code> is available. */
+    public final boolean hasALCThreadLocalContext() { return hasALC_thread_local_context; }
+
+    /** Return this instance's OpenAL channel layout, set after {@link #init(AudioFormat, float, int, int, int)}. */
+    public final int getALChannelLayout() { return alChannelLayout; }
+    /** Return this instance's OpenAL sample type, set after {@link #init(AudioFormat, float, int, int, int)}. */
+    public final int getALSampleType() { return alSampleType; }
+    /** Return this instance's OpenAL format, set after {@link #init(AudioFormat, float, int, int, int)}. */
+    public final int getALFormat() { return alFormat; }
+
+    // AudioSink implementation ...
 
     @Override
     public final void lockExclusive() {
@@ -422,42 +476,25 @@ public class ALAudioSink implements AudioSink {
             return false;
         }
         if( format.planar || !format.littleEndian ) {
-            // FIXME big-endian supported w/ SOFT where it's native format!
             if( DEBUG ) {
                 System.err.println(getThreadName()+": ALAudioSink.isSupported: NO.0 "+format);
             }
             return false;
         }
-        final int alChannelLayout = ALHelpers.getDefaultALChannelLayout(format.channelCount);
-        if( ALConstants.AL_NONE != alChannelLayout ) {
-            final int alSampleType = ALHelpers.getALSampleType(format.sampleSize, format.signed, format.fixedP);
-            if( ALConstants.AL_NONE != alSampleType ) {
-                lockContext();
-                try {
-                    final int alFormat = ALHelpers.getALFormat(alChannelLayout, alSampleType,
-                            hasSOFTBufferSamples, hasEXTMcFormats, hasEXTFloat32, hasEXTDouble,
-                            al, alExt);
-                    if( ALConstants.AL_NONE != alFormat ) {
-                        if( DEBUG ) {
-                            System.err.println(getThreadName()+": ALAudioSink.isSupported: OK "+format+", alFormat "+toHexString(alFormat));
-                        }
-                        return true;
-                    } else {
-                        if( DEBUG ) {
-                            System.err.println(getThreadName()+": ALAudioSink.isSupported: NO.1 "+format);
-                        }
-                        return false;
-                    }
-
-                } finally {
-                    unlockContext();
-                }
+        final int alFormat = ALHelpers.getALFormat(format, al, alExt,
+                                                   hasSOFTBufferSamples, hasEXTMcFormats,
+                                                   hasEXTFloat32, hasEXTDouble);
+        if( ALConstants.AL_NONE != alFormat ) {
+            if( DEBUG ) {
+                System.err.println(getThreadName()+": ALAudioSink.isSupported: OK "+format+", alFormat "+toHexString(alFormat));
             }
+            return true;
+        } else {
+            if( DEBUG ) {
+                System.err.println(getThreadName()+": ALAudioSink.isSupported: NO.1 "+format);
+            }
+            return false;
         }
-        if( DEBUG ) {
-            System.err.println(getThreadName()+": ALAudioSink.isSupported: NO.X "+format);
-        }
-        return false;
     }
 
     @Override
@@ -465,24 +502,68 @@ public class ALAudioSink implements AudioSink {
         if( !staticAvailable ) {
             return false;
         }
-        alChannelLayout = ALHelpers.getDefaultALChannelLayout(requestedFormat.channelCount);
-        alSampleType = ALHelpers.getALSampleType(requestedFormat.sampleSize, requestedFormat.signed, requestedFormat.fixedP);
+        final int alChannelLayout = ALHelpers.getDefaultALChannelLayout(requestedFormat.channelCount);
+        final int alSampleType = ALHelpers.getALSampleType(requestedFormat.sampleSize, requestedFormat.signed, requestedFormat.fixedP);
+        final int alFormat;
+        if( ALConstants.AL_NONE != alChannelLayout && ALConstants.AL_NONE != alSampleType ) {
+            alFormat = ALHelpers.getALFormat(alChannelLayout, alSampleType, al, alExt,
+                                             hasSOFTBufferSamples, hasEXTMcFormats,
+                                             hasEXTFloat32, hasEXTDouble);
+        } else {
+            alFormat = ALConstants.AL_NONE;
+        }
+        if( ALConstants.AL_NONE == alFormat ) {
+            // not supported
+            if( DEBUG ) {
+                System.err.println(getThreadName()+": ALAudioSink.init1: Not supported: "+requestedFormat+", "+toString());
+            }
+            return false;
+        }
+        return initImpl(requestedFormat, alChannelLayout, alSampleType, alFormat,
+                        frameDuration, initialQueueSize, queueGrowAmount, queueLimit);
+    }
+
+    /**
+     * Initializes the sink using the given OpenAL audio parameter and streaming details.
+     * @param alChannelLayout OpenAL channel layout
+     * @param alSampleType OpenAL sample type
+     * @param alFormat OpenAL format
+     * @param sampleRate sample rate, e.g. 44100
+     * @param sampleSize sample size in bits, e.g. 16
+     * @param frameDuration average or fixed frame duration in milliseconds
+     *                      helping a caching {@link AudioFrame} based implementation to determine the frame count in the queue.
+     *                      See {@link #DefaultFrameDuration}.
+     * @param initialQueueSize initial time in milliseconds to queue in this sink, see {@link #DefaultInitialQueueSize}.
+     * @param queueGrowAmount time in milliseconds to grow queue if full, see {@link #DefaultQueueGrowAmount}.
+     * @param queueLimit maximum time in milliseconds the queue can hold (and grow), see {@link #DefaultQueueLimitWithVideo} and {@link #DefaultQueueLimitAudioOnly}.
+     * @return true if successful, otherwise false
+     * @see ALHelpers#getAudioFormat(int, int, int, int, int)
+     * @see #init(AudioFormat, float, int, int, int)
+     */
+    public final boolean init(final int alChannelLayout, final int alSampleType, final int alFormat,
+                              final int sampleRate, final int sampleSize,
+                              final float frameDuration, final int initialQueueSize, final int queueGrowAmount, final int queueLimit) {
+        final AudioFormat requestedFormat = ALHelpers.getAudioFormat(alChannelLayout, alSampleType, alFormat, sampleRate, sampleSize);
+        if( null == requestedFormat ) {
+            if( DEBUG ) {
+                System.err.println(getThreadName()+": ALAudioSink.init2: Invalid AL channelLayout "+toHexString(alChannelLayout)+
+                        ", sampleType "+toHexString(alSampleType)+", format "+toHexString(alFormat)+" or sample[rate "+sampleRate+", size "+sampleSize+"]; "+toString());
+            }
+            return false;
+        }
+        return initImpl(requestedFormat, alChannelLayout, alSampleType, alFormat,
+                        frameDuration, initialQueueSize, queueGrowAmount, queueLimit);
+    }
+
+    private final boolean initImpl(final AudioFormat requestedFormat,
+                                   final int alChannelLayout, final int alSampleType, final int alFormat,
+                                   final float frameDuration, final int initialQueueSize, final int queueGrowAmount, final int queueLimit) {
+        this.alChannelLayout = alChannelLayout;
+        this.alSampleType = alSampleType;
+        this.alFormat = alFormat;
+
         lockContext();
         try {
-            if( ALConstants.AL_NONE != alChannelLayout && ALConstants.AL_NONE != alSampleType ) {
-                alFormat = ALHelpers.getALFormat(alChannelLayout, alSampleType,
-                        hasSOFTBufferSamples, hasEXTMcFormats, hasEXTFloat32, hasEXTDouble,
-                        al, alExt);
-            } else {
-                alFormat = ALConstants.AL_NONE;
-            }
-            if( ALConstants.AL_NONE == alFormat ) {
-                // not supported
-                if( DEBUG ) {
-                    System.err.println(getThreadName()+": ALAudioSink.init: Not supported: "+requestedFormat+", "+toString());
-                }
-                return false;
-            }
             // Allocate buffers
             destroyBuffers();
             {
@@ -628,7 +709,7 @@ public class ALAudioSink implements AudioSink {
                         t.printStackTrace();
                     }
                 }
-                alSource = null;
+                alSource[0] = -1;
             }
 
             destroyBuffers();
