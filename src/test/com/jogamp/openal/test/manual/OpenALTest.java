@@ -45,6 +45,7 @@ import com.jogamp.openal.ALCdevice;
 import com.jogamp.openal.ALConstants;
 import com.jogamp.openal.ALFactory;
 import com.jogamp.openal.ALVersion;
+import com.jogamp.openal.JoalVersion;
 import com.jogamp.openal.UnsupportedAudioFileException;
 import com.jogamp.openal.eax.EAX;
 import com.jogamp.openal.eax.EAXConstants;
@@ -56,12 +57,17 @@ import com.jogamp.openal.util.WAVData;
  * @author Athomas Goldberg, Michael Bien, et.al.
  */
 public class OpenALTest {
-    private ALC alc = null;
+    private static final AL al;
+    private static final ALC alc;
     private ALCdevice device = null;
     private ALCcontext context = null;
-    private AL al = null;
     private int[] sources = null;
     private boolean initialized = false;
+
+    static {
+        alc = ALFactory.getALC();
+        al = ALFactory.getAL();
+    }
 
     public OpenALTest() {
     }
@@ -70,30 +76,12 @@ public class OpenALTest {
         if( initialized ) {
             return;
         }
-        alc = ALFactory.getALC();
+        System.err.println(JoalVersion.getInstance().toString(alc));
+
         device = alc.alcOpenDevice(null);
         context = alc.alcCreateContext(device, null);
         alc.alcMakeContextCurrent(context);
-        al = ALFactory.getAL(); // valid after makeContextCurrent(..)
         System.out.println("ALVersion: "+new ALVersion(al).toString());
-        System.out.println("Output devices:");
-        {
-            final String[] outDevices = alc.alcGetDeviceSpecifiers();
-            if( null != outDevices ) {
-                for (final String name : outDevices) {
-                    System.out.println("    "+name);
-                }
-            }
-        }
-        System.out.println("Capture devices:");
-        {
-            final String[] inDevices = alc.alcGetCaptureDeviceSpecifiers();
-            if( null != inDevices ) {
-                for (final String name : inDevices) {
-                    System.out.println("    "+name);
-                }
-            }
-        }
 
         final boolean eaxPresent = al.alIsExtensionPresent("EAX2.0");
         final EAX eax = ( eaxPresent ) ? EAXFactory.getEAX() : null;

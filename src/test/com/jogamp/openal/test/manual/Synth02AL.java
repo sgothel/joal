@@ -41,6 +41,8 @@ import com.jogamp.common.os.Clock;
 import com.jogamp.common.util.InterruptSource;
 import com.jogamp.common.util.InterruptedRuntimeException;
 import com.jogamp.common.util.SourcedInterruptedException;
+import com.jogamp.openal.ALFactory;
+import com.jogamp.openal.JoalVersion;
 
 /**
  * A continuous simple off-thread mutable sine wave synthesizer.
@@ -427,6 +429,8 @@ public final class Synth02AL {
                 freq = atof(args[i], freq);
             }
         }
+        System.err.println(JoalVersion.getInstance().toString(ALFactory.getALC()));
+
         final Synth02AL o = new Synth02AL();
         o.setFreq(freq);
         System.err.println("0: "+o);
