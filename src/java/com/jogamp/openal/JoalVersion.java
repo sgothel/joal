@@ -102,7 +102,7 @@ public class JoalVersion extends JogampVersion {
      * </p>
      * @param alc static {@link ALC} instance
      */
-    public StringBuilder getALStrings(final ALC alc, StringBuilder sb) {
+    public static StringBuilder getALStrings(final ALC alc, StringBuilder sb) {
         if( null == sb ) {
             sb = new StringBuilder();
         }
@@ -133,7 +133,119 @@ public class JoalVersion extends JogampVersion {
         alc.alcMakeContextCurrent(null);
         alc.alcDestroyContext(context);
         alc.alcCloseDevice(device);
+        devicesToString(sb, alc);
         return sb;
+    }
+
+    private static boolean checkALCError(final ALC alc, final ALCdevice device, final String msg)
+    {
+      final int error = alc.alcGetError(device);
+      if (error != ALCConstants.ALC_NO_ERROR) {
+        System.err.printf("ALC Error 0x%x occurred: '%s' while '%s'%n", error, alc.alcGetString(device, error), msg);
+        return true;
+      }
+      return false;
+    }
+
+    public static void deviceToString(final StringBuilder sb, final ALC alc, final String devName, final boolean isInput, final String defOutDeviceName, final String defInDeviceName) {
+        final boolean isDefault = isInput ? devName.equals(defInDeviceName) : devName.equals(defOutDeviceName);
+        final String defStr = isDefault ? "default " : "";
+        if( isInput ) {
+            sb.append("    "+devName+", input, default "+isDefault+System.lineSeparator());
+        } else {
+            final String inOutStr = "output";
+            final int mixerFrequency, mixerRefresh, monoSourceCount, stereoSourceCount;
+            final int[] val = { 0 };
+            final ALCdevice d = isInput ? null : alc.alcOpenDevice(devName);
+            if( null == d ) {
+                System.err.println("Error: Failed to open "+defStr+inOutStr+" device "+devName);
+                return;
+            }
+            final ALCcontext c = alc.alcCreateContext(d, null);
+            if( null == c ) {
+                System.err.println("Error: Failed to create context for "+defStr+inOutStr+" device "+devName);
+                alc.alcCloseDevice(d);
+                return;
+            }
+            if( !alc.alcMakeContextCurrent(c) ) {
+                System.err.println("Error: Failed to make context current for "+defStr+inOutStr+" device "+devName);
+                checkALCError(alc, d, "alcMakeContextCurrent");
+                alc.alcDestroyContext(c);
+                alc.alcCloseDevice(d);
+                return;
+            }
+
+            {
+                val[0] = 0;
+                alc.alcGetIntegerv(d, ALCConstants.ALC_FREQUENCY, 1, val, 0);
+                if( checkALCError(alc, d, "read ALC_FREQUENCY") ) {
+                    mixerFrequency = -1;
+                } else {
+                    mixerFrequency = val[0];
+                }
+            }
+            {
+                val[0] = 0;
+                alc.alcGetIntegerv(d, ALCConstants.ALC_REFRESH, 1, val, 0);
+                if( checkALCError(alc, d, "read ALC_REFRESH") ) {
+                    mixerRefresh = -1;
+                } else {
+                    mixerRefresh = val[0];
+                }
+            }
+            {
+                val[0] = 0;
+                alc.alcGetIntegerv(d, ALCConstants.ALC_MONO_SOURCES, 1, val, 0);
+                if( checkALCError(alc, d, "read ALC_MONO_SOURCES") ) {
+                    monoSourceCount = -1;
+                } else {
+                    monoSourceCount = val[0];
+                }
+            }
+            {
+                val[0] = 0;
+                alc.alcGetIntegerv(d, ALCConstants.ALC_STEREO_SOURCES, 1, val, 0);
+                if( checkALCError(alc, d, "read ALC_STEREO_SOURCES") ) {
+                    stereoSourceCount = -1;
+                } else {
+                    stereoSourceCount = val[0];
+                }
+            }
+            sb.append("    "+devName+", "+inOutStr+", default "+isDefault+", mixer[freq "+mixerFrequency+", refresh "+mixerRefresh+
+                    " (min latency "+(1000f/mixerRefresh)+" ms)], sources[mono "+monoSourceCount+", stereo "+stereoSourceCount+"]"+
+                    System.lineSeparator());
+
+            alc.alcMakeContextCurrent(null);
+            alc.alcDestroyContext(c);
+            if( isInput ) {
+                alc.alcCaptureCloseDevice(d);
+            } else {
+                alc.alcCloseDevice(d);
+            }
+        }
+    }
+
+    public static void devicesToString(final StringBuilder sb, final ALC alc) {
+        final String defOutDeviceName = alc.alcGetString(null, ALCConstants.ALC_DEFAULT_DEVICE_SPECIFIER);
+        final String defInDeviceName = alc.alcGetString(null, ALCConstants.ALC_CAPTURE_DEFAULT_DEVICE_SPECIFIER);
+        sb.append("Output devices:"+System.lineSeparator());
+        {
+            final String[] outDevices = alc.alcGetDeviceSpecifiers();
+            if( null != outDevices ) {
+                for (final String devName : outDevices) {
+                    deviceToString(sb, alc, devName, false, defOutDeviceName, defInDeviceName);
+                }
+            }
+        }
+        sb.append("Capture devices:"+System.lineSeparator());
+        {
+            final String[] inDevices = alc.alcGetCaptureDeviceSpecifiers();
+            if( null != inDevices ) {
+                for (final String devName : inDevices) {
+                    deviceToString(sb, alc, devName, true, defOutDeviceName, defInDeviceName);
+                }
+            }
+        }
     }
 
     public static void main(final String args[]) {
