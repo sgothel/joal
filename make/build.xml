@@ -869,7 +869,7 @@
         <copy todir="${archive}/www">
             <fileset dir="${project.root}/www" includes="*" />
         </copy>
-        <copy file="../README.txt" todir="${archive}"/>
+        <copy file="../README.md" todir="${archive}"/>
         <copy file="../LICENSE.txt" todir="${archive}"/>
         <archive.7z destfile="${build}/${archive.name}.7z"
              basedir="${build}"
