@@ -313,13 +313,13 @@ public class ALHelpers {
             else if( hasEXTMcFormats )
             {
                 if(alChannelLayout == AL_QUAD_SOFT)
-                    format = al.alGetEnumValue("AL_FORMAT_QUAD8");
+                    format = AL_FORMAT_QUAD8;
                 else if(alChannelLayout == AL_5POINT1_SOFT)
-                    format = al.alGetEnumValue("AL_FORMAT_51CHN8");
+                    format = AL_FORMAT_51CHN8;
                 else if(alChannelLayout == AL_6POINT1_SOFT)
-                    format = al.alGetEnumValue("AL_FORMAT_61CHN8");
+                    format = AL_FORMAT_61CHN8;
                 else if(alChannelLayout == AL_7POINT1_SOFT)
-                    format = al.alGetEnumValue("AL_FORMAT_71CHN8");
+                    format = AL_FORMAT_71CHN8;
             }
         }
         else if(alSampleType == AL_SHORT_SOFT)
@@ -331,39 +331,40 @@ public class ALHelpers {
             else if( hasEXTMcFormats )
             {
                 if(alChannelLayout == AL_QUAD_SOFT)
-                    format = al.alGetEnumValue("AL_FORMAT_QUAD16");
+                    format = AL_FORMAT_QUAD16;
                 else if(alChannelLayout == AL_5POINT1_SOFT)
-                    format = al.alGetEnumValue("AL_FORMAT_51CHN16");
+                    format = AL_FORMAT_51CHN16;
                 else if(alChannelLayout == AL_6POINT1_SOFT)
-                    format = al.alGetEnumValue("AL_FORMAT_61CHN16");
+                    format = AL_FORMAT_61CHN16;
                 else if(alChannelLayout == AL_7POINT1_SOFT)
-                    format = al.alGetEnumValue("AL_FORMAT_71CHN16");
+                    format = AL_FORMAT_71CHN16;
             }
         }
         else if(alSampleType == AL_FLOAT_SOFT && hasEXTFloat32)
         {
             if(alChannelLayout == AL_MONO_SOFT)
-                format = al.alGetEnumValue("AL_FORMAT_MONO_FLOAT32");
+                format = AL_FORMAT_MONO_FLOAT32;
             else if(alChannelLayout == AL_STEREO_SOFT)
-                format = al.alGetEnumValue("AL_FORMAT_STEREO_FLOAT32");
+                format = AL_FORMAT_STEREO_FLOAT32;
             else if( hasEXTMcFormats )
             {
                 if(alChannelLayout == AL_QUAD_SOFT)
-                    format = al.alGetEnumValue("AL_FORMAT_QUAD32");
+                    format = AL_FORMAT_QUAD32;
                 else if(alChannelLayout == AL_5POINT1_SOFT)
-                    format = al.alGetEnumValue("AL_FORMAT_51CHN32");
+                    format = AL_FORMAT_51CHN32;
                 else if(alChannelLayout == AL_6POINT1_SOFT)
-                    format = al.alGetEnumValue("AL_FORMAT_61CHN32");
+                    format = AL_FORMAT_61CHN32;
                 else if(alChannelLayout == AL_7POINT1_SOFT)
-                    format = al.alGetEnumValue("AL_FORMAT_71CHN32");
+                    format = AL_FORMAT_71CHN32;
             }
         }
         else if(alSampleType == AL_DOUBLE_SOFT && hasEXTDouble)
         {
             if(alChannelLayout == AL_MONO_SOFT)
-                format = al.alGetEnumValue("AL_FORMAT_MONO_DOUBLE");
-            else if(alChannelLayout == AL_STEREO_SOFT)
-                format = al.alGetEnumValue("AL_FORMAT_STEREO_DOUBLE");
+                format = AL_FORMAT_MONO_DOUBLE_EXT;
+            else if(alChannelLayout == AL_STEREO_SOFT) {
+                format = AL_FORMAT_STEREO_DOUBLE_EXT;
+            }
         }
 
         /* NOTE: It seems OSX returns -1 from alGetEnumValue for unknown enums, as
