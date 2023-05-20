@@ -148,15 +148,16 @@ public class JoalVersion extends JogampVersion {
     }
 
     public static void deviceToString(final StringBuilder sb, final ALC alc, final String devName, final boolean isInput, final String defOutDeviceName, final String defInDeviceName) {
-        final boolean isDefault = isInput ? devName.equals(defInDeviceName) : devName.equals(defOutDeviceName);
-        final String defStr = isDefault ? "default " : "";
         if( isInput ) {
+            final boolean isDefault = devName.equals(defInDeviceName);
             sb.append("    "+devName+", input, default "+isDefault+System.lineSeparator());
         } else {
+            final boolean isDefault = devName.equals(defOutDeviceName);
+            final String defStr = isDefault ? "default " : "";
             final String inOutStr = "output";
             final int mixerFrequency, mixerRefresh, monoSourceCount, stereoSourceCount;
             final int[] val = { 0 };
-            final ALCdevice d = isInput ? null : alc.alcOpenDevice(devName);
+            final ALCdevice d = alc.alcOpenDevice(devName);
             if( null == d ) {
                 System.err.println("Error: Failed to open "+defStr+inOutStr+" device "+devName);
                 return;
@@ -217,11 +218,7 @@ public class JoalVersion extends JogampVersion {
 
             alc.alcMakeContextCurrent(null);
             alc.alcDestroyContext(c);
-            if( isInput ) {
-                alc.alcCaptureCloseDevice(d);
-            } else {
-                alc.alcCloseDevice(d);
-            }
+            alc.alcCloseDevice(d);
         }
     }
 
