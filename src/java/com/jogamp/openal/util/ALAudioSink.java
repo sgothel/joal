@@ -893,6 +893,7 @@ public class ALAudioSink implements AudioSink {
             int i=0;
             int slept = 0;
             int releasedBuffers = 0;
+            boolean onceBusyDebug = true;
             final long t0 = DEBUG ? Clock.currentNanos() : 0;
             do {
                 val[0] = 0;
@@ -900,16 +901,16 @@ public class ALAudioSink implements AudioSink {
                 if( checkALError("alGetSourcei AL_BUFFERS_PROCESSED", true) ) {
                     throw new RuntimeException(getThreadName()+": Error while quering processed buffers at source. "+this);
                 }
-                releasedBuffers += val[0];
+                releasedBuffers = val[0];
                 if( wait && releasedBuffers < releaseBufferLimes ) {
                     i++;
                     // clip wait at [avgFrameDuration .. 100] ms
-                    final int sleep = Math.max(avgFrameDuration, Math.min(100, releaseBufferLimes-releasedBuffers * avgBufferDura)) - 1; // 1 ms off for busy-loop
+                    final int sleep = Math.max(2, Math.min(100, (releaseBufferLimes-releasedBuffers) * avgBufferDura)) - 1; // 1 ms off for busy-loop
                     if( slept + sleep + 1 <= sleepLimes ) {
                         if( DEBUG ) {
-                            System.err.println(getThreadName()+": ALAudioSink: Dequeue.wait-sleep["+i+"]: avgBufferDura "+avgBufferDura+
+                            System.err.println(getThreadName()+": ALAudioSink: Dequeue.wait-sleep["+i+"].1: avgBufferDura "+avgBufferDura+
                                     ", releaseBuffers "+releasedBuffers+"/"+releaseBufferLimes+", sleep "+sleep+"/"+slept+"/"+sleepLimes+
-                                    " ms, playImpl "+(ALConstants.AL_PLAYING == getSourceState(false))+", processed "+val[0]+", "+shortString());
+                                    " ms, playImpl "+(ALConstants.AL_PLAYING == getSourceState(false))+", "+shortString());
                         }
                         unlockContext();
                         try {
@@ -921,6 +922,14 @@ public class ALAudioSink implements AudioSink {
                         }
                     } else {
                         // Empirical best behavior w/ openal-soft (sort of needs min ~21ms to complete processing a buffer even if period < 20ms?)
+                        if( DEBUG ) {
+                            if( onceBusyDebug ) {
+                                System.err.println(getThreadName()+": ALAudioSink: Dequeue.wait-sleep["+i+"].2: avgBufferDura "+avgBufferDura+
+                                        ", releaseBuffers "+releasedBuffers+"/"+releaseBufferLimes+", sleep "+sleep+"->1/"+slept+"/"+sleepLimes+
+                                        " ms, playImpl "+(ALConstants.AL_PLAYING == getSourceState(false))+", "+shortString());
+                                onceBusyDebug = false;
+                            }
+                        }
                         unlockContext();
                         try {
                             Thread.sleep( 1 );
@@ -937,7 +946,7 @@ public class ALAudioSink implements AudioSink {
                 final long t1 = Clock.currentNanos();
                 System.err.println(getThreadName()+": ALAudioSink: Dequeue.wait-done["+i+"]: "+TimeUnit.NANOSECONDS.toMillis(t1-t0)+" ms, avgBufferDura "+avgBufferDura+
                         ", releaseBuffers "+releaseBufferCount+"/"+releaseBufferLimes+", slept "+slept+" ms, playImpl "+(ALConstants.AL_PLAYING == getSourceState(false))+
-                        ", processed "+val[0]+", "+shortString());
+                        ", "+shortString());
             }
         } else {
             releaseBufferCount = 0;
