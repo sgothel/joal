@@ -480,7 +480,7 @@ public class ALAudioSink implements AudioSink {
         return String.format("ALAudioSink[avail %b, playReq %b, device '%s', ctx 0x%x, alSource %d"+
                ", chosen %s, al[chan %s, type %s, fmt 0x%x, tlc %b, soft %b, latency %.2f/%.2f ms, sources %d]"+
                ", playSpeed %.2f, buffers[total %d, avail %d, queued[%d, apts %d, %d ms, %d bytes], queue[g %d, l %d]",
-               available, playRequested, deviceSpecifier, ctxHash, alSource, chosenFormat.toString(),
+               available, playRequested, deviceSpecifier, ctxHash, alSource, chosenFormat,
                ALHelpers.alChannelLayoutName(alChannelLayout), ALHelpers.alSampleTypeName(alSampleType),
                alFormat, hasALC_thread_local_context, hasSOFTBufferSamples,
                1000f*latency, 1000f*defaultLatency, sourceCount, playSpeed, alBuffersLen, alFramesAvailSize,
