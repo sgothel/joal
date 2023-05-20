@@ -31,6 +31,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.ByteBuffer;
+import java.nio.FloatBuffer;
 import java.util.concurrent.TimeUnit;
 
 import com.jogamp.common.av.AudioFormat;
@@ -169,6 +170,8 @@ public final class Synth02AL {
         private volatile boolean shallStop = false;
 
         private final AudioSink audioSink;
+        private final boolean useFloat32SampleType;
+        private final int bytesPerSample;
         private final AudioFormat audioFormat;
         private ByteBuffer sampleBuffer = allocate(2*1000);
         private float lastFreq;
@@ -187,8 +190,23 @@ public final class Synth02AL {
             synchronized(this) {
                 lastAudioPTS = 0;
                 audioSink = AudioSinkFactory.createDefault(Synth02AL.class.getClassLoader());
-                audioFormat = new AudioFormat(audioSink.getPreferredSampleRate(), 16, 1, true /* signed */,
-                                                        true /* fixed point */, false /* planar */, true /* littleEndian */);
+
+                // Note: float32 is OpenAL-Soft's internally used format to mix samples etc.
+                final AudioFormat f32 = new AudioFormat(audioSink.getPreferredSampleRate(), 4<<3, 1, true /* signed */,
+                                                        false /* fixed point */, false /* planar */, true /* littleEndian */);
+                if( audioSink.isSupported(f32) ) {
+                    useFloat32SampleType = true;
+                    bytesPerSample = 4;
+                    audioFormat = f32;
+                } else {
+                    useFloat32SampleType = false;
+                    bytesPerSample = 2;
+                    audioFormat = new AudioFormat(audioSink.getPreferredSampleRate(), bytesPerSample<<3, 1, true /* signed */,
+                                                  true /* fixed point */, false /* planar */, true /* littleEndian */);
+                }
+                System.err.println("OpenAL float32 supported: "+useFloat32SampleType);
+
+                sampleBuffer = allocate(bytesPerSample*1000);
                 audioSink.init(audioFormat, frameDuration, audioQueueLimit, 0, audioQueueLimit);
                 lastFreq = 0;
                 nextSin = 0;
@@ -266,29 +284,38 @@ public final class Synth02AL {
                 }
             }
 
-            if( sampleBuffer.capacity() < 2*sample_count ) {
+            if( sampleBuffer.capacity() < bytesPerSample*sample_count ) {
                 if( DEBUG ) {
-                    System.err.printf("SampleBuffer grow: %d -> %d%n", sampleBuffer.capacity(), 2*sample_count);
+                    System.err.printf("SampleBuffer grow: %d -> %d%n", sampleBuffer.capacity(), bytesPerSample*sample_count);
                 }
-                sampleBuffer = allocate(2*sample_count);
+                sampleBuffer = allocate(bytesPerSample*sample_count);
             }
 
             {
-                final int l = nextStep;
                 int i;
                 float s = 0;
-                for(i=l; i<l+sample_count; ++i) {
-                    s = (float) Math.sin( sample_step * i );
-                    final short s16 = (short)( SHORT_MAX * s * amp );
-                    sampleBuffer.put( (byte) ( s16 & 0xff ) );
-                    sampleBuffer.put( (byte) ( ( s16 >>> 8 ) & 0xff ) );
+                if( useFloat32SampleType ) {
+                    final FloatBuffer f32sb = sampleBuffer.asFloatBuffer();
+                    final int l = nextStep;
+                    for(i=l; i<l+sample_count; ++i) {
+                        s = (float) Math.sin( sample_step * i );
+                        f32sb.put(s);
+                    }
+                } else {
+                    final int l = nextStep;
+                    for(i=l; i<l+sample_count; ++i) {
+                        s = (float) Math.sin( sample_step * i );
+                        final short s16 = (short)( SHORT_MAX * s * amp );
+                        sampleBuffer.put( (byte) ( s16 & 0xff ) );
+                        sampleBuffer.put( (byte) ( ( s16 >>> 8 ) & 0xff ) );
+                    }
                 }
                 nextStep = i;
                 nextSin = (float) Math.sin( sample_step * nextStep );
                 upSin = nextSin >= s;
-                sampleBuffer.rewind();
             }
-            audioSink.enqueueData(lastAudioPTS, sampleBuffer, sample_count*2);
+            sampleBuffer.rewind();
+            audioSink.enqueueData(lastAudioPTS, sampleBuffer, sample_count*bytesPerSample);
             sampleBuffer.clear();
             lastAudioPTS += frameDuration;
         }
