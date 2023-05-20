@@ -72,10 +72,6 @@ public final class Synth02AL {
 
     private static final float SHORT_MAX = 32767.0f; // == Short.MAX_VALUE
 
-    public static final int frameDuration = 12; // AudioSink.DefaultFrameDuration; // [ms]
-
-    public static final int audioQueueLimit = 3 * frameDuration;
-
     public static final float MIDDLE_C = 261.625f;
 
     private final Object stateLock = new Object();
@@ -97,6 +93,9 @@ public final class Synth02AL {
         audioAmplitude = Math.min(1.0f, Math.max(0.0f, a)); // clip [0..1]
     }
     public float getAmplitude() { return audioAmplitude; }
+
+    /** Returns latency or frame-duration in milliseconds */
+    public int getLatency() { return null != streamWorker ? streamWorker.frameDuration : 2*AudioSink.DefaultFrameDuration; }
 
     public void play() {
         synchronized( stateLock ) {
@@ -152,7 +151,7 @@ public final class Synth02AL {
             final String as = null != streamWorker ? streamWorker.audioSink.toString() : "ALAudioSink[null]";
             final int pts = getPTS();
             final int lag = getGenPTS() - pts;
-            return getClass().getSimpleName()+"[f "+audioFreq+", a "+audioAmplitude+", state[running "+isRunning()+", playing "+isPlaying()+"], pts[gen "+getGenPTS()+", play "+pts+", lag "+lag+"], "+as+"]";
+            return getClass().getSimpleName()+"[f "+audioFreq+", a "+audioAmplitude+", latency "+getLatency()+", state[running "+isRunning()+", playing "+isPlaying()+"], pts[gen "+getGenPTS()+", play "+pts+", lag "+lag+"], "+as+"]";
         }
     }
 
@@ -173,7 +172,10 @@ public final class Synth02AL {
         private final boolean useFloat32SampleType;
         private final int bytesPerSample;
         private final AudioFormat audioFormat;
-        private ByteBuffer sampleBuffer = allocate(2*1000);
+        private ByteBuffer sampleBuffer;
+        private int frameDuration;
+        private int audioQueueLimit;
+
         private float lastFreq;
         private float nextSin;
         private boolean upSin;
@@ -206,7 +208,12 @@ public final class Synth02AL {
                 }
                 System.err.println("OpenAL float32 supported: "+useFloat32SampleType);
 
-                sampleBuffer = allocate(bytesPerSample*1000);
+                sampleBuffer = allocate( audioFormat.getDurationsByteSize(30) ); // pre-allocate buffer for 30ms
+
+                // clip [16 .. 2*AudioSink.DefaultFrameDuration]
+                frameDuration = Math.max( 16, Math.min(2*AudioSink.DefaultFrameDuration, Math.round( 1000f*audioSink.getDefaultLatency() ) ) ); // ms
+                audioQueueLimit = 3 * frameDuration;
+
                 audioSink.init(audioFormat, frameDuration, audioQueueLimit, 0, audioQueueLimit);
                 lastFreq = 0;
                 nextSin = 0;
@@ -470,11 +477,11 @@ public final class Synth02AL {
             for(float f=min; f<max; f+=step) {
                 o.setFreq(f);
                 try {
-                    Thread.sleep(frameDuration);
+                    Thread.sleep( o.getLatency() );
                 } catch (final InterruptedException e) { }
             }
             final long t1 = Clock.currentNanos();
-            final int exp = (int)( (max - min) / step ) * frameDuration;
+            final int exp = (int)( (max - min) / step ) * o.getLatency();
             final int has = (int)TimeUnit.NANOSECONDS.toMillis(t1-t0);
             final int diff = has - exp;
             System.err.println("Loop "+has+" / "+exp+" [ms], diff "+diff+" [ms], "+((float)diff/(float)exp) * 100f+"%");
