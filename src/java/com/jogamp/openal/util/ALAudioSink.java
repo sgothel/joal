@@ -113,7 +113,6 @@ public class ALAudioSink implements AudioSink {
     }
 
     private int[] alBufferNames = null;
-    private int avgFrameDuration = 0; // [ms]
     private int frameGrowAmount = 0;
     private int frameLimit = 0;
 
@@ -602,13 +601,20 @@ public class ALAudioSink implements AudioSink {
      * @param alFormat OpenAL format
      * @param sampleRate sample rate, e.g. 44100
      * @param sampleSize sample size in bits, e.g. 16
-     * @param frameDuration average or fixed frame duration in milliseconds
-     *                      helping a caching {@link AudioFrame} based implementation to determine the frame count in the queue.
-     *                      See {@link #DefaultFrameDuration}.
+     * @param frameDuration average {@link AudioFrame} duration hint in milliseconds.
+     *                      May assist to shape the {@link AudioFrame} buffer's initial size, its growth amount and limit
+     *                      using `initialQueueSize`, `queueGrowAmount` and `queueLimit`.
+     *                      May assist to adjust latency of the backend, as currently used for JOAL's ALAudioSink.
+     *                      A value below 30ms or {@link #DefaultFrameDuration} may increase the audio processing load.
+     *                      Assumed as {@link #DefaultFrameDuration}, if <code>frameDuration < 1 ms</code>.
      * @param initialQueueSize initial time in milliseconds to queue in this sink, see {@link #DefaultInitialQueueSize}.
+     *                         May be used with `frameDuration` to determine initial {@link AudioFrame} buffer size.
      * @param queueGrowAmount time in milliseconds to grow queue if full, see {@link #DefaultQueueGrowAmount}.
+     *                        May be used with `frameDuration` to determine {@link AudioFrame} buffer growth amount.
      * @param queueLimit maximum time in milliseconds the queue can hold (and grow), see {@link #DefaultQueueLimitWithVideo} and {@link #DefaultQueueLimitAudioOnly}.
+     *                   May be used with `frameDuration` to determine {@link AudioFrame} buffer limit.
      * @return true if successful, otherwise false
+     * @see #enqueueData(int, ByteBuffer, int)
      * @see ALHelpers#getAudioFormat(int, int, int, int, int)
      * @see #init(AudioFormat, float, int, int, int)
      */
@@ -694,7 +700,6 @@ public class ALAudioSink implements AudioSink {
                 // Allocate new buffers
                 {
                     final int frameDurationMS = Math.round(1000f*frameDurationS);
-                    avgFrameDuration = frameDurationMS;
                     final int initialFrameCount = requestedFormat.getFrameCount(
                                                     initialQueueSize > 0 ? initialQueueSize : AudioSink.DefaultInitialQueueSize, frameDurationMS);
                     alBufferNames = new int[initialFrameCount];
