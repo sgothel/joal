@@ -208,7 +208,7 @@ public final class Synth02AL {
                 }
                 System.err.println("OpenAL float32 supported: "+useFloat32SampleType);
 
-                sampleBuffer = allocate( audioFormat.getDurationsByteSize(30) ); // pre-allocate buffer for 30ms
+                sampleBuffer = allocate( audioFormat.getDurationsByteSize(30/1000f) ); // pre-allocate buffer for 30ms
 
                 // clip [16 .. 2*AudioSink.DefaultFrameDuration]
                 frameDuration = Math.max( 16, Math.min(2*AudioSink.DefaultFrameDuration, Math.round( 1000f*audioSink.getDefaultLatency() ) ) ); // ms
