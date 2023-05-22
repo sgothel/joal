@@ -36,6 +36,7 @@ package com.jogamp.openal;
 /** A generic exception for OpenAL errors used throughout the binding
     as a substitute for {@link RuntimeException}. */
 
+@SuppressWarnings("serial")
 public class ALException extends RuntimeException {
   /** Constructs an ALException object. */
   public ALException() {
