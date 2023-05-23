@@ -41,9 +41,9 @@ import com.jogamp.openal.ALConstants;
  * provides methods for controlling the position, orientation as well as other
  * properties associated with the listener.
  *
- * @author Athomas Goldberg
+ * @author Athomas Goldberg, Sven Gothel, et al.
  */
-public class Listener {
+public final class Listener {
     public Listener() {
     }
 
@@ -141,11 +141,10 @@ public class Listener {
 
     /**
      * Sets the orientation of the Listener in the Sound3D environment.
-     * Orientation is expressed as "up" and "at" vectors.
+     * Orientation is expressed as `at` and `up` vectors.
      *
      * @param orientation The first 3 elements of the array should contain
-     * the x,y,z up-vector, the second 3 elements should contain the x,z,z
-     * look-at vector.
+     * the `at` vector, the second 3 elements should contain the `up` vector.
      */
     public void setOrientation(final float[] orientation) {
         AudioSystem3D.al.alListenerfv(ALConstants.AL_ORIENTATION, orientation, 0);
@@ -153,12 +152,10 @@ public class Listener {
 
     /**
      * Gets the orientation of the Listener in the Sound3D environment.
-     * Orientation is expressed as "up" and "at" vectors.
+     * Orientation is expressed as `at` and `up` vectors.
      *
-     * @return an array containing the orientation of the listener.
-     * The first 3 elements of the array contain
-     * the x,y,z up-vector, the second 3 elements contain the x,z,z
-     * look-at vector.
+     * @return an array containing the orientation of the listener, a pair of 3-float vectors for x,y,z.
+     * The first 3 elements of the array contain the `at` vector, the second 3 elements contain the `up` vector.
      */
     public float[] getOrientation() {
         final float[] tmp = new float[6];

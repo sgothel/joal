@@ -40,6 +40,10 @@ import java.io.InputStream;
 
 import com.jogamp.openal.AL;
 import com.jogamp.openal.ALC;
+import com.jogamp.openal.ALCConstants;
+import com.jogamp.openal.ALCcontext;
+import com.jogamp.openal.ALCdevice;
+import com.jogamp.openal.ALConstants;
 import com.jogamp.openal.ALException;
 import com.jogamp.openal.ALExt;
 import com.jogamp.openal.ALFactory;
@@ -53,7 +57,7 @@ import jogamp.openal.Debug;
  * The AudioSystem3D class provides a set of methods for creating and
  * manipulating a 3D audio environment.
  *
- * @author Athomas Goldberg
+ * @author Athomas Goldberg, Sven Gothel, et al.
  */
 public class AudioSystem3D {
   static boolean DEBUG = Debug.debug("AudioSystem3D");
@@ -99,37 +103,144 @@ public class AudioSystem3D {
    */
   public static boolean isAvailable() { return staticAvailable; }
 
-  public int getALError() {
+  /** Return OpenAL global {@link AL}. */
+  public static final AL getAL() { return al; }
+  /** Return OpenAL global {@link ALC}. */
+  public static final ALC getALC() { return alc; }
+  /** Return OpenAL global {@link ALExt}. */
+  public static final ALExt getALExt() { return alExt; }
+
+  public static int getALError() {
       return al.alGetError();
   }
 
   /**
-   * Creates a new Sound3D Context for a specified device.
+   * Returns true if an OpenAL ALC or AL error occurred, otherwise false
+   * @param device referencing an {@link ALCdevice}, may be null
+   * @param prefix prefix to print on error and if `verbose`
+   * @param verbose pass true to show errors
+   * @param throwException true to throw an ALException on error
+   * @return true if an error occurred, otherwise false
+   */
+  public static boolean checkError(final Device device, final String prefix, final boolean verbose, final boolean throwException) {
+      if( !checkALCError(device, prefix, verbose, throwException) ) {
+          return checkALError(prefix, verbose, throwException);
+      }
+      return false; // no error
+  }
+
+  /**
+   * Returns true if an OpenAL AL error occurred, otherwise false
+   * @param prefix prefix to print on error and if `verbose`
+   * @param verbose pass true to show errors
+   * @param throwException true to throw an ALException on error
+   * @return true if an error occurred, otherwise false
+   */
+  public static boolean checkALError(final String prefix, final boolean verbose, final boolean throwException) {
+      final int alErr = al.alGetError();
+      if( ALConstants.AL_NO_ERROR != alErr ) {
+          final String msg = prefix+": AL error 0x"+Integer.toHexString(alErr)+", '"+al.alGetString(alErr);
+          if( verbose ) {
+              System.err.println(msg);
+          }
+          if( throwException ) {
+              throw new ALException(msg);
+          }
+          return true;
+      }
+      return false;
+  }
+  /**
+   * Returns true if an OpenAL ALC error occurred, otherwise false
+   * @param device referencing an {@link ALCdevice}, may be null
+   * @param prefix prefix to print on error and if `verbose`
+   * @param verbose pass true to show errors
+   * @param throwException true to throw an ALException on error
+   * @return true if an error occurred, otherwise false
+   */
+  public static boolean checkALCError(final Device device, final String prefix, final boolean verbose, final boolean throwException) {
+      final ALCdevice alcDevice = null != device ? device.getALDevice() : null;
+      final int alcErr = alc.alcGetError( alcDevice );
+      if( ALCConstants.ALC_NO_ERROR != alcErr ) {
+          final String msg = prefix+": ALC error 0x"+Integer.toHexString(alcErr)+", "+alc.alcGetString(alcDevice, alcErr);
+          if( verbose ) {
+              System.err.println(msg);
+          }
+          if( throwException ) {
+              throw new ALException(msg);
+          }
+          return true;
+      }
+      return false;
+  }
+
+  /**
+   * Creates a new Sound3D Context for a specified device including native {@link ALCcontext} creation.
    *
-   * @param device The device the Context is being created for.
-   *
+   * @param device The device the Context is being created for, must be valid
    * @return The new Sound3D context.
    */
   public static Context createContext(final Device device) {
-      return new Context(device);
+      return new Context(device, null);
   }
 
   /**
-   * Makes the specified context the current context.
+   * Creates a new Sound3D Context for a specified device including native {@link ALCcontext} creation.
    *
+   * @param device The device the Context is being created for, must be valid.
+   * @param attributes list of {@link ALCcontext} attributes for context creation, maybe empty or null
+   * @return The new Sound3D context.
+   */
+  public static Context createContext(final Device device, final int[] attributes) {
+      return new Context(device, attributes);
+  }
+
+  /**
+   * Returns this thread current context.
+   * If no context is current, returns null.
+   *
+   * @return the context current on this thread, or null if no context is current.
+   * @see Context#getCurrentContext()
+   * @see #makeContextCurrent(Context)
+   * @see #releaseContext(Context)
+   */
+  public static Context getCurrentContext() {
+      return Context.getCurrentContext();
+  }
+
+  /**
+   * Makes the audio context current on the calling thread.
+   * <p>
+   * Recursive calls are supported.
+   * </p>
+   * <p>
+   * At any point in time one context can only be current by one thread,
+   * and one thread can only have one context current.
+   * </p>
    * @param context the context to make current.
+   * @param throwException if true, throws ALException if {@link #getALContext()} is null, current thread holds another context or failed to natively make current
+   * @return true if current thread holds no other context and context successfully made current, otherwise false
+   * @see Context#makeCurrent()
+   * @see #releaseContext(Context)
    */
-  public static boolean makeContextCurrent(final Context context) {
-    return context.makeCurrent();
+  public static boolean makeContextCurrent(final Context context, final boolean throwException) {
+    return context.makeCurrent(throwException);
   }
 
   /**
-   * Release the specified context.
-   *
+   * Releases control of this audio context from the current thread, if implementation utilizes context locking.
+   * <p>
+   * Recursive calls are supported.
+   * </p>
    * @param context the context to release.
+   * @param throwException if true, throws ALException if context has not been previously made current on current thread
+   *                       or native release failed.
+   * @return true if context has previously been made current on the current thread and successfully released, otherwise false
+   * @see Context#release()
+   * @see #makeContextCurrent(Context)
    */
-  public static boolean releaseContext(final Context context) {
-    return context.release();
+  public static boolean releaseContext(final Context context, final boolean throwException) {
+    return context.release(throwException);
   }
 
   /**

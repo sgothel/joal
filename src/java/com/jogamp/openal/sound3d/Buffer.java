@@ -43,9 +43,9 @@ import java.nio.ByteBuffer;
  * The Sound3D Buffer is a container for audio data used in the Sound3D
  * environment.
  *
- * @author Athomas Goldberg
+ * @author Athomas Goldberg, Sven Gothel, et al.
  */
-public class Buffer {
+public final class Buffer {
     public final static int FORMAT_MONO8 = AL.AL_FORMAT_MONO8;
 
     public final static int FORMAT_MONO16 = AL.AL_FORMAT_MONO16;
@@ -148,5 +148,10 @@ public class Buffer {
         AudioSystem3D.al.alGetBufferi(alBufferID, ALConstants.AL_SIZE, i, 0);
 
         return i[0];
+    }
+
+    @Override
+    public String toString() {
+        return "ALBuffer[id "+alBufferID+"]";
     }
 }

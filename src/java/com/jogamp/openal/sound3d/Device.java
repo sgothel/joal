@@ -40,39 +40,67 @@ import com.jogamp.openal.*;
 /**
  * This class provides a handle to a specific audio device.
  *
- * @author Athomas Goldberg
+ * @author Athomas Goldberg, Sven Gothel, et al.
  */
-public class Device {
+public final class Device {
+    private String name;
     private ALCdevice alDev;
 
-    public Device(final ALCdevice realDevice) {
-        this.alDev = realDevice;
-    }
-
     /**
-     * Create a new device by opening the named audio device.
+     * Create a new device by {@link #open()}'ing the named audio device.
      *
      * @param deviceName The specified device name, null for default.
      */
     public Device(final String deviceName) {
-        this.alDev = AudioSystem3D.alc.alcOpenDevice(deviceName);
+        this.name = deviceName;
+        this.alDev = null;
+        open();
     }
+
+    /** Returns the device name. */
+    public String getName() { return name; }
+
+    /** Returns the OpenAL {@link ALCdevice}. */
+    public ALCdevice getALDevice() { return alDev; }
+
+    /** Return {@link ALC#alcGetError(ALCdevice)} */
+    public int getALCError() {
+        return AudioSystem3D.alc.alcGetError(alDev);
+    }
+
+    /** Returns whether {@link #getALDevice()} is open and valid, i.e. not null, e.g. not {@link #close()}. */
+    public boolean isValid() { return null != alDev; }
 
     /**
-     * Returns the OpenAL context.
+     * Opens the device if not yet opened
+     * @return true if already open or newly opened
+     * @see #isValid()
+     * @see #clone()
      */
-    public ALCdevice getALDevice() {
-        return alDev;
+    public boolean open() {
+        if( null == alDev ) {
+            alDev = AudioSystem3D.alc.alcOpenDevice(name);
+            if( null != alDev && null == name ) {
+                name = AudioSystem3D.alc.alcGetString(alDev, ALCConstants.ALC_DEVICE_SPECIFIER);
+            }
+        }
+        return isValid();
     }
-
-    /** Returns whether {@link #getALDevice()} is valid, i.e. not null, e.g. not {@link #close()}. */
-    public boolean isValid() { return null != alDev; }
 
     /**
      * closes the device, freeing its resources.
      */
     public void close() {
-        AudioSystem3D.alc.alcCloseDevice(alDev);
-        alDev = null;
+        if( null != alDev ) {
+            AudioSystem3D.alc.alcCloseDevice(alDev);
+            alDev = null;
+        }
     }
+
+    @Override
+    public String toString() {
+        final String alStr = null != alDev ? "0x"+Integer.toHexString(alDev.hashCode()) : "null";
+        return "ALDevice[this 0x"+Integer.toHexString(hashCode())+", name '"+name+"', alDev "+alStr+"]";
+    }
+
 }

@@ -35,6 +35,7 @@
 package com.jogamp.openal.sound3d;
 
 import com.jogamp.openal.ALConstants;
+import com.jogamp.openal.ALException;
 
 /**
  * This class is used to represent sound-producing objects in the Sound3D
@@ -42,14 +43,42 @@ import com.jogamp.openal.ALConstants;
  * gain and other properties along with methods for starting, pausing, rewinding
  * and stopping sudio projecting from a source.
  *
- * @author Athomas Goldberg
+ * @author Athomas Goldberg, Sven Gothel, et al.
  */
 public final class Source {
     private int sourceID;
     private Buffer buffer;
 
+    /** Create a new instance with an invalid OpenAL source ID */
+    public Source() {
+        sourceID = -1;
+    }
+
+    /**
+     * Create a new instance with a given OpenAL source ID
+     * @param sourceID an OpenAL source ID, pass -1 for an invalid value for lazy creation
+     */
     public Source(final int sourceID) {
         this.sourceID = sourceID;
+    }
+
+    /**
+     * Creates a new OpenAL source ID if {@link #isValid()} == false.
+     * @return true if a new ID has been successfully created, otherwise false
+     */
+    public boolean create() {
+        if( isValid() ) {
+            return false;
+        }
+        final int[] val = { -1 };
+        AudioSystem3D.al.alGenSources(1, val, 0);
+        if( 0 <= val[0] && AudioSystem3D.al.alIsSource(val[0]) ) {
+            sourceID = val[0];
+            return true;
+        } else {
+            sourceID = -1;
+            return false;
+        }
     }
 
     /** Return the OpenAL source ID, -1 if invalid. */
@@ -466,22 +495,24 @@ public final class Source {
     /**
      * Gets the number of buffers currently queued on this source.
      * @return the number of buffers currently queued on this source.
+     * @throws ALException on AL error
      */
-    public int getBuffersQueued() {
+    public int getBuffersQueued() throws ALException {
         final int[] result = new int[1];
         AudioSystem3D.al.alGetSourcei(sourceID, ALConstants.AL_BUFFERS_QUEUED, result, 0);
-
+        AudioSystem3D.checkALError("Query AL_BUFFERS_QUEUED", true, true);
         return result[0];
     }
 
     /**
      * Gets the number of buffers already processed on this source.
      * @return the number of buffers already processed on this source.
+     * @throws ALException on AL error
      */
-    public int getBuffersProcessed() {
+    public int getBuffersProcessed() throws ALException {
         final int[] result = new int[1];
         AudioSystem3D.al.alGetSourcei(sourceID, ALConstants.AL_BUFFERS_PROCESSED, result, 0);
-
+        AudioSystem3D.checkALError("Query AL_BUFFERS_PROCESSED", true, true);
         return result[0];
     }
 
@@ -515,31 +546,60 @@ public final class Source {
      * buffers will be played in the order they are queued.
      *
      * @param buffers a set of initialized (loaded) buffers.
+     * @throws ALException on AL error
      */
-    public void queueBuffers(final Buffer[] buffers) {
+    public void queueBuffers(final Buffer[] buffers) throws ALException {
         final int numBuffers = buffers.length;
         final int[] arr = new int[numBuffers];
 
         for (int i = 0; i < numBuffers; i++) {
             arr[i] = buffers[i].getID();
         }
-
         AudioSystem3D.al.alSourceQueueBuffers(sourceID, numBuffers, arr, 0);
+        AudioSystem3D.checkALError("alSourceQueueBuffers", true, true);
+    }
+
+    /**
+     * Queues `bufferIDs.length` OpenAL buffers on a source.
+     *
+     * @param bufferIDs array of to be queued OpenAL buffer IDs
+     * @throws ALException on AL error
+     */
+    public void queueBuffers(final int[] bufferIDs) throws ALException {
+        AudioSystem3D.al.alSourceQueueBuffers(sourceID, bufferIDs.length, bufferIDs, 0);
+        AudioSystem3D.checkALError("alSourceQueueBuffers", true, true);
     }
 
     /**
      * Unqueues one or more buffers on a source.
      *
      * @param buffers a set of previously queued buffers.
+     * @throws ALException on AL error
      */
-    public void unqueueBuffers(final Buffer[] buffers) {
+    public void unqueueBuffers(final Buffer[] buffers) throws ALException {
         final int numBuffers = buffers.length;
         final int[] arr = new int[numBuffers];
 
         for (int i = 0; i < numBuffers; i++) {
             arr[i] = buffers[i].getID();
         }
-
         AudioSystem3D.al.alSourceUnqueueBuffers(sourceID, numBuffers, arr, 0);
+        AudioSystem3D.checkALError("alSourceUnqueueBuffers", true, true);
+    }
+
+    /**
+     * Unqueues `bufferIDs.length` OpenAL buffers on a source.
+     *
+     * @param bufferIDs array of resulting unqueued OpenAL buffer IDs of previously queued buffers.
+     * @throws ALException on AL error
+     */
+    public void unqueueBuffers(final int[] bufferIDs) throws ALException {
+        AudioSystem3D.al.alSourceUnqueueBuffers(sourceID, bufferIDs.length, bufferIDs, 0);
+        AudioSystem3D.checkALError("alSourceUnqueueBuffers", true, true);
+    }
+
+    @Override
+    public String toString() {
+        return "ALSource[id "+sourceID+", buffer "+buffer+"]";
     }
 }
