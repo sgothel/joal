@@ -42,16 +42,18 @@ import com.jogamp.common.os.Clock;
 import com.jogamp.common.util.LFRingbuffer;
 import com.jogamp.common.util.PropertyAccess;
 import com.jogamp.common.util.Ringbuffer;
-import com.jogamp.common.util.locks.LockFactory;
-import com.jogamp.common.util.locks.RecursiveLock;
 import com.jogamp.openal.AL;
 import com.jogamp.openal.ALC;
 import com.jogamp.openal.ALCConstants;
 import com.jogamp.openal.ALCcontext;
 import com.jogamp.openal.ALCdevice;
 import com.jogamp.openal.ALConstants;
+import com.jogamp.openal.ALException;
 import com.jogamp.openal.ALExt;
-import com.jogamp.openal.ALFactory;
+import com.jogamp.openal.sound3d.AudioSystem3D;
+import com.jogamp.openal.sound3d.Context;
+import com.jogamp.openal.sound3d.Device;
+import com.jogamp.openal.sound3d.Source;
 
 /***
  * OpenAL {@link AudioSink} implementation.
@@ -64,29 +66,26 @@ import com.jogamp.openal.ALFactory;
  * </ul>
  * </p>
  */
-public class ALAudioSink implements AudioSink {
+public final class ALAudioSink implements AudioSink {
     private static final boolean DEBUG_TRACE;
     private static final ALC alc;
     private static final AL al;
     private static final ALExt alExt;
     private static final boolean staticsInitialized;
 
-    private String deviceSpecifier;
-    private ALCdevice device;
+    private final Device device;
     private boolean hasSOFTBufferSamples;
     private boolean hasEXTMcFormats;
     private boolean hasEXTFloat32;
     private boolean hasEXTDouble;
     private boolean hasALC_thread_local_context;
-    private int defaultSampleRate;
     private int sourceCount;
     private float defaultLatency;
     private float latency;
-    private AudioFormat preferredAudioFormat;
-    private ALCcontext context;
-    private final RecursiveLock lock = LockFactory.createRecursiveLock();
-    private boolean threadContextLocked;
-    private volatile Thread exclusiveThread = null;
+    private final AudioFormat nativeFormat;
+    private int userMaxChannels = 8;
+    private AudioFormat preferredFormat;
+    private final Context context;
 
     /** Playback speed, range [0.5 - 2.0], default 1.0. */
     private float playSpeed;
@@ -126,7 +125,7 @@ public class ALAudioSink implements AudioSink {
     private volatile int playingPTS = AudioFrame.INVALID_PTS;
     private volatile int enqueuedFrameCount;
 
-    private int alSource = -1; // actually ALuint, but JOAL expects INT_MAX limit is ok!
+    private final Source alSource = new Source();
     private AudioFormat chosenFormat;
     private int alChannelLayout;
     private int alSampleType;
@@ -139,23 +138,10 @@ public class ALAudioSink implements AudioSink {
         Debug.initSingleton();
         DEBUG_TRACE = PropertyAccess.isPropertyDefined("joal.debug.AudioSink.trace", true);
 
-        ALC _alc = null;
-        AL _al = null;
-        ALExt _alExt = null;
-        try {
-            _alc = ALFactory.getALC();
-            _al = ALFactory.getAL();
-            _alExt = ALFactory.getALExt();
-        } catch(final Throwable t) {
-            if( DEBUG ) {
-                System.err.println("ALAudioSink: Caught "+t.getClass().getName()+": "+t.getMessage());
-                t.printStackTrace();
-            }
-        }
-        alc = _alc;
-        al = _al;
-        alExt = _alExt;
-        staticsInitialized = null != alc && null != al && null != alExt;
+        alc = AudioSystem3D.getALC();
+        al = AudioSystem3D.getAL();
+        alExt = AudioSystem3D.getALExt();
+        staticsInitialized = AudioSystem3D.isAvailable();
     }
 
     /** Returns true if OpenAL has been loaded and static fields {@link ALC}, {@link AL} and {@link ALExt} have been initialized successfully, otherwise false. */
@@ -163,180 +149,148 @@ public class ALAudioSink implements AudioSink {
         return staticsInitialized;
     }
 
-    private static boolean checkALCALError(final ALCdevice device, final String prefix, final boolean verbose) {
-        if( !checkALCError(device, prefix, verbose) ) {
-            return checkALError(prefix, verbose);
-        }
-        return false; // no error
-    }
-    private static boolean checkALError(final String prefix, final boolean verbose) {
-        final int alErr = al.alGetError();
-        final boolean err = ALConstants.AL_NO_ERROR != alErr;
-        if( err && verbose ) {
-            System.err.println("ALAudioSink."+prefix+": AL error "+err+", "+toHexString(alErr)+", '"+al.alGetString(alErr)+"']");
-        }
-        return err;
-    }
-    private static boolean checkALCError(final ALCdevice device, final String prefix, final boolean verbose) {
-        final int alcErr = alc.alcGetError(device);
-        final boolean err = ALCConstants.ALC_NO_ERROR != alcErr;
-        if( err && verbose ) {
-            System.err.println("ALAudioSink."+prefix+": ALC error "+err+", err [alc "+toHexString(alcErr)+", "+alc.alcGetString(device, alcErr)+"']");
-        }
-        return err;
-    }
-    private static ALCdevice createDevice(final String name) {
-        final ALCdevice d = alc.alcOpenDevice(name);
-        if (d == null) {
-            throw new RuntimeException(getThreadName()+": ALAudioSink: Error opening OpenAL device '"+name+"'");
+    private static Device createDevice(final String name) {
+        final Device d = new Device(name);
+        if( !d.isValid() ) {
+            throw new ALException(getThreadName()+": ALAudioSink: Error opening OpenAL device '"+name+"'");
         }
         return d;
     }
 
     /**
      * Create a new instance with a new default {@link ALCdevice}
-     * @throws RuntimeException if the default {@link ALCdevice} couldn't be fully created including its context.
+     * @throws ALException if the default {@link ALCdevice} couldn't be fully created including its context.
      */
-    public ALAudioSink() throws RuntimeException {
-        this((ALCdevice)null);
+    public ALAudioSink() throws ALException {
+        this((Device)null);
     }
 
     /**
      * Create a new instance with a new named {@link ALCdevice}
      * @param deviceName name of
-     * @throws RuntimeException if the default {@link ALCdevice} couldn't be fully created including its context.
+     * @throws ALException if the default {@link ALCdevice} couldn't be fully created including its context.
      */
-    public ALAudioSink(final String deviceName) throws RuntimeException {
+    public ALAudioSink(final String deviceName) throws ALException {
         this(createDevice(deviceName));
     }
 
     /**
      * Create a new instance with an optional given {@link ALCdevice}
      *
-     * @param alDevice optional OpenAL device, a default device is opened if null.
-     * @throws RuntimeException if the default {@link ALCdevice} couldn't be fully created including its context.
+     * @param alDevice optional OpenAL {@link Device}, a default device is opened if null.
+     * @throws ALException if the default {@link ALCdevice} couldn't be fully created including its context.
      */
-    public ALAudioSink(final ALCdevice alDevice) throws RuntimeException {
+    public ALAudioSink(final Device alDevice) throws ALException {
         available = false;
         chosenFormat = null;
 
         if( !staticsInitialized ) {
+            device = null;
+            context = null;
+            nativeFormat = DefaultFormat;
             return;
         }
+        if( null == alDevice ) {
+            device = createDevice(null); // default device
+            if( !device.isValid() ) {
+                throw new ALException(getThreadName()+": ALAudioSink: Couldn't open default device: "+device);
+            }
+        } else {
+            device = alDevice;
+            if( !device.open() ) {
+                throw new ALException(getThreadName()+": ALAudioSink: Error device not open or couldn't be opened "+device);
+            }
+        }
+        // Create audio context.
+        context = new Context(device, null);
+        if ( !context.isValid() ) {
+            throw new ALException(getThreadName()+": ALAudioSink: Error creating OpenAL context "+context);
+        }
+
+        makeCurrent(true /* throw */);
         try {
-            if( null == alDevice ) {
-                device = createDevice(null); // default device
-            } else {
-                device = alDevice;
-            }
-
-            // Get the device specifier.
-            deviceSpecifier = alc.alcGetString(device, ALCConstants.ALC_DEVICE_SPECIFIER);
-            if (deviceSpecifier == null) {
-                throw new RuntimeException(getThreadName()+": ALAudioSink: Error getting specifier for default OpenAL device");
-            }
-
-            // Create audio context.
-            context = alc.alcCreateContext(device, null);
-            if (context == null) {
-                throw new RuntimeException(getThreadName()+": ALAudioSink: Error creating OpenAL context for "+deviceSpecifier);
-            }
-
-            lockContext();
-            try {
-                // Check for an error.
-                if( checkALCError(device, "alcCreateContext", true) ) {
-                    throw new RuntimeException(getThreadName()+": ALAudioSink: Error making OpenAL context current");
-                }
-                hasSOFTBufferSamples = al.alIsExtensionPresent(ALHelpers.AL_SOFT_buffer_samples);
-                hasEXTMcFormats = al.alIsExtensionPresent(ALHelpers.AL_EXT_MCFORMATS);
-                hasEXTFloat32 = al.alIsExtensionPresent(ALHelpers.AL_EXT_FLOAT32);
-                hasEXTDouble = al.alIsExtensionPresent(ALHelpers.AL_EXT_DOUBLE);
-                hasALC_thread_local_context = alc.alcIsExtensionPresent(null, ALHelpers.ALC_EXT_thread_local_context) ||
-                                              alc.alcIsExtensionPresent(device, ALHelpers.ALC_EXT_thread_local_context) ;
-                int checkErrIter = 1;
-                checkALCALError(device, "init."+checkErrIter++, DEBUG);
-                {
-                    final int[] value = { 0 };
-                    alc.alcGetIntegerv(device, ALCConstants.ALC_FREQUENCY, 1, value, 0);
-                    if( checkALCALError(device, "read ALC_FREQUENCY", DEBUG) || 0 == value[0] ) {
-                        defaultSampleRate = DefaultFormat.sampleRate;
-                        if( DEBUG ) {
-                            System.err.println("ALAudioSink.queryDefaultSampleRate: failed, using default "+defaultSampleRate);
-                        }
-                    } else {
-                        defaultSampleRate = value[0];
-                        if( DEBUG ) {
-                            System.err.println("ALAudioSink.queryDefaultSampleRate: OK "+defaultSampleRate);
-                        }
+            hasSOFTBufferSamples = al.alIsExtensionPresent(ALHelpers.AL_SOFT_buffer_samples);
+            hasEXTMcFormats = al.alIsExtensionPresent(ALHelpers.AL_EXT_MCFORMATS);
+            hasEXTFloat32 = al.alIsExtensionPresent(ALHelpers.AL_EXT_FLOAT32);
+            hasEXTDouble = al.alIsExtensionPresent(ALHelpers.AL_EXT_DOUBLE);
+            hasALC_thread_local_context = alc.alcIsExtensionPresent(null, ALHelpers.ALC_EXT_thread_local_context) ||
+                                          alc.alcIsExtensionPresent(device.getALDevice(), ALHelpers.ALC_EXT_thread_local_context) ;
+            int checkErrIter = 1;
+            AudioSystem3D.checkError(device, "init."+checkErrIter++, DEBUG, false);
+            int defaultSampleRate = DefaultFormat.sampleRate;
+            {
+                final int[] value = { 0 };
+                alc.alcGetIntegerv(device.getALDevice(), ALCConstants.ALC_FREQUENCY, 1, value, 0);
+                if( AudioSystem3D.checkError(device, "read ALC_FREQUENCY", DEBUG, false) || 0 == value[0] ) {
+                    if( DEBUG ) {
+                        System.err.println("ALAudioSink.queryDefaultSampleRate: failed, using default "+defaultSampleRate);
                     }
-                    value[0] = 0;
-                    alc.alcGetIntegerv(device, ALCConstants.ALC_MONO_SOURCES, 1, value, 0);
-                    if( checkALCALError(device, "read ALC_MONO_SOURCES", DEBUG) ) {
-                        sourceCount = -1;
-                        if( DEBUG ) {
-                            System.err.println("ALAudioSink.queryMonoSourceCount: failed");
-                        }
-                    } else {
-                        sourceCount = value[0];
-                    }
-                    value[0] = 0;
-                    alc.alcGetIntegerv(device, ALCConstants.ALC_REFRESH, 1, value, 0);
-                    if( checkALCALError(device, "read ALC_FREQUENCY", DEBUG) || 0 == value[0] ) {
-                        defaultLatency = 20f/1000f; // OpenAL-Soft default seems to be 50 Hz -> 20ms min latency
-                        if( DEBUG ) {
-                            System.err.println("ALAudioSink.queryDefaultRefreshRate: failed");
-                        }
-                    } else {
-                        defaultLatency = 1f/value[0]; // Hz -> s
-                        if( DEBUG ) {
-                            System.err.println("ALAudioSink.queryDefaultRefreshRate: OK "+value[0]+" Hz = "+(1000f*defaultLatency)+" ms");
-                        }
+                } else {
+                    defaultSampleRate = value[0];
+                    if( DEBUG ) {
+                        System.err.println("ALAudioSink.queryDefaultSampleRate: OK "+defaultSampleRate);
                     }
                 }
-                preferredAudioFormat = new AudioFormat(defaultSampleRate, DefaultFormat.sampleSize, DefaultFormat.channelCount,
-                                                       DefaultFormat.signed, DefaultFormat.fixedP, DefaultFormat.planar, DefaultFormat.littleEndian);
-                if( DEBUG ) {
-                    final int[] alcvers = { 0, 0 };
-                    System.out.println("ALAudioSink: OpenAL Version: "+al.alGetString(ALConstants.AL_VERSION));
-                    System.out.println("ALAudioSink: OpenAL Extensions: "+al.alGetString(ALConstants.AL_EXTENSIONS));
-                    checkALCALError(device, "init."+checkErrIter++, DEBUG);
-                    System.out.println("ALAudioSink: Null device OpenALC:");
-                    alc.alcGetIntegerv(null, ALCConstants.ALC_MAJOR_VERSION, 1, alcvers, 0);
-                    alc.alcGetIntegerv(null, ALCConstants.ALC_MINOR_VERSION, 1, alcvers, 1);
-                    System.out.println("  Version: "+alcvers[0]+"."+alcvers[1]);
-                    System.out.println("  Extensions: "+alc.alcGetString(null, ALCConstants.ALC_EXTENSIONS));
-                    checkALCALError(device, "init."+checkErrIter++, DEBUG);
-                    System.out.println("ALAudioSink: Device "+deviceSpecifier+" OpenALC:");
-                    alc.alcGetIntegerv(device, ALCConstants.ALC_MAJOR_VERSION, 1, alcvers, 0);
-                    alc.alcGetIntegerv(device, ALCConstants.ALC_MINOR_VERSION, 1, alcvers, 1);
-                    System.out.println("  Version: "+alcvers[0]+"."+alcvers[1]);
-                    System.out.println("  Extensions: "+alc.alcGetString(device, ALCConstants.ALC_EXTENSIONS));
-                    System.out.println("ALAudioSink: hasSOFTBufferSamples "+hasSOFTBufferSamples);
-                    System.out.println("ALAudioSink: hasEXTMcFormats "+hasEXTMcFormats);
-                    System.out.println("ALAudioSink: hasEXTFloat32 "+hasEXTFloat32);
-                    System.out.println("ALAudioSink: hasEXTDouble "+hasEXTDouble);
-                    System.out.println("ALAudioSink: hasALC_thread_local_context "+hasALC_thread_local_context);
-                    System.out.println("ALAudioSink: preferredAudioFormat "+preferredAudioFormat);
-                    System.out.println("ALAudioSink: defaultMixerRefreshRate "+(1000f*defaultLatency)+" ms, "+(1f/defaultLatency)+" Hz");
-                    System.out.println("ALAudioSink: maxSupportedChannels "+getMaxSupportedChannels());
-                    checkALCALError(device, "init."+checkErrIter++, DEBUG);
+                value[0] = 0;
+                alc.alcGetIntegerv(device.getALDevice(), ALCConstants.ALC_MONO_SOURCES, 1, value, 0);
+                if( AudioSystem3D.checkError(device, "read ALC_MONO_SOURCES", DEBUG, false) ) {
+                    sourceCount = -1;
+                    if( DEBUG ) {
+                        System.err.println("ALAudioSink.queryMonoSourceCount: failed");
+                    }
+                } else {
+                    sourceCount = value[0];
                 }
-
-                if( DEBUG ) {
-                    System.err.println("ALAudioSink: Using device: " + deviceSpecifier);
+                value[0] = 0;
+                alc.alcGetIntegerv(device.getALDevice(), ALCConstants.ALC_REFRESH, 1, value, 0);
+                if( AudioSystem3D.checkError(device, "read ALC_FREQUENCY", DEBUG, false) || 0 == value[0] ) {
+                    defaultLatency = 20f/1000f; // OpenAL-Soft default seems to be 50 Hz -> 20ms min latency
+                    if( DEBUG ) {
+                        System.err.println("ALAudioSink.queryDefaultRefreshRate: failed");
+                    }
+                } else {
+                    defaultLatency = 1f/value[0]; // Hz -> s
+                    if( DEBUG ) {
+                        System.err.println("ALAudioSink.queryDefaultRefreshRate: OK "+value[0]+" Hz = "+(1000f*defaultLatency)+" ms");
+                    }
                 }
-                available = true;
-            } finally {
-                unlockContext();
             }
-            return;
-        } catch ( final Exception e ) {
+            nativeFormat = new AudioFormat(defaultSampleRate, DefaultFormat.sampleSize, getMaxSupportedChannels(false),
+                                           DefaultFormat.signed, DefaultFormat.fixedP, DefaultFormat.planar, DefaultFormat.littleEndian);
+            preferredFormat = nativeFormat;
             if( DEBUG ) {
-                System.err.println(e.getMessage());
-                e.printStackTrace();
+                final int[] alcvers = { 0, 0 };
+                System.out.println("ALAudioSink: OpenAL Version: "+al.alGetString(ALConstants.AL_VERSION));
+                System.out.println("ALAudioSink: OpenAL Extensions: "+al.alGetString(ALConstants.AL_EXTENSIONS));
+                AudioSystem3D.checkError(device, "init."+checkErrIter++, DEBUG, false);
+                System.out.println("ALAudioSink: Null device OpenALC:");
+                alc.alcGetIntegerv(null, ALCConstants.ALC_MAJOR_VERSION, 1, alcvers, 0);
+                alc.alcGetIntegerv(null, ALCConstants.ALC_MINOR_VERSION, 1, alcvers, 1);
+                System.out.println("  Version: "+alcvers[0]+"."+alcvers[1]);
+                System.out.println("  Extensions: "+alc.alcGetString(null, ALCConstants.ALC_EXTENSIONS));
+                AudioSystem3D.checkError(device, "init."+checkErrIter++, DEBUG, false);
+                System.out.println("ALAudioSink: Device "+device+" OpenALC:");
+                alc.alcGetIntegerv(device.getALDevice(), ALCConstants.ALC_MAJOR_VERSION, 1, alcvers, 0);
+                alc.alcGetIntegerv(device.getALDevice(), ALCConstants.ALC_MINOR_VERSION, 1, alcvers, 1);
+                System.out.println("  Version: "+alcvers[0]+"."+alcvers[1]);
+                System.out.println("  Extensions: "+alc.alcGetString(device.getALDevice(), ALCConstants.ALC_EXTENSIONS));
+                System.out.println("ALAudioSink: hasSOFTBufferSamples "+hasSOFTBufferSamples);
+                System.out.println("ALAudioSink: hasEXTMcFormats "+hasEXTMcFormats);
+                System.out.println("ALAudioSink: hasEXTFloat32 "+hasEXTFloat32);
+                System.out.println("ALAudioSink: hasEXTDouble "+hasEXTDouble);
+                System.out.println("ALAudioSink: hasALC_thread_local_context "+hasALC_thread_local_context);
+                System.out.println("ALAudioSink: maxSupportedChannels "+getMaxSupportedChannels(false));
+                System.out.println("ALAudioSink: nativeAudioFormat "+nativeFormat);
+                System.out.println("ALAudioSink: defaultMixerRefreshRate "+(1000f*defaultLatency)+" ms, "+(1f/defaultLatency)+" Hz");
+                AudioSystem3D.checkError(device, "init."+checkErrIter++, DEBUG, false);
             }
-            destroy();
+
+            if( DEBUG ) {
+                System.err.println("ALAudioSink: Using device: " + device);
+            }
+            available = true;
+        } finally {
+            release(true /* throw */);
         }
     }
 
@@ -349,14 +303,12 @@ public class ALAudioSink implements AudioSink {
     /** Return OpenAL global {@link ALExt}. */
     public static final ALExt getALExt() { return alExt; }
 
-    /** Return this instance's OpenAL {@link ALCdevice}. */
-    public final ALCdevice getDevice() { return device; }
-    /** Return this instance's OpenAL {@link ALCdevice} specifier. */
-    public final String getDeviceSpec() { return deviceSpecifier; }
-    /** Return this instance's OpenAL {@link ALCcontext}. */
-    public final ALCcontext getALContext() { return context; }
-    /** Return this instance's OpenAL source ID. */
-    public final int getALSource() { return alSource; }
+    /** Return this instance's OpenAL {@link Device}. */
+    public final Device getDevice() { return device; }
+    /** Return this instance's OpenAL {@link Context}. */
+    public final Context getContext() { return context; }
+    /** Return this instance's OpenAL {@link Source}. */
+    public final Source getSource() { return alSource; }
 
     /** Return whether OpenAL extension <code>AL_SOFT_buffer_samples</code> is available. */
     public final boolean hasSOFTBufferSamples() { return hasSOFTBufferSamples; }
@@ -379,99 +331,15 @@ public class ALAudioSink implements AudioSink {
     // AudioSink implementation ...
 
     @Override
-    public final void lockExclusive() {
-        lockContext();
-        exclusiveThread = Thread.currentThread();
+    public final boolean makeCurrent(final boolean throwException) {
+        return context.makeCurrent(throwException);
     }
     @Override
-    public final void unlockExclusive() {
-        exclusiveThread = null;
-        unlockContext();
-    }
-    private final void lockContext() {
-        if( null != exclusiveThread ) {
-            if( Thread.currentThread() == exclusiveThread ) {
-                return;
-            }
-            throw new IllegalStateException("Exclusive lock by "+exclusiveThread+", but current is "+Thread.currentThread());
-        }
-        lock.lock();
-        if( !lockContextImpl() ) {
-            final String err = getThreadName()+": ALCError makeCurrent failed. "+this;
-            System.err.println(err);
-            ExceptionUtils.dumpStack(System.err);
-            lock.unlock();
-            throw new RuntimeException(err);
-        }
-    }
-    private final boolean lockContextImpl() {
-        final boolean r;
-        if( hasALC_thread_local_context ) {
-            r = alExt.alcSetThreadContext(context);
-            threadContextLocked = true;
-        } else {
-            r = alc.alcMakeContextCurrent(context);
-            threadContextLocked = false;
-        }
-        if( !r ) {
-            checkALCALError(null, "makeCurrent", true);
-            return false;
-        }
-        return true;
-    }
-    private final void unlockContext() {
-        if( null != exclusiveThread ) {
-            if( Thread.currentThread() == exclusiveThread ) {
-                return;
-            }
-            throw new IllegalStateException("Exclusive lock by "+exclusiveThread+", but current is "+Thread.currentThread());
-        }
-        unlockContextImpl();
-        lock.unlock();
-    }
-    private final void unlockContextImpl() {
-        final boolean r;
-        if( threadContextLocked ) {
-            r = alExt.alcSetThreadContext(null);
-        } else {
-            r = alc.alcMakeContextCurrent(null);
-        }
-        if( DEBUG ) {
-            if( !r ) {
-                System.err.println(getThreadName()+": unlockContext failed. "+this);
-                ExceptionUtils.dumpStack(System.err);
-            }
-        }
+    public final boolean release(final boolean throwException) {
+        return context.release(throwException);
     }
     private final void destroyContext() {
-        lock.lock();
-        try {
-            destroyContextImpl();
-            // unroll lock !
-            while(lock.getHoldCount() > 1) {
-                lock.unlock();
-            }
-        } finally {
-            lock.unlock();
-        }
-    }
-    private final void destroyContextImpl() {
-        if( null != context ) {
-            try {
-                exclusiveThread = null;
-                if( threadContextLocked ) {
-                    alExt.alcSetThreadContext(null);
-                } else {
-                    alc.alcMakeContextCurrent(null);
-                }
-                alc.alcDestroyContext(context);
-            } catch (final Throwable t) {
-                if( DEBUG ) {
-                    ExceptionUtils.dumpThrowable("", t);
-                }
-            }
-            context = null;
-        }
+        context.destroy();
     }
 
     @Override
@@ -483,7 +351,7 @@ public class ALAudioSink implements AudioSink {
         return String.format("ALAudioSink[playReq %b, device '%s', ctx 0x%x, alSource %d"+
                ", chosen %s, al[chan %s, type %s, fmt 0x%x, tlc %b, soft %b, latency %.2f/%.2f ms, sources %d]"+
                ", playSpeed %.2f, buffers[total %d, free %d], queued[%d, apts %d, %.1f ms, %d bytes, avg %.2f ms/frame], queue[g %d ms, l %d ms]]",
-               playRequested, deviceSpecifier, ctxHash, alSource, chosenFormat,
+               playRequested, device.getName(), ctxHash, alSource.getID(), chosenFormat,
                ALHelpers.alChannelLayoutName(alChannelLayout), ALHelpers.alSampleTypeName(alSampleType),
                alFormat, hasALC_thread_local_context, hasSOFTBufferSamples,
                1000f*latency, 1000f*defaultLatency, sourceCount, playSpeed, alBuffersLen, alFramesFreeSize,
@@ -497,7 +365,7 @@ public class ALAudioSink implements AudioSink {
         final int alFramesPlayingSize = alFramesPlaying != null ? alFramesPlaying.size() : 0;
         return String.format("[ctx 0x%x, playReq %b, alSrc %d"+
                ", queued[%d, apts %d, %.1f ms, %d bytes, avg %.2f ms/frame], queue[g %d ms, l %d ms]]",
-               ctxHash, playRequested, alSource,
+               ctxHash, playRequested, alSource.getID(),
                alFramesPlayingSize, getPTS(), 1000f*getQueuedTime(), alBufferBytesQueued, 1000f*avgFrameDuration,
                queueGrowAmount, queueLimit
                );
@@ -507,11 +375,6 @@ public class ALAudioSink implements AudioSink {
         final int alBuffersLen = null != alBufferNames ? alBufferNames.length : 0;
         return String.format("Play [buffer %d/%d, apts %d, %.1f ms, %d bytes]",
                 alFramesPlaying.size(), alBuffersLen, getPTS(), 1000f*getQueuedTime(), alBufferBytesQueued);
-    }
-
-    @Override
-    public int getPreferredSampleRate() {
-        return defaultSampleRate;
     }
 
     @Override
@@ -530,23 +393,45 @@ public class ALAudioSink implements AudioSink {
     }
 
     @Override
+    public final AudioFormat getNativeFormat() {
+        if( !staticsInitialized ) {
+            return null;
+        }
+        return nativeFormat;
+    }
+
+    @Override
     public final AudioFormat getPreferredFormat() {
         if( !staticsInitialized ) {
             return null;
         }
-        return preferredAudioFormat;
+        return preferredFormat;
     }
 
     @Override
-    public final int getMaxSupportedChannels() {
+    public final void setChannelLimit(final int cc) {
+        userMaxChannels = Math.min(8, Math.max(1, cc));
+
+        preferredFormat = new AudioFormat(nativeFormat.sampleRate,
+                                       nativeFormat.sampleSize, getMaxSupportedChannels(true),
+                                       nativeFormat.signed, nativeFormat.fixedP,
+                                       nativeFormat.planar, nativeFormat.littleEndian);
+        if( DEBUG ) {
+            System.out.println("ALAudioSink: channelLimit "+userMaxChannels+", preferredFormat "+preferredFormat);
+        }
+    }
+
+    private final int getMaxSupportedChannels(final boolean considerLimit) {
         if( !staticsInitialized ) {
             return 0;
         }
+        final int cc;
         if( hasEXTMcFormats || hasSOFTBufferSamples ) {
-            return 8;
+            cc = 8;
         } else {
-            return 2;
+            cc = 2;
         }
+        return considerLimit ? Math.min(userMaxChannels, cc) : cc;
     }
 
     @Override
@@ -554,7 +439,11 @@ public class ALAudioSink implements AudioSink {
         if( !staticsInitialized ) {
             return false;
         }
-        if( format.planar || !format.littleEndian ) {
+        if( format.planar != preferredFormat.planar ||
+            format.littleEndian != preferredFormat.littleEndian ||
+            format.sampleRate > preferredFormat.sampleRate ||
+            format.channelCount > preferredFormat.channelCount )
+        {
             if( DEBUG ) {
                 System.err.println(getThreadName()+": ALAudioSink.isSupported: NO.0 "+format);
             }
@@ -644,105 +533,113 @@ public class ALAudioSink implements AudioSink {
                         frameDurationHint/1000f, initialQueueSize, queueGrowAmount, queueLimit);
     }
 
-    private final boolean initImpl(final AudioFormat requestedFormat,
-                                   final int alChannelLayout, final int alSampleType, final int alFormat,
-                                   float frameDurationHintS, final int initialQueueSize, final int queueGrowAmount, final int queueLimit) {
-        lock.lock();
+    private final synchronized boolean initImpl(final AudioFormat requestedFormat,
+                                                final int alChannelLayout, final int alSampleType, final int alFormat,
+                                                float frameDurationHintS, final int initialQueueSize, final int queueGrowAmount, final int queueLimit) {
+        this.alChannelLayout = alChannelLayout;
+        this.alSampleType = alSampleType;
+        this.alFormat = alFormat;
+
+        /**
+         * OpenAL is pretty relaxed on formats, so whall we.
+         * Deduced requested AudioFormat is already a validated OpenAL compatible one.
+         * Drop filtering ..
+        if( !isSupported(requestedFormat) ) {
+            if( DEBUG ) {
+                System.err.println(getThreadName()+": ALAudioSink.init: Requested format "+requestedFormat+" not supported, preferred is "+preferredFormat+", "+this);
+            }
+            return false;
+        }
+         */
+
+        // Flush all old buffers
+        makeCurrent(true /* throw */);
+        if( context.getLockCount() != 1 ) {
+            release(false);
+            throw new ALException("init() must be called w/o makeCurrent: lockCount "+context+", "+this);
+        }
+        boolean releaseContext = true;
         try {
-            this.alChannelLayout = alChannelLayout;
-            this.alSampleType = alSampleType;
-            this.alFormat = alFormat;
+            stopImpl(true);
+            destroySource();
+            destroyBuffers();
 
-            // Flush all old buffers
-            lockContext();
-            try {
-                stopImpl(true);
-                destroySource();
-                destroyBuffers();
+            frameDurationHintS = frameDurationHintS >= 1f/1000f ? frameDurationHintS : AudioSink.DefaultFrameDuration/1000f;
+            // Re-Create audio context if default latency is not sufficient
+            {
+                final int defRefreshRate = Math.round( 1f / defaultLatency ); // s -> Hz
+                final int expMixerRefreshRate = Math.round( 1f / frameDurationHintS ); // s -> Hz
 
-                frameDurationHintS = frameDurationHintS >= 1f/1000f ? frameDurationHintS : AudioSink.DefaultFrameDuration/1000f;
-                // Re-Create audio context if default latency is not sufficient
-                {
-                    final int defRefreshRate = Math.round( 1f / defaultLatency ); // s -> Hz
-                    final int expMixerRefreshRate = Math.round( 1f / frameDurationHintS ); // s -> Hz
-
-                    if( frameDurationHintS < defaultLatency ) {
-                        if( DEBUG ) {
-                            System.err.println(getThreadName()+": ALAudioSink.init: Re-create context as latency exp "+
-                                    (1000f*frameDurationHintS)+" ms ("+expMixerRefreshRate+" Hz) < default "+(1000f*defaultLatency)+" ms ("+defRefreshRate+" Hz)");
-                        }
-                        destroyContextImpl(); // implicit native unlock
-                        context = alc.alcCreateContext(device, new int[] { ALCConstants.ALC_REFRESH, expMixerRefreshRate }, 0);
-                        if (context == null) {
-                            System.err.println(getThreadName()+": ALAudioSink: Error creating OpenAL context for "+deviceSpecifier);
-                            return false;
-                        }
-                        if( !lockContextImpl() ) {
-                            destroyContextImpl();
-                            return false;
-                        }
-                    } else if( DEBUG ) {
-                        System.err.println(getThreadName()+": ALAudioSink.init: Keep context, latency exp "+
-                                (1000f*frameDurationHintS)+" ms ("+expMixerRefreshRate+" Hz) >= default "+(1000f*defaultLatency)+" ms ("+defRefreshRate+" Hz)");
+                if( frameDurationHintS < defaultLatency ) {
+                    if( DEBUG ) {
+                        System.err.println(getThreadName()+": ALAudioSink.init: Re-create context as latency exp "+
+                                (1000f*frameDurationHintS)+" ms ("+expMixerRefreshRate+" Hz) < default "+(1000f*defaultLatency)+" ms ("+defRefreshRate+" Hz)");
                     }
-                }
-                // Get actual refresh rate
-                {
-                    final int[] value = { 0 };
-                    alc.alcGetIntegerv(device, ALCConstants.ALC_REFRESH, 1, value, 0);
-                    if( checkALCALError(device, "read ALC_FREQUENCY", DEBUG) || 0 == value[0] ) {
-                        latency = defaultLatency;
-                        if( DEBUG ) {
-                            System.err.println("ALAudioSink.queryRefreshRate: failed, claiming default "+(1000f*latency)+" ms");
-                        }
-                    } else {
-                        latency = 1f/value[0]; // Hz -> ms
-                        if( DEBUG ) {
-                            System.err.println("ALAudioSink.queryRefreshRate: OK "+value[0]+" Hz = "+(1000f*latency)+" ms");
-                        }
-                    }
-                }
-                if( !createSource() ) {
-                    destroyContextImpl();
-                    return false;
-                }
-
-                // Allocate new buffers
-                {
-                    final int initialFrameCount = requestedFormat.getFrameCount(
-                                                    initialQueueSize > 0 ? initialQueueSize/1000f : AudioSink.DefaultInitialQueueSize/1000f, frameDurationHintS);
-                    alBufferNames = new int[initialFrameCount];
-                    al.alGenBuffers(initialFrameCount, alBufferNames, 0);
-                    if( checkALError("alGenBuffers", true) ) {
-                        alBufferNames = null;
-                        destroySource();
-                        destroyContextImpl();
+                    if( !context.recreate( new int[] { ALCConstants.ALC_REFRESH, expMixerRefreshRate } ) ) {
+                        System.err.println(getThreadName()+": ALAudioSink: Error creating OpenAL context "+context);
                         return false;
                     }
-                    final ALAudioFrame[] alFrames = new ALAudioFrame[initialFrameCount];
-                    for(int i=0; i<initialFrameCount; i++) {
-                        alFrames[i] = new ALAudioFrame(alBufferNames[i]);
-                    }
-                    alFramesFree = new LFRingbuffer<ALAudioFrame>(alFrames);
-                    alFramesPlaying = new LFRingbuffer<ALAudioFrame>(ALAudioFrame[].class, initialFrameCount);
-                    this.queueGrowAmount = queueGrowAmount > 0 ? queueGrowAmount : AudioSink.DefaultQueueGrowAmount;
-                    this.queueLimit = queueLimit > 0 ? queueLimit : AudioSink.DefaultQueueLimitWithVideo;
-                    if( DEBUG_TRACE ) {
-                        alFramesFree.dump(System.err, "Avail-init");
-                        alFramesPlaying.dump(System.err, "Playi-init");
-                    }
-                }
-            } finally {
-                if( null != context ) {
-                    unlockContext();
+                } else if( DEBUG ) {
+                    System.err.println(getThreadName()+": ALAudioSink.init: Keep context, latency exp "+
+                            (1000f*frameDurationHintS)+" ms ("+expMixerRefreshRate+" Hz) >= default "+(1000f*defaultLatency)+" ms ("+defRefreshRate+" Hz)");
                 }
             }
-            chosenFormat = requestedFormat;
-            if( DEBUG ) {
-                System.err.println(getThreadName()+": ALAudioSink.init: OK "+requestedFormat+", "+toString());
+            // Get actual refresh rate
+            {
+                final int[] value = { 0 };
+                alc.alcGetIntegerv(device.getALDevice(), ALCConstants.ALC_REFRESH, 1, value, 0);
+                if( AudioSystem3D.checkError(device, "read ALC_FREQUENCY", DEBUG, false) || 0 == value[0] ) {
+                    latency = defaultLatency;
+                    if( DEBUG ) {
+                        System.err.println("ALAudioSink.queryRefreshRate: failed, claiming default "+(1000f*latency)+" ms");
+                    }
+                } else {
+                    latency = 1f/value[0]; // Hz -> ms
+                    if( DEBUG ) {
+                        System.err.println("ALAudioSink.queryRefreshRate: OK "+value[0]+" Hz = "+(1000f*latency)+" ms");
+                    }
+                }
+            }
+            if( !createSource() ) {
+                destroyContext();
+                releaseContext = false;
+                return false;
+            }
+
+            // Allocate new buffers
+            {
+                final int initialFrameCount = requestedFormat.getFrameCount(
+                                                initialQueueSize > 0 ? initialQueueSize/1000f : AudioSink.DefaultInitialQueueSize/1000f, frameDurationHintS);
+                alBufferNames = new int[initialFrameCount];
+                al.alGenBuffers(initialFrameCount, alBufferNames, 0);
+                if( AudioSystem3D.checkALError("alGenBuffers", true, false) ) {
+                    alBufferNames = null;
+                    destroySource();
+                    destroyContext();
+                    releaseContext = false;
+                    return false;
+                }
+                final ALAudioFrame[] alFrames = new ALAudioFrame[initialFrameCount];
+                for(int i=0; i<initialFrameCount; i++) {
+                    alFrames[i] = new ALAudioFrame(alBufferNames[i]);
+                }
+                alFramesFree = new LFRingbuffer<ALAudioFrame>(alFrames);
+                alFramesPlaying = new LFRingbuffer<ALAudioFrame>(ALAudioFrame[].class, initialFrameCount);
+                this.queueGrowAmount = queueGrowAmount > 0 ? queueGrowAmount : AudioSink.DefaultQueueGrowAmount;
+                this.queueLimit = queueLimit > 0 ? queueLimit : AudioSink.DefaultQueueLimitWithVideo;
+                if( DEBUG_TRACE ) {
+                    alFramesFree.dump(System.err, "Avail-init");
+                    alFramesPlaying.dump(System.err, "Playi-init");
+                }
             }
         } finally {
-            lock.unlock();
+            if( releaseContext ) {
+                release(false /* throw */);
+            }
+        }
+        chosenFormat = requestedFormat;
+        if( DEBUG ) {
+            System.err.println(getThreadName()+": ALAudioSink.init: OK "+requestedFormat+", "+toString());
         }
         return true;
     }
@@ -781,7 +678,7 @@ public class ALAudioSink implements AudioSink {
         final int frameGrowAmount = chosenFormat.getFrameCount(queueGrowAmount/1000f, avgFrameDuration);
         final int[] newALBufferNames = new int[frameGrowAmount];
         al.alGenBuffers(frameGrowAmount, newALBufferNames, 0);
-        if( checkALError("alGenBuffers to "+frameGrowAmount, true) ) {
+        if( AudioSystem3D.checkALError("alGenBuffers to "+frameGrowAmount, true, false) ) {
             return false;
         }
         alBufferNames = concat(alBufferNames, newALBufferNames);
@@ -831,31 +728,16 @@ public class ALAudioSink implements AudioSink {
     }
 
     private void destroySource() {
-        if( 0 > alSource ) {
+        if( !alSource.isValid() ) {
             return;
         }
-        try {
-            al.alDeleteSources(1, new int[] { alSource }, 0);
-        } catch (final Throwable t) {
-            if( DEBUG ) {
-                System.err.println("Caught "+t.getClass().getName()+": "+t.getMessage());
-                t.printStackTrace();
-            }
-        }
-        alSource = -1;
+        alSource.delete();
     }
     private boolean createSource() {
-        if( 0 <= alSource ) {
+        if( alSource.isValid() ) {
             return true;
         }
-        final int[] val = { -1 };
-        al.alGenSources(1, val, 0);
-        if( checkALError("alGenSources", true) ) {
-            alSource = -1;
-            return false;
-        }
-        alSource = val[0];
-        return true;
+        return alSource.create();
     }
 
     @Override
@@ -865,7 +747,7 @@ public class ALAudioSink implements AudioSink {
         }
         available = false;
         if( null != context ) {
-            lockContext();
+            makeCurrent(true /* throw */);
         }
         try {
             stopImpl(true);
@@ -874,17 +756,7 @@ public class ALAudioSink implements AudioSink {
         } finally {
             destroyContext();
         }
-        if( null != device ) {
-            try {
-                alc.alcCloseDevice(device);
-            } catch (final Throwable t) {
-                if( DEBUG ) {
-                    System.err.println("Caught "+t.getClass().getName()+": "+t.getMessage());
-                    t.printStackTrace();
-                }
-            }
-            device = null;
-        }
+        device.close();
         chosenFormat = null;
     }
 
@@ -903,7 +775,6 @@ public class ALAudioSink implements AudioSink {
         final int releaseBufferCount;
         if( alBufferBytesQueued > 0 ) {
             final int releaseBufferLimes = Math.max(1, alFramesPlaying.size() / 4 );
-            final int[] val=new int[1];
             final int sleepLimes = Math.round( releaseBufferLimes * 1000f*avgFrameDuration );
             int i=0;
             int slept = 0;
@@ -911,12 +782,7 @@ public class ALAudioSink implements AudioSink {
             boolean onceBusyDebug = true;
             final long t0 = DEBUG ? Clock.currentNanos() : 0;
             do {
-                val[0] = 0;
-                al.alGetSourcei(alSource, ALConstants.AL_BUFFERS_PROCESSED, val, 0);
-                if( checkALError("alGetSourcei AL_BUFFERS_PROCESSED", true) ) {
-                    throw new RuntimeException(getThreadName()+": Error while quering processed buffers at source. "+this);
-                }
-                releasedBuffers = val[0];
+                releasedBuffers = alSource.getBuffersProcessed();
                 if( wait && releasedBuffers < releaseBufferLimes ) {
                     i++;
                     // clip wait at [avgFrameDuration .. 300] ms
@@ -927,13 +793,13 @@ public class ALAudioSink implements AudioSink {
                                     "releaseBuffers "+releasedBuffers+"/"+releaseBufferLimes+", sleep "+sleep+"/"+slept+"/"+sleepLimes+
                                     " ms, playImpl "+(ALConstants.AL_PLAYING == getSourceState(false))+", "+shortString());
                         }
-                        unlockContext();
+                        release(true /* throw */);
                         try {
                             Thread.sleep( sleep );
                             slept += sleep;
                         } catch (final InterruptedException e) {
                         } finally {
-                            lockContext();
+                            makeCurrent(true /* throw */);
                         }
                     } else {
                         // Empirical best behavior w/ openal-soft (sort of needs min ~21ms to complete processing a buffer even if period < 20ms?)
@@ -945,13 +811,13 @@ public class ALAudioSink implements AudioSink {
                                 onceBusyDebug = false;
                             }
                         }
-                        unlockContext();
+                        release(true /* throw */);
                         try {
                             Thread.sleep( 1 );
                             slept += 1;
                         } catch (final InterruptedException e) {
                         } finally {
-                            lockContext();
+                            makeCurrent(true /* throw */);
                         }
                     }
                 }
@@ -969,10 +835,7 @@ public class ALAudioSink implements AudioSink {
 
         if( releaseBufferCount > 0 ) {
             final int[] buffers = new int[releaseBufferCount];
-            al.alSourceUnqueueBuffers(alSource, releaseBufferCount, buffers, 0);
-            if( checkALError("alSourceUnqueueBuffers", true) ) {
-                throw new RuntimeException(getThreadName()+": Error while dequeueing "+releaseBufferCount+" buffers. "+this);
-            }
+            alSource.unqueueBuffers(buffers);
             for ( int i=0; i<releaseBufferCount; i++ ) {
                 final ALAudioFrame releasedBuffer = alFramesPlaying.get();
                 if( null == releasedBuffer ) {
@@ -1006,10 +869,10 @@ public class ALAudioSink implements AudioSink {
         if(DEBUG_TRACE) {
             System.err.println("<   _FLUSH_  <- "+shortString()+" @ "+getThreadName());
         }
-        final int[] val=new int[1];
-        al.alSourcei(alSource, ALConstants.AL_BUFFER, 0); // explicit force zero buffer!
+        int processedBufferCount = 0;
+        al.alSourcei(alSource.getID(), ALConstants.AL_BUFFER, 0); // explicit force zero buffer!
         if(DEBUG_TRACE) {
-            al.alGetSourcei(alSource, ALConstants.AL_BUFFERS_PROCESSED, val, 0);
+            processedBufferCount = alSource.getBuffersProcessed();
         }
         final int alErr = al.alGetError();
         while ( !alFramesPlaying.isEmpty() ) {
@@ -1024,7 +887,7 @@ public class ALAudioSink implements AudioSink {
         }
         alBufferBytesQueued = 0;
         if(DEBUG_TRACE) {
-            System.err.println("<<  _FLUSH_  [al "+val[0]+", err "+toHexString(alErr)+"] <- "+shortString()+" @ "+getThreadName());
+            System.err.println("<<  _FLUSH_  [al "+processedBufferCount+", err "+toHexString(alErr)+"] <- "+shortString()+" @ "+getThreadName());
             ExceptionUtils.dumpStack(System.err);
         }
     }
@@ -1063,7 +926,7 @@ public class ALAudioSink implements AudioSink {
         // OpenAL consumes buffers in the background
         // we first need to initialize the OpenAL buffers then
         // start continuous playback.
-        lockContext();
+        makeCurrent(true /* throw */);
         try {
             final float duration = chosenFormat.getBytesDuration(byteCount);
             if( alFramesFree.isEmpty() ) {
@@ -1077,7 +940,7 @@ public class ALAudioSink implements AudioSink {
                     // try to grow
                     growBuffers(byteCount);
                 }
-                if( alFramesFree.isEmpty() && alFramesPlaying.size() > 0 && isPlayingImpl0() ) {
+                if( alFramesFree.isEmpty() && alFramesPlaying.size() > 0 && isPlayingImpl() ) {
                     // possible if grow failed or already exceeds it's limit - only possible if playing ..
                     dequeueBuffer(true /* wait */, pts, duration);
                 }
@@ -1108,10 +971,7 @@ public class ALAudioSink implements AudioSink {
                 System.err.println(">  "+alFrame.alBuffer+" -> "+shortString()+" @ "+getThreadName());
             }
 
-            al.alSourceQueueBuffers(alSource, 1, alBufferNames, 0);
-            if( checkALError("alSourceQueueBuffers", true) ) {
-                throw new RuntimeException(getThreadName()+": Error while queueing buffer "+toHexString(alBufferNames[0])+". "+this);
-            }
+            alSource.queueBuffers(alBufferNames);
             alBufferBytesQueued += byteCount;
             enqueuedFrameCount++; // safe: only written-to while locked!
 
@@ -1121,7 +981,7 @@ public class ALAudioSink implements AudioSink {
 
             playImpl(); // continue playing, fixes issue where we ran out of enqueued data!
         } finally {
-            unlockContext();
+            release(true /* throw */);
         }
         return alFrame;
     }
@@ -1132,17 +992,17 @@ public class ALAudioSink implements AudioSink {
             return false;
         }
         if( playRequested ) {
-            lockContext();
+            makeCurrent(true /* throw */);
             try {
-                return isPlayingImpl0();
+                return isPlayingImpl();
             } finally {
-                unlockContext();
+                release(true /* throw */);
             }
         } else {
             return false;
         }
     }
-    private final boolean isPlayingImpl0() {
+    private final boolean isPlayingImpl() {
         if( playRequested ) {
             return ALConstants.AL_PLAYING == getSourceState(false);
         } else {
@@ -1150,16 +1010,28 @@ public class ALAudioSink implements AudioSink {
         }
     }
     private final int getSourceState(final boolean ignoreError) {
-        final int[] val = new int[1];
-        al.alGetSourcei(alSource, ALConstants.AL_SOURCE_STATE, val, 0);
-        if( checkALError("alGetSourcei", true) ) {
+        if( !alSource.isValid() ) {
+            final String msg = getThreadName()+": getSourceState: invalid "+alSource;
+            if( ignoreError ) {
+                if( DEBUG ) {
+                    System.err.println(msg);
+                }
+                return ALConstants.AL_NONE;
+            } else {
+                throw new ALException(msg);
+            }
+        }
+        final int[] val = { ALConstants.AL_NONE };
+        al.alGetSourcei(alSource.getID(), ALConstants.AL_SOURCE_STATE, val, 0);
+        if( AudioSystem3D.checkALError("alGetSourcei", true, false) ) {
             final String msg = getThreadName()+": Error while querying SOURCE_STATE. "+this;
             if( ignoreError ) {
                 if( DEBUG ) {
                     System.err.println(msg);
                 }
+                return ALConstants.AL_NONE;
             } else {
-                throw new RuntimeException(msg);
+                throw new ALException(msg);
             }
         }
         return val[0];
@@ -1171,22 +1043,20 @@ public class ALAudioSink implements AudioSink {
             return;
         }
         playRequested = true;
-        lockContext();
+        makeCurrent(true /* throw */);
         try {
             playImpl();
             if( DEBUG ) {
                 System.err.println(getThreadName()+": ALAudioSink: PLAY playImpl "+(ALConstants.AL_PLAYING == getSourceState(false))+", "+this);
             }
         } finally {
-            unlockContext();
+            release(true /* throw */);
         }
     }
     private final void playImpl() {
         if( playRequested && ALConstants.AL_PLAYING != getSourceState(false) ) {
-            al.alSourcePlay(alSource);
-            if( checkALError("alSourcePlay", true) ) {
-                throw new RuntimeException(getThreadName()+": Error while start playing. "+this);
-            }
+            alSource.play();
+            AudioSystem3D.checkALError("alSourcePlay", true, true);
         }
     }
 
@@ -1196,41 +1066,39 @@ public class ALAudioSink implements AudioSink {
             return;
         }
         if( playRequested ) {
-            lockContext();
+            makeCurrent(true /* throw */);
             try {
                 pauseImpl();
                 if( DEBUG ) {
                     System.err.println(getThreadName()+": ALAudioSink: PAUSE playImpl "+(ALConstants.AL_PLAYING == getSourceState(false))+", "+this);
                 }
             } finally {
-                unlockContext();
+                release(true /* throw */);
             }
         }
     }
     private final void pauseImpl() {
-        if( isPlayingImpl0() ) {
+        if( isPlayingImpl() ) {
             playRequested = false;
-            al.alSourcePause(alSource);
-            if( checkALError("alSourcePause", true) ) {
-                throw new RuntimeException(getThreadName()+": Error while pausing. "+this);
-            }
+            alSource.pause();
+            AudioSystem3D.checkALError("alSourcePause", true, true);
         }
     }
     private final void stopImpl(final boolean ignoreError) {
-        if( 0 > alSource ) {
+        if( !alSource.isValid() ) {
             return;
         }
         if( ALConstants.AL_STOPPED != getSourceState(ignoreError) ) {
             playRequested = false;
-            al.alSourceStop(alSource);
-            if( checkALError("alSourcePause", true) ) {
+            alSource.stop();
+            if( AudioSystem3D.checkALError("alSourcePause", true, false) ) {
                 final String msg = "Error while stopping. "+this;
                 if( ignoreError ) {
                     if( DEBUG ) {
                         System.err.println(getThreadName()+": "+msg);
                     }
                 } else {
-                    throw new RuntimeException(getThreadName()+": Error while stopping. "+this);
+                    throw new ALException(getThreadName()+": Error while stopping. "+this);
                 }
             }
         }
@@ -1244,18 +1112,18 @@ public class ALAudioSink implements AudioSink {
         if( !available || null == chosenFormat ) {
             return false;
         }
-        lockContext();
+        makeCurrent(true /* throw */);
         try {
             if( Math.abs(1.0f - rate) < 0.01f ) {
                 rate = 1.0f;
             }
             if( 0.5f <= rate && rate <= 2.0f ) { // OpenAL limits
                 playSpeed = rate;
-                al.alSourcef(alSource, ALConstants.AL_PITCH, playSpeed);
+                alSource.setPitch(playSpeed);
                 return true;
             }
         } finally {
-            unlockContext();
+            release(true /* throw */);
         }
         return false;
     }
@@ -1270,7 +1138,7 @@ public class ALAudioSink implements AudioSink {
         if( !available || null == chosenFormat ) {
             return false;
         }
-        lockContext();
+        makeCurrent(true /* throw */);
         try {
             if( Math.abs(v) < 0.01f ) {
                 v = 0.0f;
@@ -1279,11 +1147,11 @@ public class ALAudioSink implements AudioSink {
             }
             if( 0.0f <= v && v <= 1.0f ) { // OpenAL limits
                 volume = v;
-                al.alSourcef(alSource, ALConstants.AL_GAIN, v);
+                alSource.setGain(v);
                 return true;
             }
         } finally {
-            unlockContext();
+            release(true /* throw */);
         }
         return false;
     }
@@ -1293,7 +1161,7 @@ public class ALAudioSink implements AudioSink {
         if( !available || null == chosenFormat ) {
             return;
         }
-        lockContext();
+        makeCurrent(true /* throw */);
         try {
             // pauseImpl();
             stopImpl(false);
@@ -1306,7 +1174,7 @@ public class ALAudioSink implements AudioSink {
                 System.err.println(getThreadName()+": ALAudioSink: FLUSH playImpl "+(ALConstants.AL_PLAYING == getSourceState(false))+", "+this);
             }
         } finally {
-            unlockContext();
+            release(true /* throw */);
         }
     }
 
