@@ -1,12 +1,9 @@
 private static final ALCProcAddressTable alcProcAddressTable;
 
 static {
-    alcProcAddressTable = AccessController.doPrivileged(new PrivilegedAction<ALCProcAddressTable>() {
+    alcProcAddressTable = SecurityUtil.doPrivileged(new PrivilegedAction<ALCProcAddressTable>() {
                                 public ALCProcAddressTable run() {
                                     final ALCProcAddressTable alcProcAddressTable = new ALCProcAddressTable();
-                                    if(null==alcProcAddressTable) {
-                                      throw new RuntimeException("Couldn't instantiate ALCProcAddressTable");
-                                    }
                                     alcProcAddressTable.reset(ALImpl.alDynamicLookupHelper);
                                     /** Not required nor forced
                                     if( !initializeImpl() ) {

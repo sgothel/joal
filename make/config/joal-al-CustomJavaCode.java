@@ -7,12 +7,9 @@ static {
       throw new RuntimeException("Couldn't instantiate ALProcAddressTable");
     }
 
-    alDynamicLookupHelper = AccessController.doPrivileged(new PrivilegedAction<DynamicLibraryBundle>() {
+    alDynamicLookupHelper = SecurityUtil.doPrivileged(new PrivilegedAction<DynamicLibraryBundle>() {
                                 public DynamicLibraryBundle run() {
                                     final DynamicLibraryBundle bundle =  new DynamicLibraryBundle(new ALDynamicLibraryBundleInfo());
-                                    if(null==bundle) {
-                                      throw new RuntimeException("Null ALDynamicLookupHelper");
-                                    }
                                     if(!bundle.isToolLibLoaded()) {
                                       throw new RuntimeException("Couln't load native AL library");
                                     }
