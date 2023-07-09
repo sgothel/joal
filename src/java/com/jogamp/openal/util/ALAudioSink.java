@@ -639,11 +639,7 @@ public final class ALAudioSink implements AudioSink {
             }
             if( hasAL_SOFT_events ) {
                 alExt.alEventCallbackSOFT(alEventCallback, context.getALContext());
-                alExt.alEventControlSOFT(1, new int[] { ALExtConstants.AL_EVENT_TYPE_BUFFER_COMPLETED_SOFT
-                                                        // , ALExtConstants.AL_EVENT_TYPE_SOURCE_STATE_CHANGED_SOFT
-                                                        // , ALExtConstants.AL_EVENT_TYPE_DISCONNECTED_SOFT
-                                                      }, 0, true);
-                System.err.println("CALLBACK registered");
+                alExt.alEventControlSOFT(1, new int[] { ALExtConstants.AL_EVENT_TYPE_BUFFER_COMPLETED_SOFT }, 0, true);
             }
         } finally {
             if( releaseContext ) {
@@ -675,7 +671,7 @@ public final class ALAudioSink implements AudioSink {
     } */
 
     private boolean growBuffers(final int addByteCount) {
-        if( !hasAL_SOFT_events && !alFramesFree.isEmpty() || !alFramesPlaying.isFull() ) {
+        if( !alFramesFree.isEmpty() || !alFramesPlaying.isFull() ) {
             throw new InternalError("Buffers: Avail is !empty "+alFramesFree+" or Playing is !full "+alFramesPlaying+", while !hasAL_SOFT_events");
         }
         final float addDuration = chosenFormat.getBytesDuration(addByteCount); // [s]
@@ -761,7 +757,13 @@ public final class ALAudioSink implements AudioSink {
         available = false;
         if( null != context ) {
             makeCurrent(true /* throw */);
-            alExt.alEventCallbackSOFT(null, context.getALContext());
+            if( hasAL_SOFT_events ) {
+                alExt.alEventControlSOFT(3, new int[] { ALExtConstants.AL_EVENT_TYPE_BUFFER_COMPLETED_SOFT,
+                                                        ALExtConstants.AL_EVENT_TYPE_SOURCE_STATE_CHANGED_SOFT,
+                                                        ALExtConstants.AL_EVENT_TYPE_DISCONNECTED_SOFT
+                                                      }, 0, false);
+                alExt.alEventCallbackSOFT(null, context.getALContext());
+            }
         }
         try {
             stopImpl(true);
