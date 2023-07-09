@@ -72,8 +72,7 @@ public class ALContextKey {
             return false;
         }
         final ALContextKey o2 = (ALContextKey)o;
-        final long o2_ptr = null != o2.alCtx ? o2.alCtx.getDirectBufferAddress() : 0;
-        return nativeAddress == o2_ptr;
+        return nativeAddress == o2.nativeAddress;
     }
     @Override
     public int hashCode() {
