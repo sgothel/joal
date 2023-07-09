@@ -43,6 +43,9 @@ public class ALHelpers {
      *   extensions. Due to conflicts with AL_EXT_SOURCE_RADIUS.
      */
     public static final String AL_SOFT_buffer_samples = "AL_SOFT_buffer_samples";
+    // public static final String AL_SOFT_callback_buffer = "AL_SOFT_callback_buffer";
+    public static final String AL_SOFT_events = "AL_SOFT_events";
+
     public static final String AL_EXT_MCFORMATS = "AL_EXT_MCFORMATS";
     public static final String AL_EXT_FLOAT32 = "AL_EXT_FLOAT32";
     public static final String AL_EXT_DOUBLE = "AL_EXT_DOUBLE";
