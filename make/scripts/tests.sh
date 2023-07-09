@@ -72,6 +72,8 @@ function jrun() {
     #D_ARGS="-Djoal.debug=all"
     #D_ARGS="-Djogamp.debug.JNILibLoader"
     #X_ARGS="-verbose:jni"
+    #X_ARGS="-Xcheck:jni"
+    #X_ARGS="-verbose:jni -Xcheck:jni -Xrs -Xnoclassgc"
     #X_ARGS="-Xrs"
 
     # StartFlightRecording: delay=10s,
@@ -105,7 +107,8 @@ function testnormal() {
 #testnormal com.jogamp.openal.test.manual.OpenALTest $*
 #testnormal com.jogamp.openal.test.manual.Sound3DTest $*
 #testnormal com.jogamp.openal.test.manual.Synth01AL $*
-testnormal com.jogamp.openal.test.manual.Synth02AL $*
+#testnormal com.jogamp.openal.test.manual.Synth02AL $*
+testnormal com.jogamp.openal.test.manual.Synth02bAL $*
 #testnormal com.jogamp.openal.test.junit.ALVersionTest $*
 #testnormal com.jogamp.openal.test.junit.ALutWAVLoaderTest $*
 #testnormal com.jogamp.openal.test.junit.ALExtLoopbackDeviceSOFTTest $*

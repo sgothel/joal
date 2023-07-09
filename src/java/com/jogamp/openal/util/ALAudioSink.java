@@ -50,6 +50,8 @@ import com.jogamp.openal.ALCdevice;
 import com.jogamp.openal.ALConstants;
 import com.jogamp.openal.ALException;
 import com.jogamp.openal.ALExt;
+import com.jogamp.openal.ALExt.ALEVENTPROCSOFT;
+import com.jogamp.openal.ALExtConstants;
 import com.jogamp.openal.sound3d.AudioSystem3D;
 import com.jogamp.openal.sound3d.Context;
 import com.jogamp.openal.sound3d.Device;
@@ -79,6 +81,7 @@ public final class ALAudioSink implements AudioSink {
     private boolean hasEXTFloat32;
     private boolean hasEXTDouble;
     private boolean hasALC_thread_local_context;
+    private boolean hasAL_SOFT_events;
     private int sourceCount;
     private float defaultLatency;
     private float latency;
@@ -213,8 +216,9 @@ public final class ALAudioSink implements AudioSink {
             hasEXTMcFormats = al.alIsExtensionPresent(ALHelpers.AL_EXT_MCFORMATS);
             hasEXTFloat32 = al.alIsExtensionPresent(ALHelpers.AL_EXT_FLOAT32);
             hasEXTDouble = al.alIsExtensionPresent(ALHelpers.AL_EXT_DOUBLE);
-            hasALC_thread_local_context = alc.alcIsExtensionPresent(null, ALHelpers.ALC_EXT_thread_local_context) ||
-                                          alc.alcIsExtensionPresent(device.getALDevice(), ALHelpers.ALC_EXT_thread_local_context) ;
+            hasALC_thread_local_context = context.hasALC_thread_local_context;
+            hasAL_SOFT_events = al.alIsExtensionPresent(ALHelpers.AL_SOFT_events);
+
             int checkErrIter = 1;
             AudioSystem3D.checkError(device, "init."+checkErrIter++, DEBUG, false);
             int defaultSampleRate = DefaultFormat.sampleRate;
@@ -279,6 +283,7 @@ public final class ALAudioSink implements AudioSink {
                 System.out.println("ALAudioSink: hasEXTFloat32 "+hasEXTFloat32);
                 System.out.println("ALAudioSink: hasEXTDouble "+hasEXTDouble);
                 System.out.println("ALAudioSink: hasALC_thread_local_context "+hasALC_thread_local_context);
+                System.out.println("ALAudioSink: hasAL_SOFT_events "+hasAL_SOFT_events);
                 System.out.println("ALAudioSink: maxSupportedChannels "+getMaxSupportedChannels(false));
                 System.out.println("ALAudioSink: nativeAudioFormat "+nativeFormat);
                 System.out.println("ALAudioSink: defaultMixerRefreshRate "+(1000f*defaultLatency)+" ms, "+(1f/defaultLatency)+" Hz");
@@ -632,6 +637,14 @@ public final class ALAudioSink implements AudioSink {
                     alFramesPlaying.dump(System.err, "Playi-init");
                 }
             }
+            if( hasAL_SOFT_events ) {
+                alExt.alEventCallbackSOFT(alEventCallback, context.getALContext());
+                alExt.alEventControlSOFT(1, new int[] { ALExtConstants.AL_EVENT_TYPE_BUFFER_COMPLETED_SOFT
+                                                        // , ALExtConstants.AL_EVENT_TYPE_SOURCE_STATE_CHANGED_SOFT
+                                                        // , ALExtConstants.AL_EVENT_TYPE_DISCONNECTED_SOFT
+                                                      }, 0, true);
+                System.err.println("CALLBACK registered");
+            }
         } finally {
             if( releaseContext ) {
                 release(false /* throw */);
@@ -662,8 +675,8 @@ public final class ALAudioSink implements AudioSink {
     } */
 
     private boolean growBuffers(final int addByteCount) {
-        if( !alFramesFree.isEmpty() || !alFramesPlaying.isFull() ) {
-            throw new InternalError("Buffers: Avail is !empty "+alFramesFree+" or Playing is !full "+alFramesPlaying);
+        if( !hasAL_SOFT_events && !alFramesFree.isEmpty() || !alFramesPlaying.isFull() ) {
+            throw new InternalError("Buffers: Avail is !empty "+alFramesFree+" or Playing is !full "+alFramesPlaying+", while !hasAL_SOFT_events");
         }
         final float addDuration = chosenFormat.getBytesDuration(addByteCount); // [s]
         final float queuedDuration = chosenFormat.getBytesDuration(alBufferBytesQueued); // [s]
@@ -748,6 +761,7 @@ public final class ALAudioSink implements AudioSink {
         available = false;
         if( null != context ) {
             makeCurrent(true /* throw */);
+            alExt.alEventCallbackSOFT(null, context.getALContext());
         }
         try {
             stopImpl(true);
@@ -765,6 +779,29 @@ public final class ALAudioSink implements AudioSink {
         return available;
     }
 
+    final ALEVENTPROCSOFT alEventCallback = new ALEVENTPROCSOFT() {
+        @SuppressWarnings("unused")
+        @Override
+        public void callback(final int eventType, final int object, final int param,
+                             final int length, final String message, final Object userParam) {
+            if( false ) {
+                final com.jogamp.openal.ALContextKey k = new com.jogamp.openal.ALContextKey(userParam);
+                System.err.println("ALAudioSink.Event: type "+toHexString(eventType)+", obj "+toHexString(object)+", param "+param+
+                        ", msg[len "+length+", val '"+message+"'], userParam "+k);
+            }
+            if( ALExtConstants.AL_EVENT_TYPE_BUFFER_COMPLETED_SOFT == eventType &&
+                alSource.getID() == object )
+            {
+                synchronized( eventReleasedBuffersLock ) {
+                    eventReleasedBuffers += param;
+                    eventReleasedBuffersLock.notifyAll();
+                }
+            }
+        }
+    };
+    private final Object eventReleasedBuffersLock = new Object();
+    private volatile int eventReleasedBuffers = 0;
+
     /**
      * Dequeuing playing audio frames.
      * @param wait if true, waiting for completion of audio buffers
@@ -775,57 +812,74 @@ public final class ALAudioSink implements AudioSink {
         final int releaseBufferCount;
         if( alBufferBytesQueued > 0 ) {
             final int releaseBufferLimes = Math.max(1, alFramesPlaying.size() / 4 );
-            final int sleepLimes = Math.round( releaseBufferLimes * 1000f*avgFrameDuration );
-            int i=0;
-            int slept = 0;
+            final long sleepLimes = Math.round( releaseBufferLimes * 1000.0*avgFrameDuration );
+            int wait_cycles=0;
+            long slept = 0;
             int releasedBuffers = 0;
             boolean onceBusyDebug = true;
             final long t0 = DEBUG ? Clock.currentNanos() : 0;
             do {
-                releasedBuffers = alSource.getBuffersProcessed();
-                if( wait && releasedBuffers < releaseBufferLimes ) {
-                    i++;
-                    // clip wait at [avgFrameDuration .. 300] ms
-                    final int sleep = Math.max(2, Math.min(300, Math.round( (releaseBufferLimes-releasedBuffers) * 1000f*avgFrameDuration) ) ) - 1; // 1 ms off for busy-loop
-                    if( slept + sleep + 1 <= sleepLimes ) {
-                        if( DEBUG ) {
-                            System.err.println(getThreadName()+": ALAudioSink: Dequeue.wait-sleep["+i+"].1:"+
-                                    "releaseBuffers "+releasedBuffers+"/"+releaseBufferLimes+", sleep "+sleep+"/"+slept+"/"+sleepLimes+
-                                    " ms, playImpl "+(ALConstants.AL_PLAYING == getSourceState(false))+", "+shortString());
+                if( hasAL_SOFT_events ) {
+                    synchronized( eventReleasedBuffersLock ) {
+                        while( wait && alBufferBytesQueued > 0 && eventReleasedBuffers < releaseBufferLimes ) {
+                            wait_cycles++;
+                            try {
+                                eventReleasedBuffersLock.wait();
+                            } catch (final InterruptedException e) { }
                         }
-                        release(true /* throw */);
-                        try {
-                            Thread.sleep( sleep );
-                            slept += sleep;
-                        } catch (final InterruptedException e) {
-                        } finally {
-                            makeCurrent(true /* throw */);
-                        }
-                    } else {
-                        // Empirical best behavior w/ openal-soft (sort of needs min ~21ms to complete processing a buffer even if period < 20ms?)
+                        releasedBuffers = eventReleasedBuffers;
+                        eventReleasedBuffers = 0;
                         if( DEBUG ) {
-                            if( onceBusyDebug ) {
-                                System.err.println(getThreadName()+": ALAudioSink: Dequeue.wait-sleep["+i+"].2:"+
-                                        "releaseBuffers "+releasedBuffers+"/"+releaseBufferLimes+", sleep "+sleep+"->1/"+slept+"/"+sleepLimes+
+                            slept += TimeUnit.NANOSECONDS.toMillis(Clock.currentNanos()-t0);
+                            System.err.println(getThreadName()+": ALAudioSink.Event.wait["+wait_cycles+"]: released buffer count "+releasedBuffers+", limes "+releaseBufferLimes+", slept "+slept+" ms, free total "+alFramesFree.size());
+                        }
+                    }
+                } else {
+                    releasedBuffers = alSource.getBuffersProcessed();
+                    if( wait && releasedBuffers < releaseBufferLimes ) {
+                        wait_cycles++;
+                        // clip wait at [avgFrameDuration .. 300] ms
+                        final int sleep = Math.max(2, Math.min(300, Math.round( (releaseBufferLimes-releasedBuffers) * 1000f*avgFrameDuration) ) ) - 1; // 1 ms off for busy-loop
+                        if( slept + sleep + 1 <= sleepLimes ) {
+                            if( DEBUG ) {
+                                System.err.println(getThreadName()+": ALAudioSink: Dequeue.wait-sleep["+wait_cycles+"].1:"+
+                                        "releaseBuffers "+releasedBuffers+"/"+releaseBufferLimes+", sleep "+sleep+"/"+slept+"/"+sleepLimes+
                                         " ms, playImpl "+(ALConstants.AL_PLAYING == getSourceState(false))+", "+shortString());
-                                onceBusyDebug = false;
                             }
-                        }
-                        release(true /* throw */);
-                        try {
-                            Thread.sleep( 1 );
-                            slept += 1;
-                        } catch (final InterruptedException e) {
-                        } finally {
-                            makeCurrent(true /* throw */);
+                            release(true /* throw */);
+                            try {
+                                Thread.sleep( sleep );
+                                slept += sleep;
+                            } catch (final InterruptedException e) {
+                            } finally {
+                                makeCurrent(true /* throw */);
+                            }
+                        } else {
+                            // Empirical best behavior w/ openal-soft (sort of needs min ~21ms to complete processing a buffer even if period < 20ms?)
+                            if( DEBUG ) {
+                                if( onceBusyDebug ) {
+                                    System.err.println(getThreadName()+": ALAudioSink: Dequeue.wait-sleep["+wait_cycles+"].2:"+
+                                            "releaseBuffers "+releasedBuffers+"/"+releaseBufferLimes+", sleep "+sleep+"->1/"+slept+"/"+sleepLimes+
+                                            " ms, playImpl "+(ALConstants.AL_PLAYING == getSourceState(false))+", "+shortString());
+                                    onceBusyDebug = false;
+                                }
+                            }
+                            release(true /* throw */);
+                            try {
+                                Thread.sleep( 1 );
+                                slept += 1;
+                            } catch (final InterruptedException e) {
+                            } finally {
+                                makeCurrent(true /* throw */);
+                            }
                         }
                     }
                 }
-            } while ( wait && releasedBuffers < releaseBufferLimes && alBufferBytesQueued > 0 );
+            } while ( wait && alBufferBytesQueued > 0 && releasedBuffers < releaseBufferLimes );
             releaseBufferCount = releasedBuffers;
             if( DEBUG ) {
                 final long t1 = Clock.currentNanos();
-                System.err.println(getThreadName()+": ALAudioSink: Dequeue.wait-done["+i+"]: "+TimeUnit.NANOSECONDS.toMillis(t1-t0)+
+                System.err.println(getThreadName()+": ALAudioSink: Dequeue.wait-done["+wait_cycles+"]: "+TimeUnit.NANOSECONDS.toMillis(t1-t0)+
                         "ms , releaseBuffers "+releaseBufferCount+"/"+releaseBufferLimes+", slept "+slept+" ms, playImpl "+(ALConstants.AL_PLAYING == getSourceState(false))+
                         ", "+shortString());
             }
@@ -935,7 +989,7 @@ public final class ALAudioSink implements AudioSink {
                 avgFrameDuration = chosenFormat.getBytesDuration( alBufferBytesQueued ) / alFramesPlaying.size();
 
                 // try to dequeue w/o waiting first
-                dequeueBuffer(false, pts, duration);
+                dequeueBuffer(false /* wait */, pts, duration);
                 if( alFramesFree.isEmpty() ) {
                     // try to grow
                     growBuffers(byteCount);
@@ -1229,5 +1283,6 @@ public final class ALAudioSink implements AudioSink {
     public final int getPTS() { return playingPTS; }
 
     private static final String toHexString(final int v) { return "0x"+Integer.toHexString(v); }
+    private static final String toHexString(final long v) { return "0x"+Long.toHexString(v); }
     private static final String getThreadName() { return Thread.currentThread().getName(); }
 }
