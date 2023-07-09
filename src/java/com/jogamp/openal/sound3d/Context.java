@@ -34,7 +34,6 @@
 
 package com.jogamp.openal.sound3d;
 
-import com.jogamp.common.ExceptionUtils;
 import com.jogamp.common.util.locks.LockFactory;
 import com.jogamp.common.util.locks.RecursiveLock;
 import com.jogamp.openal.*;
@@ -51,7 +50,7 @@ public final class Context {
     private final Device device;
     private volatile ALCcontext alCtx;
     private boolean threadContextLocked;
-    private boolean hasALC_thread_local_context;
+    public final boolean hasALC_thread_local_context;
     private static final ThreadLocal<Context> currentContext = new ThreadLocal<Context>();
 
     /**
@@ -64,7 +63,6 @@ public final class Context {
         this.device = device;
         this.alCtx = realContext;
         {
-            hasALC_thread_local_context = false;
             final boolean v;
             if( makeCurrent(false) ) {
                 v = AudioSystem3D.alc.alcIsExtensionPresent(null, ALHelpers.ALC_EXT_thread_local_context) ||
@@ -165,7 +163,9 @@ public final class Context {
         lock.lock();
         try {
             destroyImpl();
-            currentContext.set(null);
+            if( currentContext.get() == this ) {
+                currentContext.set(null);
+            }
             // unroll lock !
             while(lock.getHoldCount() > 1) {
                 lock.unlock();
