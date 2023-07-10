@@ -785,9 +785,9 @@ public final class ALAudioSink implements AudioSink {
         @SuppressWarnings("unused")
         @Override
         public void callback(final int eventType, final int object, final int param,
-                             final int length, final String message, final Object userParam) {
+                             final int length, final String message, final ALCcontext context) {
             if( false ) {
-                final com.jogamp.openal.ALContextKey k = new com.jogamp.openal.ALContextKey(userParam);
+                final com.jogamp.openal.ALContextKey k = new com.jogamp.openal.ALContextKey(context);
                 System.err.println("ALAudioSink.Event: type "+toHexString(eventType)+", obj "+toHexString(object)+", param "+param+
                         ", msg[len "+length+", val '"+message+"'], userParam "+k);
             }

@@ -43,15 +43,12 @@ public class ALContextKey {
     private final int hashCodeValue;
 
     /** Creates an instance using the current context as key. */
-    public ALContextKey( final Object userParam ) {
-        if( null == userParam ) {
-            throw new IllegalArgumentException("userParam null");
-        }
-        if( !(userParam instanceof ALCcontext) ) {
-            throw new IllegalArgumentException("userParam not ALCcontext but "+userParam.getClass());
+    public ALContextKey( final ALCcontext context ) {
+        if( null == context ) {
+            throw new IllegalArgumentException("null context");
         }
         // alCtx = alc.alcGetCurrentContext();
-        alCtx = (ALCcontext) userParam;
+        alCtx = context;
         if( null != alCtx ) {
             nativeAddress = alCtx.getDirectBufferAddress();
             hashCodeValue = HashUtil.getAddrHash32_EqualDist(nativeAddress);
