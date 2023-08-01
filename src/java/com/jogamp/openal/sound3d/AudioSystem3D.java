@@ -139,7 +139,7 @@ public class AudioSystem3D {
   public static boolean checkALError(final String prefix, final boolean verbose, final boolean throwException) {
       final int alErr = al.alGetError();
       if( ALConstants.AL_NO_ERROR != alErr ) {
-          final String msg = prefix+": AL error 0x"+Integer.toHexString(alErr)+", '"+al.alGetString(alErr);
+          final String msg = prefix+": AL error 0x"+Integer.toHexString(alErr)+", '"+al.alGetString(alErr)+"'";
           if( verbose ) {
               System.err.println(msg);
           }
@@ -162,7 +162,7 @@ public class AudioSystem3D {
       final ALCdevice alcDevice = null != device ? device.getALDevice() : null;
       final int alcErr = alc.alcGetError( alcDevice );
       if( ALCConstants.ALC_NO_ERROR != alcErr ) {
-          final String msg = prefix+": ALC error 0x"+Integer.toHexString(alcErr)+", "+alc.alcGetString(alcDevice, alcErr);
+          final String msg = prefix+": ALC error 0x"+Integer.toHexString(alcErr)+", '"+alc.alcGetString(alcDevice, alcErr)+"'";
           if( verbose ) {
               System.err.println(msg);
           }
