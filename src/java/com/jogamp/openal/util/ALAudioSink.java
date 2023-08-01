@@ -367,11 +367,11 @@ public final class ALAudioSink implements AudioSink {
 
     private final String shortString() {
         final int ctxHash = context != null ? context.hashCode() : 0;
-        final int alFramesPlayingSize = alFramesPlaying != null ? alFramesPlaying.size() : 0;
+        final int alFramesEnqueued = alFramesPlaying != null ? alFramesPlaying.size() : 0;
         return String.format("[ctx 0x%x, playReq %b, alSrc %d"+
                ", queued[%d, apts %d, %.1f ms, %d bytes, avg %.2f ms/frame], queue[g %d ms, l %d ms]]",
                ctxHash, playRequested, alSource.getID(),
-               alFramesPlayingSize, getPTS(), 1000f*getQueuedTime(), alBufferBytesQueued, 1000f*avgFrameDuration,
+               alFramesEnqueued, getPTS(), 1000f*getQueuedTime(), alBufferBytesQueued, 1000f*avgFrameDuration,
                queueGrowAmount, queueLimit
                );
     }
@@ -795,6 +795,12 @@ public final class ALAudioSink implements AudioSink {
                 alSource.getID() == object )
             {
                 synchronized( eventReleasedBuffersLock ) {
+                    if( false ) {
+                        final com.jogamp.openal.ALContextKey k = new com.jogamp.openal.ALContextKey(context);
+                        System.err.println("ALAudioSink.Event: type "+toHexString(eventType)+", obj "+toHexString(object)+
+                                ", eventReleasedBuffers +"+param+" -> "+(eventReleasedBuffers + param)+
+                                ", msg[len "+length+", val '"+message+"'], userParam "+k);
+                    }
                     eventReleasedBuffers += param;
                     eventReleasedBuffersLock.notifyAll();
                 }
@@ -813,7 +819,8 @@ public final class ALAudioSink implements AudioSink {
     private final int dequeueBuffer(final boolean wait, final boolean ignoreBufferInconsistency) {
         final int releaseBufferCount;
         if( alBufferBytesQueued > 0 ) {
-            final int releaseBufferLimes = Math.max(1, alFramesPlaying.size() / 4 );
+            final int enqueuedBuffers = alFramesPlaying.size();
+            final int releaseBufferLimes = Math.max(1, enqueuedBuffers / 4 );
             final long sleepLimes = Math.round( releaseBufferLimes * 1000.0*avgFrameDuration );
             int wait_cycles=0;
             long slept = 0;
@@ -829,11 +836,18 @@ public final class ALAudioSink implements AudioSink {
                                 eventReleasedBuffersLock.wait();
                             } catch (final InterruptedException e) { }
                         }
-                        releasedBuffers = eventReleasedBuffers;
+                        // AL_SOFT_events cumulated released buffers is 'sometimes wrong'
+                        // Workaround: Query released buffers after receiving event and use minimum. (FIXME)
+                        final int releasedBuffersByEvent = eventReleasedBuffers;
+                        final int releasedBuffersByQuery = alSource.getBuffersProcessed();
+                        releasedBuffers = Math.min(releasedBuffersByEvent, releasedBuffersByQuery);
                         eventReleasedBuffers = 0;
                         if( DEBUG ) {
                             slept += TimeUnit.NANOSECONDS.toMillis(Clock.currentNanos()-t0);
-                            System.err.println(getThreadName()+": ALAudioSink.Event.wait["+wait_cycles+"]: released buffer count "+releasedBuffers+", limes "+releaseBufferLimes+", slept "+slept+" ms, free total "+alFramesFree.size());
+                            final String warnInfo = releasedBuffers != releasedBuffersByEvent ? " ** Warning ** " : "";
+                            System.err.println(getThreadName()+": ALAudioSink.Event.wait["+wait_cycles+"]: released buffer count [enqeueud "+enqueuedBuffers+", event "+
+                                    releasedBuffersByEvent+", query "+releasedBuffersByQuery+"] -> "+releasedBuffers+warnInfo+", limes "+releaseBufferLimes+", slept "+
+                                    slept+" ms, free total "+alFramesFree.size());
                         }
                     }
                 } else {
@@ -892,6 +906,7 @@ public final class ALAudioSink implements AudioSink {
         if( releaseBufferCount > 0 ) {
             final int[] buffers = new int[releaseBufferCount];
             alSource.unqueueBuffers(buffers);
+
             for ( int i=0; i<releaseBufferCount; i++ ) {
                 final ALAudioFrame releasedBuffer = alFramesPlaying.get();
                 if( null == releasedBuffer ) {
