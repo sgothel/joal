@@ -120,6 +120,8 @@ public final class SimpleSineSynth {
             if( null != streamWorker ) {
                 streamWorker.doStop();
                 streamWorker = null;
+            } else {
+                audioSink.destroy();
             }
         }
     }
