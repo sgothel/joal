@@ -82,6 +82,7 @@ public final class ALAudioSink implements AudioSink {
     private boolean hasEXTDouble;
     private boolean hasALC_thread_local_context;
     private boolean hasAL_SOFT_events;
+    private boolean useAL_SOFT_events;
     private int sourceCount;
     private float defaultLatency;
     private float latency;
@@ -218,6 +219,7 @@ public final class ALAudioSink implements AudioSink {
             hasEXTDouble = al.alIsExtensionPresent(ALHelpers.AL_EXT_DOUBLE);
             hasALC_thread_local_context = context.hasALC_thread_local_context;
             hasAL_SOFT_events = al.alIsExtensionPresent(ALHelpers.AL_SOFT_events);
+            useAL_SOFT_events = hasAL_SOFT_events;
 
             int checkErrIter = 1;
             AudioSystem3D.checkError(device, "init."+checkErrIter++, DEBUG, false);
@@ -325,6 +327,12 @@ public final class ALAudioSink implements AudioSink {
     public final boolean hasEXTDouble() { return hasEXTDouble; }
     /** Return whether OpenAL extension <code>ALC_EXT_thread_local_context</code> is available. */
     public final boolean hasALCThreadLocalContext() { return hasALC_thread_local_context; }
+    /** Return whether OpenAL extension <code>AL_SOFT_events</code> is available. */
+    public final boolean hasSOFTEvents() { return hasAL_SOFT_events; }
+    /** Enable or disable <code>AL_SOFT_events</code>, default is enabled if {@link #hasSOFTEvents()}. */
+    public final void setUseSOFTEvents(final boolean v) { useAL_SOFT_events = v; }
+    /** Returns whether <code>AL_SOFT_events</code> is enabled, default if {@link #hasSOFTEvents()}. */
+    public final boolean getUseSOFTEvents(final boolean v) { return useAL_SOFT_events; }
 
     /** Return this instance's OpenAL channel layout, set after {@link #init(AudioFormat, float, int, int, int)}. */
     public final int getALChannelLayout() { return alChannelLayout; }
@@ -354,11 +362,11 @@ public final class ALAudioSink implements AudioSink {
         final int alFramesFreeSize = alFramesFree != null ? alFramesFree.size() : 0;
         final int alFramesPlayingSize = alFramesPlaying != null ? alFramesPlaying.size() : 0;
         return String.format("ALAudioSink[playReq %b, device '%s', ctx 0x%x, alSource %d"+
-               ", chosen %s, al[chan %s, type %s, fmt 0x%x, tlc %b, soft %b, latency %.2f/%.2f ms, sources %d]"+
+               ", chosen %s, al[chan %s, type %s, fmt 0x%x, tlc %b, soft[buffer %b, events %b/%b], latency %.2f/%.2f ms, sources %d]"+
                ", playSpeed %.2f, buffers[total %d, free %d], queued[%d, apts %d, %.1f ms, %d bytes, avg %.2f ms/frame], queue[g %d ms, l %d ms]]",
                playRequested, device.getName(), ctxHash, alSource.getID(), chosenFormat,
                ALHelpers.alChannelLayoutName(alChannelLayout), ALHelpers.alSampleTypeName(alSampleType),
-               alFormat, hasALC_thread_local_context, hasSOFTBufferSamples,
+               alFormat, hasALC_thread_local_context, hasSOFTBufferSamples, useAL_SOFT_events, hasAL_SOFT_events,
                1000f*latency, 1000f*defaultLatency, sourceCount, playSpeed, alBuffersLen, alFramesFreeSize,
                alFramesPlayingSize, getPTS(), 1000f*getQueuedTime(), alBufferBytesQueued, 1000f*avgFrameDuration,
                queueGrowAmount, queueLimit
@@ -637,7 +645,7 @@ public final class ALAudioSink implements AudioSink {
                     alFramesPlaying.dump(System.err, "Playi-init");
                 }
             }
-            if( hasAL_SOFT_events ) {
+            if( hasAL_SOFT_events && useAL_SOFT_events ) {
                 alExt.alEventCallbackSOFT(alEventCallback, context.getALContext());
                 alExt.alEventControlSOFT(1, new int[] { ALExtConstants.AL_EVENT_TYPE_BUFFER_COMPLETED_SOFT }, 0, true);
             }
@@ -828,7 +836,7 @@ public final class ALAudioSink implements AudioSink {
             boolean onceBusyDebug = true;
             final long t0 = DEBUG ? Clock.currentNanos() : 0;
             do {
-                if( hasAL_SOFT_events ) {
+                if( hasAL_SOFT_events && useAL_SOFT_events ) {
                     synchronized( eventReleasedBuffersLock ) {
                         while( wait && alBufferBytesQueued > 0 && eventReleasedBuffers < releaseBufferLimes ) {
                             wait_cycles++;
