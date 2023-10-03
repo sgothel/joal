@@ -36,6 +36,7 @@ import com.jogamp.common.nio.Buffers;
 import com.jogamp.common.util.InterruptSource;
 import com.jogamp.common.util.InterruptedRuntimeException;
 import com.jogamp.common.util.SourcedInterruptedException;
+import com.jogamp.common.util.WorkerThread;
 import com.jogamp.openal.sound3d.Context;
 import com.jogamp.openal.sound3d.Device;
 import com.jogamp.openal.sound3d.Source;
@@ -163,14 +164,7 @@ public final class SimpleSineSynth {
         return Buffers.newDirectByteBuffer(size);
     }
 
-    class SynthWorker extends InterruptSource.Thread {
-        private volatile boolean isRunning = false;
-        private volatile boolean isPlaying = false;
-        private volatile boolean isBlocked = false;
-
-        private volatile boolean shallPause = true;
-        private volatile boolean shallStop = false;
-
+    class SynthWorker {
         private final boolean useFloat32SampleType;
         private final int bytesPerSample;
         private final AudioFormat audioFormat;
@@ -183,6 +177,27 @@ public final class SimpleSineSynth {
         private boolean upSin;
         private int nextStep;
 
+        private final WorkerThread.StateCallback stateCB = (final WorkerThread self, final WorkerThread.StateCallback.State cause) -> {
+            switch( cause ) {
+                case INIT:
+                    break;
+                case PAUSED:
+                    audioSink.pause();
+                    break;
+                case RESUMED:
+                    audioSink.play();
+                    break;
+                case END:
+                    break;
+                default:
+                    break;
+            }
+        };
+        private final WorkerThread.Callback action = (final WorkerThread aaa) -> {
+            enqueueWave();
+        };
+        final WorkerThread wt =new WorkerThread(null, null, true /* daemonThread */, action, stateCB);
+
         /**
          * Starts this daemon thread,
          * <p>
@@ -190,7 +205,6 @@ public final class SimpleSineSynth {
          * </p>
          **/
         SynthWorker() {
-            setDaemon(true);
             synchronized(this) {
                 lastAudioPTS = 0;
 
@@ -221,15 +235,8 @@ public final class SimpleSineSynth {
                 nextSin = 0;
                 upSin = true;
                 nextStep = 0;
-                start();
-                try {
-                    this.notifyAll();  // wake-up startup-block
-                    while( !isRunning && !shallStop ) {
-                        this.wait();  // wait until started
-                    }
-                } catch (final InterruptedException e) {
-                    throw new InterruptedRuntimeException(e);
-                }
+
+                wt.start( true );
             }
         }
 
@@ -330,106 +337,16 @@ public final class SimpleSineSynth {
         }
 
         public final synchronized void doPause(final boolean waitUntilDone) {
-            if( isPlaying ) {
-                shallPause = true;
-                if( java.lang.Thread.currentThread() != this ) {
-                    if( isBlocked && isPlaying ) {
-                        this.interrupt();
-                    }
-                    if( waitUntilDone ) {
-                        try {
-                            while( isPlaying && isRunning ) {
-                                this.wait(); // wait until paused
-                            }
-                        } catch (final InterruptedException e) {
-                            throw new InterruptedRuntimeException(e);
-                        }
-                    }
-                }
-            }
+            wt.pause(waitUntilDone);;
         }
         public final synchronized void doResume() {
-            if( isRunning && !isPlaying ) {
-                shallPause = false;
-                if( java.lang.Thread.currentThread() != this ) {
-                    try {
-                        this.notifyAll();  // wake-up pause-block
-                        while( !isPlaying && !shallPause && isRunning ) {
-                            this.wait(); // wait until resumed
-                        }
-                    } catch (final InterruptedException e) {
-                        final InterruptedException e2 = SourcedInterruptedException.wrap(e);
-                        doPause(false);
-                        throw new InterruptedRuntimeException(e2);
-                    }
-                }
-            }
+            wt.resume();
         }
         public final synchronized void doStop() {
-            if( isRunning ) {
-                shallStop = true;
-                if( java.lang.Thread.currentThread() != this ) {
-                    if( isBlocked && isRunning ) {
-                        this.interrupt();
-                    }
-                    try {
-                        this.notifyAll();  // wake-up pause-block (opt)
-                        while( isRunning ) {
-                            this.wait();  // wait until stopped
-                        }
-                    } catch (final InterruptedException e) {
-                        throw new InterruptedRuntimeException(e);
-                    }
-                }
-            }
+            wt.stop(true);
             audioSink.destroy();
         }
-        public final boolean isRunning() { return isRunning; }
-        public final boolean isPlaying() { return isPlaying; }
-
-        @Override
-        public final void run() {
-            setName(getName()+"-SynthWorker_"+SynthWorkerInstanceId);
-            SynthWorkerInstanceId++;
-
-            synchronized ( this ) {
-                isRunning = true;
-                this.notifyAll(); // wake-up ctor()
-            }
-
-            while( !shallStop ) {
-                if( shallPause ) {
-                    synchronized ( this ) {
-                        while( shallPause && !shallStop ) {
-                            audioSink.pause();
-                            isPlaying = false;
-                            this.notifyAll(); // wake-up doPause()
-                            try {
-                                this.wait();  // wait until resumed
-                            } catch (final InterruptedException e) {
-                                if( !shallPause ) {
-                                    e.printStackTrace();
-                                }
-                            }
-                        }
-                        audioSink.play();
-                        isPlaying = true;
-                        this.notifyAll(); // wake-up doResume()
-                    }
-                }
-                if( !shallStop ) {
-                    isBlocked = true;
-                    enqueueWave();
-                    isBlocked = false;
-                }
-            }
-
-            synchronized ( this ) {
-                isRunning = false;
-                isPlaying = false;
-                this.notifyAll(); // wake-up doStop()
-            }
-        }
+        public final boolean isRunning() { return wt.isRunning(); }
+        public final boolean isPlaying() { return wt.isActive(); }
     }
-    static int SynthWorkerInstanceId = 0;
 }
