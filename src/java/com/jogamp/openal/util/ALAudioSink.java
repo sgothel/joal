@@ -28,7 +28,6 @@
 package com.jogamp.openal.util;
 
 import java.nio.ByteBuffer;
-import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
 import jogamp.openal.Debug;
@@ -358,39 +357,28 @@ public final class ALAudioSink implements AudioSink {
 
     @Override
     public final String toString() {
-        final int alBuffersLen = null != alBufferNames ? alBufferNames.length : 0;
         final int ctxHash = context != null ? context.hashCode() : 0;
-        final int alFramesFreeSize = alFramesFree != null ? alFramesFree.size() : 0;
-        final int alFramesPlayingSize = alFramesPlaying != null ? alFramesPlaying.size() : 0;
+        final int alFramesEnqueued = alFramesPlaying != null ? alFramesPlaying.size() : 0;
+        final int alFramesFree_ = alFramesFree!= null ? alFramesFree.size() : 0;
         return String.format("ALAudioSink[playReq %b, device '%s', ctx 0x%x, alSource %d"+
-               ", chosen %s, al[chan %s, type %s, fmt 0x%x, tlc %b, soft[buffer %b, events %b/%b], latency %.2f/%.2f ms, sources %d]"+
-               ", playSpeed %.2f, buffers[total %d, free %d], queued[%d, apts %d/%d, %.1f ms, %d bytes, avg %.2f ms/frame, max %d ms]]",
+               ", chosen %s, al[chan %s, type %s, fmt 0x%x, tlc %b, soft[buffer %b, events %b/%b]"+
+               ", latency %.2f/%.2f ms, sources %d], playSpeed %.2f, "+
+               "play[used %d, apts %d], queued[free %d, apts %d, %.1f ms, %d bytes, avg %.2f ms/frame, max %d ms]]",
                playRequested, device.getName(), ctxHash, alSource.getID(), chosenFormat,
                ALHelpers.alChannelLayoutName(alChannelLayout), ALHelpers.alSampleTypeName(alSampleType),
                alFormat, hasALC_thread_local_context, hasSOFTBufferSamples, useAL_SOFT_events, hasAL_SOFT_events,
-               1000f*latency, 1000f*defaultLatency, sourceCount, playSpeed, alBuffersLen, alFramesFreeSize,
-               alFramesPlayingSize, getPTS(), getLastBufferedPTS(), 1000f*getQueuedTime(), alBufferBytesQueued, 1000f*avgFrameDuration, queueSize
-               );
-    }
-
-    private final String shortString() {
-        final int ctxHash = context != null ? context.hashCode() : 0;
-        final int alFramesEnqueued = alFramesPlaying != null ? alFramesPlaying.size() : 0;
-        final int alBuffersLen = null != alBufferNames ? alBufferNames.length : 0;
-        return String.format("[ctx 0x%x, playReq %b, alSrc %d"+
-               ", play[buffer %d/%d, apts %d], queued[%d, apts %d, %.1f ms, %d bytes, avg %.2f ms/frame, max %d ms]]",
-               ctxHash, playRequested, alSource.getID(),
-               alFramesPlaying.size(), alBuffersLen, getPTS(),
-               alFramesEnqueued, getLastBufferedPTS(), 1000f*getQueuedTime(), alBufferBytesQueued, 1000f*avgFrameDuration, queueSize
+               1000f*latency, 1000f*defaultLatency, sourceCount, playSpeed,
+               alFramesEnqueued, getPTS(),
+               alFramesFree_, getLastBufferedPTS(), 1000f*getQueuedTime(), alBufferBytesQueued, 1000f*avgFrameDuration, queueSize
                );
     }
 
     public final String getPerfString() {
         final int alFramesEnqueued = alFramesPlaying != null ? alFramesPlaying.size() : 0;
-        final int alBuffersLen = null != alBufferNames ? alBufferNames.length : 0;
-        return String.format("play[buffer %d/%d, apts %d], queued[%d, apts %d, %.1f ms, %d bytes, avg %.2f ms/frame, max %d ms]",
-               alFramesPlaying.size(), alBuffersLen, getPTS(),
-               alFramesEnqueued, getLastBufferedPTS(), 1000f*getQueuedTime(), alBufferBytesQueued, 1000f*avgFrameDuration, queueSize
+        final int alFramesFree_ = alFramesFree!= null ? alFramesFree.size() : 0;
+        return String.format("play[used %d, apts %d], queued[free %d, apts %d, %.1f ms, %d bytes, avg %.2f ms/frame, max %d ms]",
+               alFramesEnqueued, getPTS(),
+               alFramesFree_, getLastBufferedPTS(), 1000f*getQueuedTime(), alBufferBytesQueued, 1000f*avgFrameDuration, queueSize
                );
     }
 
@@ -610,10 +598,10 @@ public final class ALAudioSink implements AudioSink {
 
             // Allocate new buffers
             {
-                final int initialFrameCount = requestedFormat.getFrameCount(
+                final int frameCount = requestedFormat.getFrameCount(
                                                 queueSize > 0 ? queueSize/1000f : AudioSink.DefaultQueueSize/1000f, frameDurationHintS);
-                alBufferNames = new int[initialFrameCount];
-                al.alGenBuffers(initialFrameCount, alBufferNames, 0);
+                alBufferNames = new int[frameCount];
+                al.alGenBuffers(frameCount, alBufferNames, 0);
                 if( AudioSystem3D.checkALError("alGenBuffers", true, false) ) {
                     alBufferNames = null;
                     destroySource();
@@ -621,12 +609,12 @@ public final class ALAudioSink implements AudioSink {
                     releaseContext = false;
                     return false;
                 }
-                final ALAudioFrame[] alFrames = new ALAudioFrame[initialFrameCount];
-                for(int i=0; i<initialFrameCount; i++) {
+                final ALAudioFrame[] alFrames = new ALAudioFrame[frameCount];
+                for(int i=0; i<frameCount; i++) {
                     alFrames[i] = new ALAudioFrame(alBufferNames[i]);
                 }
                 alFramesFree = new LFRingbuffer<ALAudioFrame>(alFrames);
-                alFramesPlaying = new LFRingbuffer<ALAudioFrame>(ALAudioFrame[].class, initialFrameCount);
+                alFramesPlaying = new LFRingbuffer<ALAudioFrame>(ALAudioFrame[].class, frameCount);
                 this.queueSize = queueSize > 0 ? queueSize : AudioSink.DefaultQueueSize;
                 if( DEBUG_TRACE ) {
                     alFramesFree.dump(System.err, "Avail-init");
@@ -654,18 +642,6 @@ public final class ALAudioSink implements AudioSink {
     public final AudioFormat getChosenFormat() {
         return chosenFormat;
     }
-
-    private static int[] concat(final int[] first, final int[] second) {
-        final int[] result = Arrays.copyOf(first, first.length + second.length);
-        System.arraycopy(second, 0, result, first.length, second.length);
-        return result;
-    }
-    /**
-    private static <T> T[] concat(T[] first, T[] second) {
-        final T[] result = Arrays.copyOf(first, first.length + second.length);
-        System.arraycopy(second, 0, result, first.length, second.length);
-        return result;
-    } */
 
     private void destroyBuffers() {
         if( !staticsInitialized ) {
@@ -798,7 +774,7 @@ public final class ALAudioSink implements AudioSink {
                         if( DEBUG ) {
                             slept += TimeUnit.NANOSECONDS.toMillis(Clock.currentNanos()-t0);
                             final String warnInfo = releasedBuffers != releasedBuffersByEvent ? " ** Warning ** " : "";
-                            System.err.println(getThreadName()+": ALAudioSink.DeqEvent["+wait_cycles+"]: released buffers "+releasedBuffers+warnInfo+
+                            System.err.println(getThreadName()+": ALAudioSink.DeqEvent["+wait_cycles+"]: released "+releasedBuffers+warnInfo+
                                     " [enqeueud "+enqueuedBuffers+", event "+
                                     releasedBuffersByEvent+", query "+releasedBuffersByQuery+"], req "+releaseBufferCountReq+", slept "+
                                     slept+" ms, free total "+alFramesFree.size());
@@ -813,8 +789,8 @@ public final class ALAudioSink implements AudioSink {
                         if( slept + sleep + 1 <= sleepLimes ) {
                             if( DEBUG ) {
                                 System.err.println(getThreadName()+": ALAudioSink: DeqPoll["+wait_cycles+"].1:"+
-                                        "releasedBuffers "+releasedBuffers+"/"+releaseBufferCountReq+", sleep "+sleep+"/"+slept+"/"+sleepLimes+
-                                        " ms, playImpl "+(ALConstants.AL_PLAYING == getSourceState(false))+", "+getPerfString());
+                                        "released "+releasedBuffers+"/"+releaseBufferCountReq+", sleep "+sleep+"/"+slept+"/"+sleepLimes+
+                                        " ms, "+getPerfString()+", state "+ALHelpers.alSourceStateString(getSourceState(false)));
                             }
                             release(true /* throw */);
                             try {
@@ -829,8 +805,8 @@ public final class ALAudioSink implements AudioSink {
                             if( DEBUG ) {
                                 if( onceBusyDebug ) {
                                     System.err.println(getThreadName()+": ALAudioSink: DeqPoll["+wait_cycles+"].2:"+
-                                            "releasedBuffers "+releasedBuffers+"/"+releaseBufferCountReq+", sleep "+sleep+"->1/"+slept+"/"+sleepLimes+
-                                            " ms, playImpl "+(ALConstants.AL_PLAYING == getSourceState(false))+", "+getPerfString());
+                                            "released "+releasedBuffers+"/"+releaseBufferCountReq+", sleep "+sleep+"->1/"+slept+"/"+sleepLimes+
+                                            " ms, "+getPerfString()+", state "+ALHelpers.alSourceStateString(getSourceState(false)));
                                     onceBusyDebug = false;
                                 }
                             }
@@ -862,9 +838,6 @@ public final class ALAudioSink implements AudioSink {
                         throw new InternalError("Internal Error: "+this);
                     }
                 } else {
-                    if(DEBUG_TRACE) {
-                        System.err.println("<  [al "+buffers[i]+", q "+releasedBuffer.alBuffer+"] <- "+shortString()+" @ "+getThreadName());
-                    }
                     if( releasedBuffer.alBuffer != buffers[i] ) {
                         if( !ignoreBufferInconsistency ) {
                             alFramesFree.dump(System.err, "Avail-deq02-post");
@@ -877,7 +850,7 @@ public final class ALAudioSink implements AudioSink {
                         throw new InternalError("Internal Error: "+this);
                     }
                     if(DEBUG_TRACE) {
-                        System.err.println("<< [al "+buffers[i]+", q "+releasedBuffer.alBuffer+"] <- "+shortString()+" @ "+getThreadName());
+                        System.err.println("<< [al "+buffers[i]+", q "+releasedBuffer.alBuffer+"] <- "+getPerfString()+" @ "+getThreadName());
                     }
                 }
             }
@@ -885,14 +858,14 @@ public final class ALAudioSink implements AudioSink {
         if( DEBUG ) {
             final long t1 = Clock.currentNanos();
             System.err.println(getThreadName()+": ALAudioSink.Dequeued["+wait_cycles+"]: "+TimeUnit.NANOSECONDS.toMillis(t1-t0)+
-                    "ms , releasedBuffers "+releasedBufferCount+"/"+releaseBufferCountReq+", slept "+slept+" ms, playImpl "+(ALConstants.AL_PLAYING == getSourceState(false))+
-                    ", "+getPerfString());
+                    "ms , released "+releasedBufferCount+"/"+releaseBufferCountReq+", slept "+slept+" ms, "+getPerfString()+
+                    ", state "+ALHelpers.alSourceStateString(getSourceState(false)));
         }
         return releasedBufferCount;
     }
     private final void dequeueForceAll() {
         if(DEBUG_TRACE) {
-            System.err.println("<   _FLUSH_  <- "+shortString()+" @ "+getThreadName());
+            System.err.println("<   _FLUSH_  <- "+getPerfString()+" @ "+getThreadName());
         }
         int processedBufferCount = 0;
         al.alSourcei(alSource.getID(), ALConstants.AL_BUFFER, 0); // explicit force zero buffer!
@@ -914,7 +887,7 @@ public final class ALAudioSink implements AudioSink {
         lastBufferedPTS = TimeFrameI.INVALID_PTS;
         playingPTS = TimeFrameI.INVALID_PTS;
         if(DEBUG_TRACE) {
-            System.err.println("<<  _FLUSH_  [al "+processedBufferCount+", err "+toHexString(alErr)+"] <- "+shortString()+" @ "+getThreadName());
+            System.err.println("<<  _FLUSH_  [al "+processedBufferCount+", err "+toHexString(alErr)+"] <- "+getPerfString()+" @ "+getThreadName());
             ExceptionUtils.dumpStack(System.err);
         }
     }
@@ -931,12 +904,12 @@ public final class ALAudioSink implements AudioSink {
         // start continuous playback.
         makeCurrent(true /* throw */);
         try {
+            final int sourceState0 = DEBUG ? getSourceState(false) : 0;
             final float neededDuration = chosenFormat.getBytesDuration(byteCount); // [s]
             @SuppressWarnings("unused")
             int dequeuedBufferCount = 0;
             int enqueuedBuffers = alFramesPlaying.size();
             final int queueLimitBuffers;
-            final int latencyBuffers;
             final char avgUpdateC;
 
             // 1) SOFT dequeue w/o wait
@@ -950,12 +923,11 @@ public final class ALAudioSink implements AudioSink {
                 } else {
                     avgUpdateC = '_';
                 }
-                latencyBuffers = Math.max(1, Math.round(latency / avgFrameDuration));
                 queueLimitBuffers = Math.max(1, Math.round(queueSize/1000f / avgFrameDuration));
                 if( emptyFreeFrames || enqueuedBuffers >= queueLimitBuffers * 2 / 3 ) {
                     if( DEBUG ) {
-                        System.err.printf("%s: ALAudioSink.DequeuSoft"+avgUpdateC+": %.2f ms, soft-dequeue, latencyBuffs %d, queued %d/%d, %s%n",
-                                getThreadName(), 1000f*neededDuration, latencyBuffers, enqueuedBuffers, queueLimitBuffers, getPerfString());
+                        System.err.printf("%s: ALAudioSink.DequeuSoft"+avgUpdateC+": %.2f ms, queued %d/%d, %s%n",
+                                getThreadName(), 1000f*neededDuration, enqueuedBuffers, queueLimitBuffers, getPerfString());
                     }
                     dequeuedBufferCount = dequeueBuffer( false /* wait */, 1, false /* ignoreBufferInconsistency */ );
                 }
@@ -966,9 +938,9 @@ public final class ALAudioSink implements AudioSink {
             // 2) HARD dequeue with wait
             if( 0 == availFrames && isPlayingImpl() ) {
                 // possible if grow failed or already exceeds it's limit - only possible if playing ..
-                final int releaseBuffersHardReq = Math.max(latencyBuffers, enqueuedBuffers / 3 ); // [latencyBuffers .. enqueuedBuffers / 3]
+                final int releaseBuffersHardReq = Math.max(1, enqueuedBuffers / 3 ); // [1 .. enqueuedBuffers / 3]
                 if( DEBUG ) {
-                    System.err.printf("%s: ALAudioSink.DequeuHard"+avgUpdateC+": %.2f ms, hard-dequeue %d, queued %d/%d, %s%n",
+                    System.err.printf("%s: ALAudioSink.DequeuHard"+avgUpdateC+": %.2f ms, req %d, queued %d/%d, %s%n",
                             getThreadName(), 1000f*neededDuration, releaseBuffersHardReq, enqueuedBuffers, queueLimitBuffers, getPerfString());
                 }
                 dequeuedBufferCount += dequeueBuffer( true /* wait */, releaseBuffersHardReq, false /* ignoreBufferInconsistency */ );
@@ -1010,19 +982,28 @@ public final class ALAudioSink implements AudioSink {
                 al.alBufferData(alFrame.alBuffer, alFormat, bytes, byteCount, chosenFormat.sampleRate);
             }
 
-            if(DEBUG_TRACE) {
-                System.err.println(">  "+alFrame.alBuffer+" -> "+shortString()+" @ "+getThreadName());
-            }
-
             alSource.queueBuffers(alBufferNames);
             alBufferBytesQueued += byteCount;
             enqueuedFrameCount++; // safe: only written-to while locked!
 
             if(DEBUG_TRACE) {
-                System.err.println(">> "+alFrame.alBuffer+" -> "+shortString()+" @ "+getThreadName());
+                System.err.println(">> "+alFrame.alBuffer+" -> "+getPerfString()+" @ "+getThreadName());
             }
-
-            playImpl(); // continue playing, fixes issue where we ran out of enqueued data!
+            if( DEBUG ) {
+                final int sourceState1 = getSourceState(false);
+                playImpl(); // continue playing, fixes issue where we ran out of enqueued data!
+                final int sourceState2 = getSourceState(false);
+                if( sourceState0 != sourceState1 || sourceState0 != sourceState2 || sourceState1 != sourceState2 ) {
+                    System.err.printf("%s: ALAudioSink.Enqueued   : %.2f ms, %s, state* %s -> %s -> %s%n",
+                            getThreadName(), 1000f*neededDuration, getPerfString(),
+                            ALHelpers.alSourceStateString(sourceState0), ALHelpers.alSourceStateString(sourceState1), ALHelpers.alSourceStateString(sourceState2));
+                } else {
+                    System.err.printf("%s: ALAudioSink.Enqueued   : %.2f ms, %s, state %s%n",
+                            getThreadName(), 1000f*neededDuration, getPerfString(), ALHelpers.alSourceStateString(sourceState2));
+                }
+            } else {
+                playImpl(); // continue playing, fixes issue where we ran out of enqueued data!
+            }
         } finally {
             release(true /* throw */);
         }
@@ -1090,7 +1071,7 @@ public final class ALAudioSink implements AudioSink {
         try {
             playImpl();
             if( DEBUG ) {
-                System.err.println(getThreadName()+": ALAudioSink: PLAY playImpl "+(ALConstants.AL_PLAYING == getSourceState(false))+", "+this);
+                System.err.println(getThreadName()+": ALAudioSink: play, state "+ALHelpers.alSourceStateString(getSourceState(false))+", "+this);
             }
         } finally {
             release(true /* throw */);
@@ -1113,7 +1094,7 @@ public final class ALAudioSink implements AudioSink {
             try {
                 pauseImpl();
                 if( DEBUG ) {
-                    System.err.println(getThreadName()+": ALAudioSink: PAUSE playImpl "+(ALConstants.AL_PLAYING == getSourceState(false))+", "+this);
+                    System.err.println(getThreadName()+": ALAudioSink: pause, state "+ALHelpers.alSourceStateString(getSourceState(false))+", "+this);
                 }
             } finally {
                 release(true /* throw */);
@@ -1214,7 +1195,7 @@ public final class ALAudioSink implements AudioSink {
                 throw new InternalError("XXX: "+this);
             }
             if( DEBUG ) {
-                System.err.println(getThreadName()+": ALAudioSink: FLUSH playImpl "+(ALConstants.AL_PLAYING == getSourceState(false))+", "+this);
+                System.err.println(getThreadName()+": ALAudioSink: flush, state "+ALHelpers.alSourceStateString(getSourceState(false))+", "+this);
             }
         } finally {
             release(true /* throw */);

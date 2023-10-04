@@ -588,4 +588,91 @@ public class ALHelpers {
     public static final int bytesToSampleCount(final int byteCount, final int alChannelLayout, final int alSampleType) {
         return byteCount / samplesToByteCount(1, alChannelLayout, alSampleType);
     }
+
+    /** Returns given {@link ALConstants#AL_SOURCE_STATE} {@link AL#alGetSourcei(int, int, int[], int)}} value as a string. */
+    public static final String alSourceStateString(final int sourceState) {
+        switch( sourceState ) {
+            case AL_INITIAL: return "initial";
+            case AL_PLAYING: return "playing";
+            case AL_PAUSED: return "paused";
+            case AL_STOPPED: return "stopped";
+            default: return "invalid";
+        }
+    }
+
+    /**
+    public static final String alConstantString(final int state) {
+        switch(state) {
+            case AL_ILLEGAL_COMMAND: return "";
+            case AL_PROCESSED: return "";
+            case AL_FREQUENCY: return "";
+            case AL_NO_ERROR: return "";
+            case AL_VENDOR: return "";
+            case AL_STATIC: return "";
+            // case AL_INVALID_ENUM: return "";
+            case AL_MAX_DISTANCE: return "";
+            case AL_ROLLOFF_FACTOR: return "";
+            case AL_GAIN: return "";
+            case AL_SIZE: return "";
+            case AL_DISTANCE_MODEL: return "";
+            case AL_BYTE_OFFSET: return "";
+            case AL_SOURCE_STATE: return "";
+            case AL_STOPPED: return "";
+            case AL_REFERENCE_DISTANCE: return "";
+            case AL_MIN_GAIN: return "";
+            case AL_PLAYING: return "";
+            case AL_INVERSE_DISTANCE_CLAMPED: return "";
+            case AL_PITCH: return "";
+            case AL_OUT_OF_MEMORY: return "";
+            case AL_FORMAT_MONO8: return "";
+            case AL_TRUE: return "";
+            case AL_LINEAR_DISTANCE: return "";
+            case AL_LOOPING: return "";
+            case AL_STREAMING: return "";
+            case AL_EXPONENT_DISTANCE_CLAMPED: return "";
+            case AL_CHANNELS: return "";
+            case AL_PAUSED: return "";
+            case AL_CONE_OUTER_GAIN: return "";
+            case AL_INVERSE_DISTANCE: return "";
+            case AL_ILLEGAL_ENUM: return "";
+            case AL_DIRECTION: return "";
+            // case AL_INVALID_OPERATION: return "";
+            case AL_ORIENTATION: return "";
+            case AL_FORMAT_STEREO8: return "";
+            case AL_CONE_OUTER_ANGLE: return "";
+            case AL_DOPPLER_VELOCITY: return "";
+            case AL_RENDERER: return "";
+            case AL_SAMPLE_OFFSET: return "";
+            case AL_FORMAT_STEREO16: return "";
+            case AL_SEC_OFFSET: return "";
+            case AL_POSITION: return "";
+            case AL_PENDING: return "";
+            case AL_UNUSED: return "";
+            case AL_INVALID_VALUE: return "";
+            // case AL_NONE: return "";
+            case AL_BUFFER: return "";
+            case AL_BUFFERS_PROCESSED: return "";
+            case AL_VELOCITY: return "";
+            case AL_DOPPLER_FACTOR: return "";
+            case AL_MAX_GAIN: return "";
+            case AL_SPEED_OF_SOUND: return "";
+            case AL_UNDETERMINED: return "";
+            case AL_EXTENSIONS: return "";
+            case AL_EXPONENT_DISTANCE: return "";
+            case AL_INVALID: return "";
+            case AL_VERSION: return "";
+            case AL_INITIAL: return "";
+            case AL_BUFFERS_QUEUED: return "";
+            case AL_BITS: return "";
+            case AL_CONE_INNER_ANGLE: return "";
+            case AL_SOURCE_RELATIVE: return "";
+            case AL_SOURCE_TYPE: return "";
+            case AL_LINEAR_DISTANCE_CLAMPED: return "";
+            case AL_FORMAT_MONO16: return "";
+            // case AL_FALSE: return "";
+            case AL_INVALID_NAME: return "";
+            default: return "0x"+Integer.toHexString(state);
+        }
+    } */
+
 }
