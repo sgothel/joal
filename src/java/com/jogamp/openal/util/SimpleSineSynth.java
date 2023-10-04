@@ -229,7 +229,7 @@ public final class SimpleSineSynth {
                 frameDuration = 10; // let's try for the best ..
                 audioQueueLimit = Math.max( 16, Math.min(3*AudioSink.DefaultFrameDuration, 3*Math.round( 1000f*audioSink.getDefaultLatency() ) ) ); // ms
 
-                audioSink.init(audioFormat, frameDuration, audioQueueLimit, 0, audioQueueLimit);
+                audioSink.init(audioFormat, frameDuration, audioQueueLimit);
                 frameDuration = Math.round( 1000f*audioSink.getLatency() ); // actual number
                 lastFreq = 0;
                 nextSin = 0;
