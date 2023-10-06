@@ -33,6 +33,7 @@ import java.nio.FloatBuffer;
 import com.jogamp.common.av.AudioFormat;
 import com.jogamp.common.av.AudioSink;
 import com.jogamp.common.nio.Buffers;
+import com.jogamp.common.os.Platform;
 import com.jogamp.common.util.InterruptSource;
 import com.jogamp.common.util.InterruptedRuntimeException;
 import com.jogamp.common.util.SourcedInterruptedException;
@@ -67,7 +68,7 @@ public final class SimpleSineSynth {
     private final Object stateLock = new Object();
     private volatile float audioAmplitude = 1.0f;
     private volatile float audioFreq = MIDDLE_C;
-    private volatile int lastAudioPTS = 0;
+    private volatile int nextAudioPTS = 0;
     private SynthWorker streamWorker;
 
     public SimpleSineSynth() {
@@ -145,7 +146,7 @@ public final class SimpleSineSynth {
         return false;
     }
 
-    public int getGenPTS() { return lastAudioPTS; }
+    public int getNextPTS() { return nextAudioPTS; }
 
     public int getPTS() { return audioSink.getPTS(); }
 
@@ -153,9 +154,9 @@ public final class SimpleSineSynth {
     public final String toString() {
         synchronized( stateLock ) {
             final int pts = getPTS();
-            final int lag = getGenPTS() - pts;
+            final int lag = getNextPTS() - pts;
             return getClass().getSimpleName()+"[f "+audioFreq+", a "+audioAmplitude+", latency "+getLatency()+
-                    ", state[running "+isRunning()+", playing "+isPlaying()+"], pts[gen "+getGenPTS()+", play "+pts+", lag "+lag+"], "+audioSink.toString()+"]";
+                    ", state[running "+isRunning()+", playing "+isPlaying()+"], pts[next "+getNextPTS()+", play "+pts+", lag "+lag+"], "+audioSink.toString()+"]";
         }
     }
 
@@ -180,11 +181,13 @@ public final class SimpleSineSynth {
         private final WorkerThread.StateCallback stateCB = (final WorkerThread self, final WorkerThread.StateCallback.State cause) -> {
             switch( cause ) {
                 case INIT:
+                    nextAudioPTS = (int)Platform.currentMillis();
                     break;
                 case PAUSED:
                     audioSink.pause();
                     break;
                 case RESUMED:
+                    nextAudioPTS = (int)Platform.currentMillis();
                     audioSink.play();
                     break;
                 case END:
@@ -206,7 +209,7 @@ public final class SimpleSineSynth {
          **/
         SynthWorker() {
             synchronized(this) {
-                lastAudioPTS = 0;
+                nextAudioPTS = 0;
 
                 // Note: float32 is OpenAL-Soft's internally used format to mix samples etc.
                 final AudioFormat f32 = new AudioFormat(audioSink.getPreferredFormat().sampleRate, 4<<3, 1, true /* signed */,
@@ -331,9 +334,9 @@ public final class SimpleSineSynth {
                 upSin = nextSin >= s;
             }
             sampleBuffer.rewind();
-            audioSink.enqueueData(lastAudioPTS, sampleBuffer, sample_count*bytesPerSample);
+            audioSink.enqueueData(nextAudioPTS, sampleBuffer, sample_count*bytesPerSample);
             sampleBuffer.clear();
-            lastAudioPTS += frameDuration;
+            nextAudioPTS += frameDuration;
         }
 
         public final synchronized void doPause(final boolean waitUntilDone) {
