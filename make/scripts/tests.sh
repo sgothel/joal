@@ -66,7 +66,7 @@ function jrun() {
     #D_ARGS="-Djogamp.debug=all"
     #D_ARGS="-Djogamp.debug.Bitstream"
     #D_ARGS="-Djogamp.debug.NativeLibrary=true -Djoal.debug=true"
-    D_ARGS="-Djogamp.debug.AudioSink"
+    #D_ARGS="-Djogamp.debug.AudioSink"
     #D_ARGS="-Djogamp.debug.AudioSink -Djoal.debug.AudioSink.trace"
     #D_ARGS="-Djoal.debug.AudioSink.trace"
     #D_ARGS="-Djoal.debug=all"

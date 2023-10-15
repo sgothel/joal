@@ -32,6 +32,7 @@ import java.nio.FloatBuffer;
 
 import com.jogamp.common.av.AudioFormat;
 import com.jogamp.common.av.AudioSink;
+import com.jogamp.common.av.PTS;
 import com.jogamp.common.nio.Buffers;
 import com.jogamp.common.os.Platform;
 import com.jogamp.common.util.InterruptSource;
@@ -148,12 +149,12 @@ public final class SimpleSineSynth {
 
     public int getNextPTS() { return nextAudioPTS; }
 
-    public int getPTS() { return audioSink.getPTS(); }
+    public PTS getPTS() { return audioSink.getPTS(); }
 
     @Override
     public final String toString() {
         synchronized( stateLock ) {
-            final int pts = getPTS();
+            final int pts = getPTS().getLast();
             final int lag = getNextPTS() - pts;
             return getClass().getSimpleName()+"[f "+audioFreq+", a "+audioAmplitude+", latency "+getLatency()+
                     ", state[running "+isRunning()+", playing "+isPlaying()+"], pts[next "+getNextPTS()+", play "+pts+", lag "+lag+"], "+audioSink.toString()+"]";
