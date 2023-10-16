@@ -1178,6 +1178,14 @@ public final class ALAudioSink implements AudioSink {
         return volume;
     }
 
+    private static final float clipAudioVolume(final float v) {
+        if( v < 0.01f ) {
+            return 0.0f;
+        } else if( Math.abs(1.0f - v) < 0.01f ) {
+            return 1.0f;
+        }
+        return v;
+    }
     @Override
     public final boolean setVolume(float v) {
         if( !available || null == chosenFormat ) {
@@ -1185,11 +1193,7 @@ public final class ALAudioSink implements AudioSink {
         }
         makeCurrent(true /* throw */);
         try {
-            if( Math.abs(v) < 0.01f ) {
-                v = 0.0f;
-            } else if( Math.abs(1.0f - v) < 0.01f ) {
-                v = 1.0f;
-            }
+            v = clipAudioVolume(v);
             if( 0.0f <= v && v <= 1.0f ) { // OpenAL limits
                 volume = v;
                 alSource.setGain(v);
