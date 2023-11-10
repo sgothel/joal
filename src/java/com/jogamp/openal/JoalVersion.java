@@ -119,21 +119,42 @@ public class JoalVersion extends JogampVersion {
         alv.toString(true, sb);
         sb.append("AL_EXTENSIONS  ").append(al.alGetString(ALConstants.AL_EXTENSIONS));
         sb.append(Platform.getNewline());
+        final boolean enumerationExtIsPresent = alc.aclEnumerationExtIsPresent();
+        final boolean enumerateAllExtIsPresent = alc.aclEnumerateAllExtIsPresent();
         {
             final int[] iversion = { 0, 0 };
             alc.alcGetIntegerv(device, ALCConstants.ALC_MAJOR_VERSION, 1, iversion, 0);
             alc.alcGetIntegerv(device, ALCConstants.ALC_MINOR_VERSION, 1, iversion, 1);
             sb.append("ALC_VERSION     ").append(iversion[0]).append(".").append(iversion[1]);
             sb.append(Platform.getNewline());
-            sb.append("ALC_DEF_OUTPUT  ").append(alc.alcGetString(device, ALCConstants.ALC_DEFAULT_DEVICE_SPECIFIER));
-            sb.append(Platform.getNewline());
-            sb.append("ALC_DEF_CAPTURE ").append(alc.alcGetString(device, ALCConstants.ALC_CAPTURE_DEFAULT_DEVICE_SPECIFIER));
-            sb.append(Platform.getNewline());
+            if (!enumerationExtIsPresent && !enumerateAllExtIsPresent) {
+                sb.append("ALC_DEF_OUTPUT Unknown (Missing "+
+                        ALCConstants.ALC_ENUMERATION_EXT_NAME+" and "+ALCConstants.ALC_ENUMERATE_ALL_EXT_NAME+")");
+                sb.append(Platform.getNewline());
+            } else {
+                if (enumerationExtIsPresent) {
+                    sb.append("ALC_DEF_OUTPUT (With " + ALCConstants.ALC_ENUMERATION_EXT_NAME + ") ")
+                            .append(alc.alcGetString(device, ALCConstants.ALC_DEFAULT_DEVICE_SPECIFIER));
+                    sb.append(Platform.getNewline());
+                }
+                if (enumerateAllExtIsPresent) {
+                    sb.append("ALC_DEF_OUTPUT (With " + ALCConstants.ALC_ENUMERATE_ALL_EXT_NAME + ") ")
+                            .append(alc.alcGetString(device, ALCConstants.ALC_DEFAULT_ALL_DEVICES_SPECIFIER));
+                    sb.append(Platform.getNewline());
+                }
+            }
+            if (enumerationExtIsPresent) {
+                sb.append("ALC_DEF_CAPTURE ").append(alc.alcGetString(device, ALCConstants.ALC_CAPTURE_DEFAULT_DEVICE_SPECIFIER));
+                sb.append(Platform.getNewline());
+            } else {
+                sb.append("ALC_DEF_CAPTURE Unknown (Missing "+ALCConstants.ALC_ENUMERATION_EXT_NAME+")");
+                sb.append(Platform.getNewline());
+            }
         }
         alc.alcMakeContextCurrent(null);
         alc.alcDestroyContext(context);
         alc.alcCloseDevice(device);
-        devicesToString(sb, alc);
+        devicesToString(sb, alc, enumerationExtIsPresent, enumerateAllExtIsPresent);
         return sb;
     }
 
@@ -222,24 +243,47 @@ public class JoalVersion extends JogampVersion {
         }
     }
 
-    public static void devicesToString(final StringBuilder sb, final ALC alc) {
-        final String defOutDeviceName = alc.alcGetString(null, ALCConstants.ALC_DEFAULT_DEVICE_SPECIFIER);
-        final String defInDeviceName = alc.alcGetString(null, ALCConstants.ALC_CAPTURE_DEFAULT_DEVICE_SPECIFIER);
-        sb.append("Output devices:"+System.lineSeparator());
-        {
-            final String[] outDevices = alc.alcGetDeviceSpecifiers();
-            if( null != outDevices ) {
-                for (final String devName : outDevices) {
-                    deviceToString(sb, alc, devName, false, defOutDeviceName, defInDeviceName);
+    public static void devicesToString(final StringBuilder sb, final ALC alc, final boolean enumerationExtIsPresent, final boolean enumerateAllExtIsPresent) {
+        if (!enumerationExtIsPresent && !enumerateAllExtIsPresent) {
+            sb.append("No output devices infos available (Missing "+
+                    ALCConstants.ALC_ENUMERATION_EXT_NAME+" and "+ALCConstants.ALC_ENUMERATE_ALL_EXT_NAME+")");
+        } else {
+            if (enumerateAllExtIsPresent) {
+                final String defOutAllDeviceName = alc.alcGetString(null, ALCConstants.ALC_DEFAULT_ALL_DEVICES_SPECIFIER);
+                sb.append("Output devices (With " + ALCConstants.ALC_ENUMERATE_ALL_EXT_NAME + "):" + System.lineSeparator());
+                {
+                    final String[] outDevices = alc.alcGetAllDeviceSpecifiers();
+                    if (null != outDevices) {
+                        for (final String devName : outDevices) {
+                            deviceToString(sb, alc, devName, false, defOutAllDeviceName, null);
+                        }
+                    }
+                }
+            }
+            if (enumerationExtIsPresent) {
+                final String defOutDeviceName = alc.alcGetString(null, ALCConstants.ALC_DEFAULT_DEVICE_SPECIFIER);
+                sb.append("Output devices (With " + ALCConstants.ALC_ENUMERATION_EXT_NAME + "):" + System.lineSeparator());
+                {
+                    final String[] outDevices = alc.alcGetDeviceSpecifiers();
+                    if (null != outDevices) {
+                        for (final String devName : outDevices) {
+                            deviceToString(sb, alc, devName, false, defOutDeviceName, null);
+                        }
+                    }
                 }
             }
         }
-        sb.append("Capture devices:"+System.lineSeparator());
-        {
-            final String[] inDevices = alc.alcGetCaptureDeviceSpecifiers();
-            if( null != inDevices ) {
-                for (final String devName : inDevices) {
-                    deviceToString(sb, alc, devName, true, defOutDeviceName, defInDeviceName);
+        if (!enumerationExtIsPresent) {
+            sb.append("No capture devices infos available (Missing " + ALCConstants.ALC_ENUMERATION_EXT_NAME + ")");
+        } else {
+            final String defInDeviceName = alc.alcGetString(null, ALCConstants.ALC_CAPTURE_DEFAULT_DEVICE_SPECIFIER);
+            sb.append("Capture devices:" + System.lineSeparator());
+            {
+                final String[] inDevices = alc.alcGetCaptureDeviceSpecifiers();
+                if (null != inDevices) {
+                    for (final String devName : inDevices) {
+                        deviceToString(sb, alc, devName, true, null, defInDeviceName);
+                    }
                 }
             }
         }

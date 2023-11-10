@@ -4,6 +4,7 @@
 package jogamp.openal;
 
 import com.jogamp.common.nio.Buffers;
+import com.jogamp.openal.ALCConstants;
 import com.jogamp.openal.ALException;
 import com.jogamp.openal.ALCdevice;
 import java.io.UnsupportedEncodingException;
@@ -15,10 +16,23 @@ import java.util.ArrayList;
  * @author Michael Bien
  */
 public class ALCImpl extends ALCAbstractImpl {
+    public boolean aclEnumerationExtIsPresent() {
+        return alcIsExtensionPresent(null, ALCConstants.ALC_ENUMERATION_EXT_NAME);
+    }
+
+    public boolean aclEnumerateAllExtIsPresent() {
+        return alcIsExtensionPresent(null, ALCConstants.ALC_ENUMERATE_ALL_EXT_NAME);
+    }
+
+    public boolean alcIsDoubleNullTerminatedString(final ALCdevice device, final int param) {
+        return dispatch_alcIsDoubleNullTerminatedString(((device == null) ? null : device.getBuffer()), param);
+    }
+
+    public native boolean dispatch_alcIsDoubleNullTerminatedString(ByteBuffer deviceBuffer, int param);
 
     public String alcGetString(final ALCdevice device, final int param) {
-        if (device == null && param == ALC_DEVICE_SPECIFIER) {
-            throw new ALException("Call alcGetDeviceSpecifiers to fetch all available device names");
+        if (alcIsDoubleNullTerminatedString(device, param)) {
+            throw new ALException("Call alcGetString to get double null terminated string");
         }
 
         final ByteBuffer buf = alcGetStringImpl(device, param);
@@ -51,24 +65,24 @@ public class ALCImpl extends ALCAbstractImpl {
     }
     private native java.nio.ByteBuffer dispatch_alcGetStringImpl1(ByteBuffer deviceBuffer, int param, long addr);
 
-    /**
-     * Fetches the names of the available ALC device specifiers.
-     * Equivalent to the C call alcGetString(NULL, ALC_DEVICE_SPECIFIER).
-     */
     public String[] alcGetDeviceSpecifiers() {
-        return getDoubleNullTerminatedString(ALC_DEVICE_SPECIFIER);
+        return alcGetStringAsDoubleNullTerminatedString(null, ALC_DEVICE_SPECIFIER);
     }
 
-    /**
-     * Fetches the names of the available ALC capture device specifiers.
-     * Equivalent to the C call alcGetString(NULL, ALC_CAPTURE_DEVICE_SPECIFIER).
-     */
     public String[] alcGetCaptureDeviceSpecifiers() {
-        return getDoubleNullTerminatedString(ALC_CAPTURE_DEVICE_SPECIFIER);
+        return alcGetStringAsDoubleNullTerminatedString(null, ALC_CAPTURE_DEVICE_SPECIFIER);
     }
 
-    private String[] getDoubleNullTerminatedString(final int which) {
-        final ByteBuffer buf = alcGetStringImpl(null, which);
+    public String[] alcGetAllDeviceSpecifiers() {
+        return alcGetStringAsDoubleNullTerminatedString(null, ALC_ALL_DEVICES_SPECIFIER);
+    }
+
+    public String[] alcGetStringAsDoubleNullTerminatedString(final ALCdevice device, final int param) {
+        if (!alcIsDoubleNullTerminatedString(device, param)) {
+            throw new ALException("Call alcGetString to get string");
+        }
+
+        final ByteBuffer buf = alcGetStringImpl(device, param);
         if (buf == null) {
             return null;
         }
