@@ -110,9 +110,18 @@ public class JoalVersion extends JogampVersion {
             sb.append("ALC null");
             return sb;
         }
-        final ALCdevice device = alc.alcOpenDevice(null);
-        final ALCcontext context = alc.alcCreateContext(device, null);
-        alc.alcMakeContextCurrent(context);
+        final ALCcontext initialContext = alc.alcGetCurrentContext();
+
+        final ALCcontext context;
+        final ALCdevice device;
+        if( null == initialContext) {
+            device = alc.alcOpenDevice(null);
+            context = alc.alcCreateContext(device, null);
+            alc.alcMakeContextCurrent(context);
+        } else {
+            context = initialContext;
+            device = alc.alcGetContextsDevice(initialContext);
+        }
         final AL al = ALFactory.getAL(); // valid after makeContextCurrent(..)
         final ALVersion alv = new ALVersion(al);
 
@@ -151,9 +160,13 @@ public class JoalVersion extends JogampVersion {
                 sb.append(Platform.getNewline());
             }
         }
-        alc.alcMakeContextCurrent(null);
-        alc.alcDestroyContext(context);
-        alc.alcCloseDevice(device);
+
+        if( null == initialContext ) {
+            alc.alcMakeContextCurrent(null);
+            alc.alcDestroyContext(context);
+            alc.alcCloseDevice(device);
+        }
+
         devicesToString(sb, alc, enumerationExtIsPresent, enumerateAllExtIsPresent);
         return sb;
     }
@@ -178,6 +191,8 @@ public class JoalVersion extends JogampVersion {
             final String inOutStr = "output";
             final int mixerFrequency, mixerRefresh, monoSourceCount, stereoSourceCount;
             final int[] val = { 0 };
+            final ALCcontext initialContext = alc.alcGetCurrentContext();
+            final ALCdevice initialDevice = initialContext != null ? alc.alcGetContextsDevice(initialContext) : null;
             final ALCdevice d = alc.alcOpenDevice(devName);
             if( null == d ) {
                 System.err.println("Error: Failed to open "+defStr+inOutStr+" device "+devName);
@@ -237,9 +252,18 @@ public class JoalVersion extends JogampVersion {
                     " (min latency "+(1000f/mixerRefresh)+" ms)], sources[mono "+monoSourceCount+", stereo "+stereoSourceCount+"]"+
                     System.lineSeparator());
 
-            alc.alcMakeContextCurrent(null);
-            alc.alcDestroyContext(c);
-            alc.alcCloseDevice(d);
+            if( null != initialContext ) {
+                alc.alcMakeContextCurrent(initialContext);
+                if( initialContext.getDirectBufferAddress() != c.getDirectBufferAddress() ) {
+                    alc.alcDestroyContext(c);
+                }
+            } else {
+                alc.alcMakeContextCurrent(null);
+                alc.alcDestroyContext(c);
+            }
+            if( initialDevice == null || initialDevice.getDirectBufferAddress() != d.getDirectBufferAddress() ) {
+                alc.alcCloseDevice(d);
+            }
         }
     }
 
