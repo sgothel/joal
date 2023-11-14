@@ -33,6 +33,7 @@ import com.jogamp.common.GlueGenVersion;
 import com.jogamp.common.os.Platform;
 import com.jogamp.common.util.VersionUtil;
 import com.jogamp.common.util.JogampVersion;
+import com.jogamp.openal.util.ALHelpers;
 
 import java.util.jar.Manifest;
 
@@ -138,16 +139,16 @@ public class JoalVersion extends JogampVersion {
             sb.append(Platform.getNewline());
             if (!enumerationExtIsPresent && !enumerateAllExtIsPresent) {
                 sb.append("ALC_DEF_OUTPUT Unknown (Missing "+
-                        ALCConstants.ALC_ENUMERATION_EXT_NAME+" and "+ALCConstants.ALC_ENUMERATE_ALL_EXT_NAME+")");
+                        ALHelpers.ALC_ENUMERATION_EXT+" and "+ALHelpers.ALC_ENUMERATE_ALL_EXT+")");
                 sb.append(Platform.getNewline());
             } else {
                 if (enumerationExtIsPresent) {
-                    sb.append("ALC_DEF_OUTPUT (With " + ALCConstants.ALC_ENUMERATION_EXT_NAME + ") ")
+                    sb.append("ALC_DEF_OUTPUT (With " + ALHelpers.ALC_ENUMERATION_EXT + ") ")
                             .append(alc.alcGetString(device, ALCConstants.ALC_DEFAULT_DEVICE_SPECIFIER));
                     sb.append(Platform.getNewline());
                 }
                 if (enumerateAllExtIsPresent) {
-                    sb.append("ALC_DEF_OUTPUT (With " + ALCConstants.ALC_ENUMERATE_ALL_EXT_NAME + ") ")
+                    sb.append("ALC_DEF_OUTPUT (With " + ALHelpers.ALC_ENUMERATE_ALL_EXT + ") ")
                             .append(alc.alcGetString(device, ALCConstants.ALC_DEFAULT_ALL_DEVICES_SPECIFIER));
                     sb.append(Platform.getNewline());
                 }
@@ -156,7 +157,7 @@ public class JoalVersion extends JogampVersion {
                 sb.append("ALC_DEF_CAPTURE ").append(alc.alcGetString(device, ALCConstants.ALC_CAPTURE_DEFAULT_DEVICE_SPECIFIER));
                 sb.append(Platform.getNewline());
             } else {
-                sb.append("ALC_DEF_CAPTURE Unknown (Missing "+ALCConstants.ALC_ENUMERATION_EXT_NAME+")");
+                sb.append("ALC_DEF_CAPTURE Unknown (Missing "+ALHelpers.ALC_ENUMERATION_EXT+")");
                 sb.append(Platform.getNewline());
             }
         }
@@ -270,11 +271,11 @@ public class JoalVersion extends JogampVersion {
     public static void devicesToString(final StringBuilder sb, final ALC alc, final boolean enumerationExtIsPresent, final boolean enumerateAllExtIsPresent) {
         if (!enumerationExtIsPresent && !enumerateAllExtIsPresent) {
             sb.append("No output devices infos available (Missing "+
-                    ALCConstants.ALC_ENUMERATION_EXT_NAME+" and "+ALCConstants.ALC_ENUMERATE_ALL_EXT_NAME+")");
+                    ALHelpers.ALC_ENUMERATION_EXT+" and "+ALHelpers.ALC_ENUMERATE_ALL_EXT+")");
         } else {
             if (enumerateAllExtIsPresent) {
                 final String defOutAllDeviceName = alc.alcGetString(null, ALCConstants.ALC_DEFAULT_ALL_DEVICES_SPECIFIER);
-                sb.append("Output devices (With " + ALCConstants.ALC_ENUMERATE_ALL_EXT_NAME + "):" + System.lineSeparator());
+                sb.append("Output devices (With " + ALHelpers.ALC_ENUMERATE_ALL_EXT + "):" + System.lineSeparator());
                 {
                     final String[] outDevices = alc.alcGetAllDeviceSpecifiers();
                     if (null != outDevices) {
@@ -286,7 +287,7 @@ public class JoalVersion extends JogampVersion {
             }
             if (enumerationExtIsPresent) {
                 final String defOutDeviceName = alc.alcGetString(null, ALCConstants.ALC_DEFAULT_DEVICE_SPECIFIER);
-                sb.append("Output devices (With " + ALCConstants.ALC_ENUMERATION_EXT_NAME + "):" + System.lineSeparator());
+                sb.append("Output devices (With " + ALHelpers.ALC_ENUMERATION_EXT + "):" + System.lineSeparator());
                 {
                     final String[] outDevices = alc.alcGetDeviceSpecifiers();
                     if (null != outDevices) {
@@ -298,7 +299,7 @@ public class JoalVersion extends JogampVersion {
             }
         }
         if (!enumerationExtIsPresent) {
-            sb.append("No capture devices infos available (Missing " + ALCConstants.ALC_ENUMERATION_EXT_NAME + ")");
+            sb.append("No capture devices infos available (Missing " + ALHelpers.ALC_ENUMERATION_EXT + ")");
         } else {
             final String defInDeviceName = alc.alcGetString(null, ALCConstants.ALC_CAPTURE_DEFAULT_DEVICE_SPECIFIER);
             sb.append("Capture devices:" + System.lineSeparator());

@@ -7,6 +7,8 @@ import com.jogamp.common.nio.Buffers;
 import com.jogamp.openal.ALCConstants;
 import com.jogamp.openal.ALException;
 import com.jogamp.openal.ALCdevice;
+import com.jogamp.openal.util.ALHelpers;
+
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -17,11 +19,11 @@ import java.util.ArrayList;
  */
 public class ALCImpl extends ALCAbstractImpl {
     public boolean aclEnumerationExtIsPresent() {
-        return alcIsExtensionPresent(null, ALCConstants.ALC_ENUMERATION_EXT_NAME);
+        return alcIsExtensionPresent(null, ALHelpers.ALC_ENUMERATION_EXT);
     }
 
     public boolean aclEnumerateAllExtIsPresent() {
-        return alcIsExtensionPresent(null, ALCConstants.ALC_ENUMERATE_ALL_EXT_NAME);
+        return alcIsExtensionPresent(null, ALHelpers.ALC_ENUMERATE_ALL_EXT);
     }
 
     public boolean alcIsDoubleNullTerminatedString(final ALCdevice device, final int param) {
