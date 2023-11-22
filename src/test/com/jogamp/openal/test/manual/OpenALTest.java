@@ -47,9 +47,6 @@ import com.jogamp.openal.ALFactory;
 import com.jogamp.openal.ALVersion;
 import com.jogamp.openal.JoalVersion;
 import com.jogamp.openal.UnsupportedAudioFileException;
-import com.jogamp.openal.eax.EAX;
-import com.jogamp.openal.eax.EAXConstants;
-import com.jogamp.openal.eax.EAXFactory;
 import com.jogamp.openal.test.resources.ResourceLocation;
 import com.jogamp.openal.util.WAVData;
 
@@ -83,10 +80,6 @@ public class OpenALTest {
         alc.alcMakeContextCurrent(context);
         System.out.println("ALVersion: "+new ALVersion(al).toString());
 
-        final boolean eaxPresent = al.alIsExtensionPresent("EAX2.0");
-        final EAX eax = ( eaxPresent ) ? EAXFactory.getEAX() : null;
-        System.err.println("EAX present:" + eaxPresent + ", EAX retrieved: "+ (null != eax));
-
         final int[] buffers = new int[1];
         al.alGenBuffers(1, buffers, 0);
 
@@ -106,11 +99,6 @@ public class OpenALTest {
         al.alGetSourcei(sources[0], ALConstants.AL_LOOPING, loopArray, 0);
         System.err.println("Looping 1: " + (loopArray[0] == ALConstants.AL_TRUE));
 
-        if (eaxPresent && null!=eax) {
-            final IntBuffer env = Buffers.newDirectIntBuffer(1);
-            env.put(EAXConstants.EAX_ENVIRONMENT_BATHROOM);
-            eax.setListenerProperty(EAXConstants.DSPROPERTY_EAXLISTENER_ENVIRONMENT, env);
-        }
         initialized = true;
     }
 
