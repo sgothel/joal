@@ -15,7 +15,6 @@ import java.util.ArrayList;
 
 /**
  * ALC implementation.
- * @author Michael Bien
  */
 public class ALCImpl extends ALCAbstractImpl {
     public boolean aclEnumerationExtIsPresent() {
@@ -27,11 +26,14 @@ public class ALCImpl extends ALCAbstractImpl {
     }
 
     public boolean alcIsDoubleNullTerminatedString(final ALCdevice device, final int param) {
-        return dispatch_alcIsDoubleNullTerminatedString(((device == null) ? null : device.getBuffer()), param);
+          return ( null == device || 0 == device.getDirectBufferAddress() ) &&
+                 ( param == ALC_DEVICE_SPECIFIER ||
+                   param == ALC_CAPTURE_DEVICE_SPECIFIER ||
+                   param == ALC_ALL_DEVICES_SPECIFIER
+                 );
     }
 
-    public native boolean dispatch_alcIsDoubleNullTerminatedString(ByteBuffer deviceBuffer, int param);
-
+    @Override
     public String alcGetString(final ALCdevice device, final int param) {
         if (alcIsDoubleNullTerminatedString(device, param)) {
             throw new ALException("Call alcGetString to get double null terminated string");
@@ -67,10 +69,12 @@ public class ALCImpl extends ALCAbstractImpl {
     }
     private native java.nio.ByteBuffer dispatch_alcGetStringImpl1(ByteBuffer deviceBuffer, int param, long addr);
 
+    @Override
     public String[] alcGetDeviceSpecifiers() {
         return alcGetStringAsDoubleNullTerminatedString(null, ALC_DEVICE_SPECIFIER);
     }
 
+    @Override
     public String[] alcGetCaptureDeviceSpecifiers() {
         return alcGetStringAsDoubleNullTerminatedString(null, ALC_CAPTURE_DEVICE_SPECIFIER);
     }

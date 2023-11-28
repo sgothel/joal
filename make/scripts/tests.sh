@@ -103,11 +103,11 @@ function testnormal() {
 }
 
 
-#testnormal com.jogamp.openal.JoalVersion $*
+testnormal com.jogamp.openal.JoalVersion $*
 #testnormal com.jogamp.openal.test.manual.OpenALTest $*
 #testnormal com.jogamp.openal.test.manual.Sound3DTest $*
 #testnormal com.jogamp.openal.test.manual.Synth01AL $*
-testnormal com.jogamp.openal.test.manual.Synth02AL $*
+#testnormal com.jogamp.openal.test.manual.Synth02AL $*
 #testnormal com.jogamp.openal.test.manual.Synth02bAL $*
 #testnormal com.jogamp.openal.test.junit.ALVersionTest $*
 #testnormal com.jogamp.openal.test.junit.ALutWAVLoaderTest $*

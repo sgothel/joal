@@ -131,6 +131,7 @@ public class JoalVersion extends JogampVersion {
         sb.append(Platform.getNewline());
         final boolean enumerationExtIsPresent = alc.aclEnumerationExtIsPresent();
         final boolean enumerateAllExtIsPresent = alc.aclEnumerateAllExtIsPresent();
+        final String enumExtAvailInfo = "(enumExt[def "+enumerationExtIsPresent+", all "+enumerateAllExtIsPresent+"])";
         {
             final int[] iversion = { 0, 0 };
             alc.alcGetIntegerv(device, ALCConstants.ALC_MAJOR_VERSION, 1, iversion, 0);
@@ -138,8 +139,7 @@ public class JoalVersion extends JogampVersion {
             sb.append("ALC_VERSION     ").append(iversion[0]).append(".").append(iversion[1]);
             sb.append(Platform.getNewline());
             if (!enumerationExtIsPresent && !enumerateAllExtIsPresent) {
-                sb.append("ALC_DEF_OUTPUT Unknown (Missing "+
-                        ALHelpers.ALC_ENUMERATION_EXT+" and "+ALHelpers.ALC_ENUMERATE_ALL_EXT+")");
+                sb.append("ALC_DEF_OUTPUT Unknown ").append(enumExtAvailInfo);
                 sb.append(Platform.getNewline());
             } else {
                 if (enumerationExtIsPresent) {
@@ -155,11 +155,10 @@ public class JoalVersion extends JogampVersion {
             }
             if (enumerationExtIsPresent) {
                 sb.append("ALC_DEF_CAPTURE ").append(alc.alcGetString(device, ALCConstants.ALC_CAPTURE_DEFAULT_DEVICE_SPECIFIER));
-                sb.append(Platform.getNewline());
             } else {
-                sb.append("ALC_DEF_CAPTURE Unknown (Missing "+ALHelpers.ALC_ENUMERATION_EXT+")");
-                sb.append(Platform.getNewline());
+                sb.append("ALC_DEF_CAPTURE Unknown ").append(enumExtAvailInfo);
             }
+            sb.append(Platform.getNewline());
         }
 
         if( null == initialContext ) {
@@ -168,7 +167,7 @@ public class JoalVersion extends JogampVersion {
             alc.alcCloseDevice(device);
         }
 
-        devicesToString(sb, alc, enumerationExtIsPresent, enumerateAllExtIsPresent);
+        devicesToString(sb, alc);
         return sb;
     }
 
@@ -268,10 +267,13 @@ public class JoalVersion extends JogampVersion {
         }
     }
 
-    public static void devicesToString(final StringBuilder sb, final ALC alc, final boolean enumerationExtIsPresent, final boolean enumerateAllExtIsPresent) {
+    public static void devicesToString(final StringBuilder sb, final ALC alc) {
+        final boolean enumerationExtIsPresent = alc.aclEnumerationExtIsPresent();
+        final boolean enumerateAllExtIsPresent = alc.aclEnumerateAllExtIsPresent();
+        final String enumExtAvailInfo = "(enumExt[def "+enumerationExtIsPresent+", all "+enumerateAllExtIsPresent+"])";
+
         if (!enumerationExtIsPresent && !enumerateAllExtIsPresent) {
-            sb.append("No output devices infos available (Missing "+
-                    ALHelpers.ALC_ENUMERATION_EXT+" and "+ALHelpers.ALC_ENUMERATE_ALL_EXT+")");
+            sb.append("No output devices infos available ").append(enumExtAvailInfo);
         } else {
             if (enumerateAllExtIsPresent) {
                 final String defOutAllDeviceName = alc.alcGetString(null, ALCConstants.ALC_DEFAULT_ALL_DEVICES_SPECIFIER);
@@ -299,7 +301,7 @@ public class JoalVersion extends JogampVersion {
             }
         }
         if (!enumerationExtIsPresent) {
-            sb.append("No capture devices infos available (Missing " + ALHelpers.ALC_ENUMERATION_EXT + ")");
+            sb.append("No capture devices infos available ").append(enumExtAvailInfo);
         } else {
             final String defInDeviceName = alc.alcGetString(null, ALCConstants.ALC_CAPTURE_DEFAULT_DEVICE_SPECIFIER);
             sb.append("Capture devices:" + System.lineSeparator());
