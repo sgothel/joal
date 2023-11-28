@@ -34,6 +34,7 @@
 
 package com.jogamp.openal.sound3d;
 
+import com.jogamp.common.util.locks.Lock;
 import com.jogamp.common.util.locks.LockFactory;
 import com.jogamp.common.util.locks.RecursiveLock;
 import com.jogamp.openal.*;
@@ -203,6 +204,9 @@ public final class Context {
         return lock.getHoldCount();
     }
 
+    public boolean tryMakeCurrent(final boolean throwException, final long timeoutMS) throws RuntimeException {
+        return makeCurrentImpl(false /* throwTryLockException */, throwException, timeoutMS);
+    }
     /**
      * Makes the audio context current on the calling thread.
      * <p>
@@ -217,40 +221,52 @@ public final class Context {
      * @see #release()
      */
     public boolean makeCurrent(final boolean throwException) throws ALException {
-        lock.lock();
+        return makeCurrentImpl(true /* throwTryLockException */, throwException, Lock.TIMEOUT);
+    }
+    private boolean makeCurrentImpl(final boolean throwTryLockException, final boolean throwException, final long timeoutMS) throws RuntimeException {
+        try {
+            if( lock.tryLock(timeoutMS) ) {
+                if( null == alCtx ) {
+                    lock.unlock();
+                    if( throwException ) {
+                        throw new ALException("Invalid "+this);
+                    }
+                    return false;
+                }
 
-        if( null == alCtx ) {
-            lock.unlock();
-            if( throwException ) {
-                throw new ALException("Invalid "+this);
-            }
-            return false;
-        }
-
-        // One context can only be current on one thread,
-        // and one thread can only have one context current!
-        final Context current = getCurrentContext();
-        if (current != null) {
-            if (current == this) { // implicit recursive locking, lock.getHoldCount() > 1
-                return true;
+                // One context can only be current on one thread,
+                // and one thread can only have one context current!
+                final Context current = getCurrentContext();
+                if (current != null) {
+                    if (current == this) { // implicit recursive locking, lock.getHoldCount() > 1
+                        return true;
+                    } else {
+                        lock.unlock();
+                        if( throwException ) {
+                            throw new ALException("Current thread "+Thread.currentThread()+" holds another "+current+" while claiming this "+this);
+                        }
+                        return false;
+                    }
+                }
+                final boolean r = makeCurrentImpl();
+                if( r ) {
+                    currentContext.set(this);
+                } else {
+                    lock.unlock();
+                    if( throwException ) {
+                        throw new ALException("Context make current failed "+this);
+                    }
+                }
+                return r;
             } else {
-                lock.unlock();
-                if( throwException ) {
-                    throw new ALException("Current thread "+Thread.currentThread()+" holds another "+current+" while claiming this "+this);
+                if( throwTryLockException ) {
+                    throw new RuntimeException("Waited "+timeoutMS+"ms for: "+lock.toString()+" - "+Thread.currentThread().getName());
                 }
                 return false;
             }
+        } catch (final InterruptedException ie) {
+            throw new  RuntimeException(ie);
         }
-        final boolean r = makeCurrentImpl();
-        if( r ) {
-            currentContext.set(this);
-        } else {
-            lock.unlock();
-            if( throwException ) {
-                throw new ALException("Context make current failed "+this);
-            }
-        }
-        return r;
     }
     private boolean makeCurrentImpl() {
         if( hasALC_thread_local_context ) {
