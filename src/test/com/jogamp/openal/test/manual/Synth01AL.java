@@ -101,6 +101,15 @@ public class Synth01AL {
                 }
             }
         }
+        System.out.println("Output all devices:");
+        {
+            final String[] outDevices = alc.alcGetAllDeviceSpecifiers();
+            if( null != outDevices ) {
+                for (final String name : outDevices) {
+                    System.out.println("    "+name);
+                }
+            }
+        }
         alCheckError("setup", true);
 
         al.alGenBuffers(1, buffers, 0);

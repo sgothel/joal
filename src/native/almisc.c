@@ -1,18 +1,20 @@
-
 #include <jni.h>
 #include <stdlib.h>
 
 #include <assert.h>
 
- #include "al.h"
- #include "alc.h"
- #ifndef _MSC_VER /* Non-Windows platforms */
+#include "al.h"
+#include "alc.h"
+#ifndef _MSC_VER /* Non-Windows platforms */
   #define __cdecl /* Trim non-standard keyword */
- #endif
- #include "efx.h"
-  #include <string.h>
+#endif
+#include "efx.h"
+#include <string.h>
+#include <stdbool.h>
 
 extern int strlen_alc(ALCdevice *device, int param, const char* str);
+
+extern bool alc_is_double_null_terminated_string(ALCdevice *device, int param);
 
 /*   Java->C glue code:
  *   Java package: jogamp.openal.ALImpl
@@ -61,3 +63,12 @@ Java_jogamp_openal_ALCImpl_dispatch_1alcGetStringImpl1(JNIEnv *env, jobject _unu
   return (*env)->NewDirectByteBuffer(env, _res, strlen_alc(_device_ptr, param, _res));
 }
 
+JNIEXPORT jboolean JNICALL
+Java_jogamp_openal_ALCImpl_dispatch_1alcIsDoubleNullTerminatedString(JNIEnv *env, jobject _unused, jobject device, jint param) {
+  ALCdevice * _device_ptr = NULL;
+  const ALCchar *  _res;
+    if ( NULL != device ) {
+        _device_ptr = (ALCdevice *) (((char*) (*env)->GetDirectBufferAddress(env, device)) + 0);
+    }
+  return (jboolean) alc_is_double_null_terminated_string((ALCdevice *) _device_ptr, (ALCenum) param);
+}

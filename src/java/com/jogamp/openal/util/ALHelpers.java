@@ -52,6 +52,9 @@ public class ALHelpers {
 
     public static final String ALC_EXT_thread_local_context = "ALC_EXT_thread_local_context";
 
+    public static final String ALC_ENUMERATION_EXT = "ALC_ENUMERATION_EXT";
+    public static final String ALC_ENUMERATE_ALL_EXT = "ALC_ENUMERATE_ALL_EXT";
+
     /**
      * Returns a compatible {@link AudioFormat} based on given OpenAL channel-layout, sample-type and format,
      * as well as the generic sample-rate and sample-size.

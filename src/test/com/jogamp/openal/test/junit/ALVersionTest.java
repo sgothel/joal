@@ -31,10 +31,14 @@ import java.io.IOException;
 
 import org.junit.FixMethodOrder;
 import org.junit.Test;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.runners.MethodSorters;
 
 import com.jogamp.common.util.VersionNumber;
+import com.jogamp.openal.ALC;
+import com.jogamp.openal.ALCcontext;
+import com.jogamp.openal.ALCdevice;
 import com.jogamp.openal.ALFactory;
 import com.jogamp.openal.ALVersion;
 import com.jogamp.openal.JoalVersion;
@@ -68,6 +72,46 @@ public class ALVersionTest extends UITestCase {
     public void test02JoalVersion() {
         final JoalVersion jv = JoalVersion.getInstance();
         System.err.println(jv.toString(ALFactory.getALC()));
+    }
+
+    @Test
+    public void test03JoalVersionMustNoChangeContextAndDeviceUsed() {
+        final ALC alc = ALFactory.getALC();
+        final ALCdevice intialDevice = alc.alcOpenDevice(null);
+        final ALCcontext initialContext = alc.alcCreateContext(intialDevice, null);
+        alc.alcMakeContextCurrent(initialContext);
+        final JoalVersion jv = JoalVersion.getInstance();
+        System.err.println(jv.toString(alc));
+        final ALCcontext currentContext = alc.alcGetCurrentContext();
+        Assert.assertNotNull(currentContext);
+        Assert.assertEquals(initialContext.getDirectBufferAddress(), currentContext.getDirectBufferAddress());
+        final ALCdevice currentDevice = alc.alcGetContextsDevice(currentContext);
+        Assert.assertNotNull(currentDevice);
+        Assert.assertEquals(intialDevice.getDirectBufferAddress(), currentDevice.getDirectBufferAddress());
+    }
+
+    @Test
+    public void test04JoalVersionMustNotSetAdditionalContext() {
+        final ALC alc = ALFactory.getALC();
+        final JoalVersion jv = JoalVersion.getInstance();
+        System.err.println(jv.toString(alc));
+        final ALCcontext currentContext = alc.alcGetCurrentContext();
+        Assert.assertNull(currentContext);
+    }
+
+    @After
+    @Override
+    public void tearDown() {
+        super.tearDown();
+        final ALC alc = ALFactory.getALC();
+        final ALCcontext context = alc.alcGetCurrentContext();
+        if(null != context) {
+            alc.alcDestroyContext(context);
+            final ALCdevice device = alc.alcGetContextsDevice(context);
+            if(null != device) {
+                alc.alcCloseDevice(device);
+            }
+        }
     }
 
     public static void main(final String args[]) throws IOException {
