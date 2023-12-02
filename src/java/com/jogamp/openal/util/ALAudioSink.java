@@ -721,11 +721,11 @@ public final class ALAudioSink implements AudioSink {
         @SuppressWarnings("unused")
         @Override
         public void callback(final int eventType, final int object, final int param,
-                             final int length, final String message, final ALCcontext context) {
+                             final String message, final ALCcontext context) {
             if( false ) {
                 final com.jogamp.openal.ALContextKey k = new com.jogamp.openal.ALContextKey(context);
                 logout.println("ALAudioSink.Event: type "+toHexString(eventType)+", obj "+toHexString(object)+", param "+param+
-                        ", msg[len "+length+", val '"+message+"'], userParam "+k);
+                               ", msg '"+message+"', userParam "+k);
             }
             if( ALExtConstants.AL_EVENT_TYPE_BUFFER_COMPLETED_SOFT == eventType &&
                 alSource.getID() == object )
@@ -735,7 +735,7 @@ public final class ALAudioSink implements AudioSink {
                         final com.jogamp.openal.ALContextKey k = new com.jogamp.openal.ALContextKey(context);
                         logout.println("ALAudioSink.Event: type "+toHexString(eventType)+", obj "+toHexString(object)+
                                 ", eventReleasedBuffers +"+param+" -> "+(eventReleasedBuffers + param)+
-                                ", msg[len "+length+", val '"+message+"'], userParam "+k);
+                                ", msg '"+message+"', userParam "+k);
                     }
                     eventReleasedBuffers += param;
                     eventReleasedBuffersLock.notifyAll();
