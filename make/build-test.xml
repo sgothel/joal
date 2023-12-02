@@ -215,7 +215,7 @@
             <jvmarg value="-Djoal.debug.Factory"/>
             <batchtest todir="${results.test}">
                 <fileset dir="${classes.test}">
-                    <include name="${java.dir.junit}/**/*Test*"/>
+                    <include name="${java.dir.junit}/**/*Test.class"/>
                 </fileset>
                 <formatter usefile="false" type="plain"/>
                 <formatter usefile="true" type="xml"/>
@@ -233,7 +233,7 @@
         <for param="test.class.path.m" keepgoing="true">
             <!-- results in absolute path -->
             <fileset dir="${classes.test}">
-                <include name="${java.dir.manual}/**/*Test*"/>
+                <include name="${java.dir.manual}/**/*Test.class"/>
                 <exclude name="**/*$$*"/>
             </fileset>
           <sequential>
@@ -289,7 +289,7 @@ cd ${env.TARGET_ROOT}/${joal.basename}/${env.NODE_LABEL}/make ${line.separator}
         <for param="test.class.path.m" keepgoing="true">
             <!-- results in absolute path -->
             <fileset dir="${classes.test}">
-                <include name="${java.dir.junit}/**/*Test*"/>
+                <include name="${java.dir.junit}/**/*Test.class"/>
                 <exclude name="**/*$$*"/>
             </fileset>
           <sequential>
@@ -351,7 +351,7 @@ export BOOTCLASSPATH=/system/framework/core.jar:/system/framework/bouncycastle.j
         <for param="test.class.path.m" keepgoing="true">
             <!-- results in absolute path -->
             <fileset dir="${build_t.java}">
-                <include name="${test.junit.rel}/**/*Test*"/>
+                <include name="${test.junit.rel}/**/*Test.class"/>
                 <exclude name="**/*$$*"/>
             </fileset>
           <sequential>

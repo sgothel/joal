@@ -35,6 +35,7 @@
 package com.jogamp.openal.sound3d;
 
 import com.jogamp.openal.*;
+import com.jogamp.openal.util.ALHelpers;
 
 
 /**
@@ -70,6 +71,17 @@ public final class Device {
 
     /** Returns whether {@link #getALDevice()} is open and valid, i.e. not null, e.g. not {@link #close()}. */
     public boolean isValid() { return null != alDev; }
+
+    /**
+     * Returns whether `ALC_EXT_debug` is available for this device.
+     * <p>
+     * This context may or may not be current.
+     * </p>
+     * @see Context#isDebugAvail()
+     */
+    public boolean isDebugAvail() {
+        return AudioSystem3D.alc.alcIsExtensionPresent(alDev, ALHelpers.ALC_EXT_debug);
+    }
 
     /**
      * Opens the device if not yet opened

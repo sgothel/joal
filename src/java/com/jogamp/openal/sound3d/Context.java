@@ -101,6 +101,14 @@ public final class Context {
     }
 
     /**
+     * Returns whether `AL_EXT_debug` is available for the current context.
+     * @see Device#isDebugAvail()
+     */
+    public boolean isDebugAvail() {
+        return AudioSystem3D.al.alIsExtensionPresent(ALHelpers.AL_EXT_debug);
+    }
+
+    /**
      * Creates the internal {@link ALCcontext} instance if {@link #getALContext()} is null
      * @param attributes lost of {@link ALCcontext} attributes for context creation
      * @return true if the internal context has been successfully created, otherwise false
