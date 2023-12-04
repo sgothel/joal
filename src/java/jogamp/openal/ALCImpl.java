@@ -27,6 +27,11 @@ public class ALCImpl extends ALCAbstractImpl {
         return alcIsExtensionPresent(null, ALHelpers.ALC_ENUMERATE_ALL_EXT);
     }
 
+    @Override
+    public boolean alcSoftSystemEventsIsPresent() {
+        return alcIsExtensionPresent(null, ALHelpers.ALC_SOFT_system_events);
+    }
+
     public boolean alcIsDoubleNullTerminatedString(final ALCdevice device, final int param) {
           return ( null == device || 0 == device.getDirectBufferAddress() ) &&
                  ( param == ALC_DEVICE_SPECIFIER ||

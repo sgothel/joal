@@ -4,6 +4,9 @@ public boolean alcEnumerationExtIsPresent();
 /** Specify if ALC_ENUMERATE_ALL_EXT is present */
 public boolean alcEnumerateAllExtIsPresent();
 
+/** Specify if ALC_SOFT_system_events is present */
+public boolean alcSoftSystemEventsIsPresent();
+
 /** Specify if call of alGetString(device, param) must
     must retrun a double null terminted string */
 public boolean alcIsDoubleNullTerminatedString(final com.jogamp.openal.ALCdevice device, final int param);
