@@ -18,12 +18,12 @@ import java.util.ArrayList;
  */
 public class ALCImpl extends ALCAbstractImpl {
     @Override
-    public boolean aclEnumerationExtIsPresent() {
+    public boolean alcEnumerationExtIsPresent() {
         return alcIsExtensionPresent(null, ALHelpers.ALC_ENUMERATION_EXT);
     }
 
     @Override
-    public boolean aclEnumerateAllExtIsPresent() {
+    public boolean alcEnumerateAllExtIsPresent() {
         return alcIsExtensionPresent(null, ALHelpers.ALC_ENUMERATE_ALL_EXT);
     }
 

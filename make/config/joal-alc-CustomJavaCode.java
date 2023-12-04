@@ -1,8 +1,8 @@
 /** Specify if ALC_ENUMERATION_EXT is present */
-public boolean aclEnumerationExtIsPresent();
+public boolean alcEnumerationExtIsPresent();
 
 /** Specify if ALC_ENUMERATE_ALL_EXT is present */
-public boolean aclEnumerateAllExtIsPresent();
+public boolean alcEnumerateAllExtIsPresent();
 
 /** Specify if call of alGetString(device, param) must
     must retrun a double null terminted string */

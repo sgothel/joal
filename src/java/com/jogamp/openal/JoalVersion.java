@@ -129,8 +129,8 @@ public class JoalVersion extends JogampVersion {
         alv.toString(true, sb);
         sb.append("AL_EXTENSIONS  ").append(al.alGetString(ALConstants.AL_EXTENSIONS));
         sb.append(Platform.getNewline());
-        final boolean enumerationExtIsPresent = alc.aclEnumerationExtIsPresent();
-        final boolean enumerateAllExtIsPresent = alc.aclEnumerateAllExtIsPresent();
+        final boolean enumerationExtIsPresent = alc.alcEnumerationExtIsPresent();
+        final boolean enumerateAllExtIsPresent = alc.alcEnumerateAllExtIsPresent();
         final String enumExtAvailInfo = "(enumExt[def "+enumerationExtIsPresent+", all "+enumerateAllExtIsPresent+"])";
         {
             final int[] iversion = { 0, 0 };
@@ -268,8 +268,8 @@ public class JoalVersion extends JogampVersion {
     }
 
     public static void devicesToString(final StringBuilder sb, final ALC alc) {
-        final boolean enumerationExtIsPresent = alc.aclEnumerationExtIsPresent();
-        final boolean enumerateAllExtIsPresent = alc.aclEnumerateAllExtIsPresent();
+        final boolean enumerationExtIsPresent = alc.alcEnumerationExtIsPresent();
+        final boolean enumerateAllExtIsPresent = alc.alcEnumerateAllExtIsPresent();
         final String enumExtAvailInfo = "(enumExt[def "+enumerationExtIsPresent+", all "+enumerateAllExtIsPresent+"])";
 
         if (!enumerationExtIsPresent && !enumerateAllExtIsPresent) {
