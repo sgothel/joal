@@ -17,10 +17,12 @@ import java.util.ArrayList;
  * ALC implementation.
  */
 public class ALCImpl extends ALCAbstractImpl {
+    @Override
     public boolean aclEnumerationExtIsPresent() {
         return alcIsExtensionPresent(null, ALHelpers.ALC_ENUMERATION_EXT);
     }
 
+    @Override
     public boolean aclEnumerateAllExtIsPresent() {
         return alcIsExtensionPresent(null, ALHelpers.ALC_ENUMERATE_ALL_EXT);
     }
@@ -79,10 +81,12 @@ public class ALCImpl extends ALCAbstractImpl {
         return alcGetStringAsDoubleNullTerminatedString(null, ALC_CAPTURE_DEVICE_SPECIFIER);
     }
 
+    @Override
     public String[] alcGetAllDeviceSpecifiers() {
         return alcGetStringAsDoubleNullTerminatedString(null, ALC_ALL_DEVICES_SPECIFIER);
     }
 
+    @Override
     public String[] alcGetStringAsDoubleNullTerminatedString(final ALCdevice device, final int param) {
         if (!alcIsDoubleNullTerminatedString(device, param)) {
             throw new ALException("Call alcGetString to get string");
