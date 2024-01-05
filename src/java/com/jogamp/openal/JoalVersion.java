@@ -35,7 +35,6 @@ import com.jogamp.common.util.VersionUtil;
 import com.jogamp.common.util.JogampVersion;
 import com.jogamp.openal.util.ALHelpers;
 
-import java.util.Map;
 import java.util.jar.Manifest;
 
 public class JoalVersion extends JogampVersion {
@@ -166,17 +165,22 @@ public class JoalVersion extends JogampVersion {
                     .append(softEventsIsPresent ? "supported" : "unsupported");
             sb.append(Platform.getNewline());
             if (softEventsIsPresent) {
-                for (final Map.Entry<String, Integer> event : Map.of(
-                        "ALC_EVENT_TYPE_DEVICE_ADDED_SOFT", ALExtConstants.ALC_EVENT_TYPE_DEVICE_ADDED_SOFT,
-                        "ALC_EVENT_TYPE_DEVICE_REMOVED_SOFT", ALExtConstants.ALC_EVENT_TYPE_DEVICE_REMOVED_SOFT,
-                        "ALC_EVENT_TYPE_DEFAULT_DEVICE_CHANGED_SOFT", ALExtConstants.ALC_EVENT_TYPE_DEFAULT_DEVICE_CHANGED_SOFT
-                ).entrySet()) {
-                    final int playbackSupported = alExt.alcEventIsSupportedSOFT(event.getValue(), ALExtConstants.ALC_PLAYBACK_DEVICE_SOFT);
-                    sb.append("    ").append(event.getKey()).append(" event for playback devices is ")
+                class EventType {
+                    public final String key;
+                    public final int value;
+                    EventType(final String k, final int i) { key = k; value = i; }
+                }
+                final EventType[] events = {
+                        new EventType("ALC_EVENT_TYPE_DEVICE_ADDED_SOFT", ALExtConstants.ALC_EVENT_TYPE_DEVICE_ADDED_SOFT),
+                        new EventType("ALC_EVENT_TYPE_DEVICE_REMOVED_SOFT", ALExtConstants.ALC_EVENT_TYPE_DEVICE_REMOVED_SOFT),
+                        new EventType("ALC_EVENT_TYPE_DEFAULT_DEVICE_CHANGED_SOFT", ALExtConstants.ALC_EVENT_TYPE_DEFAULT_DEVICE_CHANGED_SOFT) };
+                for (final EventType event : events) {
+                    final int playbackSupported = alExt.alcEventIsSupportedSOFT(event.value, ALExtConstants.ALC_PLAYBACK_DEVICE_SOFT);
+                    sb.append("    ").append(event.key).append(" event for playback devices is ")
                             .append(playbackSupported == ALExtConstants.ALC_EVENT_SUPPORTED_SOFT ? "supported" : "unsupported");
                     sb.append(Platform.getNewline());
-                    final int captureSupported = alExt.alcEventIsSupportedSOFT(event.getValue(), ALExtConstants.ALC_CAPTURE_DEVICE_SOFT);
-                    sb.append("    ").append(event.getKey()).append(" event for capture devices is ")
+                    final int captureSupported = alExt.alcEventIsSupportedSOFT(event.value, ALExtConstants.ALC_CAPTURE_DEVICE_SOFT);
+                    sb.append("    ").append(event.key).append(" event for capture devices is ")
                             .append(captureSupported == ALExtConstants.ALC_EVENT_SUPPORTED_SOFT ? "supported" : "unsupported");
                     sb.append(Platform.getNewline());
                 }
