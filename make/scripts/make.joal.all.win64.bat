@@ -15,10 +15,6 @@ set LIB_GEN=%THISDIR%\lib
 set CLASSPATH=.;%THISDIR%\build-win64\classes
 REM    -Dc.compiler.debug=true 
 
-set SOURCE_LEVEL=1.8
-set TARGET_LEVEL=1.8
-set TARGET_RT_JAR=C:\jre1.8.0_212\lib\rt.jar
-
 REM set JOGAMP_JAR_CODEBASE=Codebase: *.jogamp.org
 set JOGAMP_JAR_CODEBASE=Codebase: *.goethel.localnet
 

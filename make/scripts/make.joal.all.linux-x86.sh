@@ -18,10 +18,6 @@ if [ -z "$ANT_PATH" ] ; then
     exit
 fi
 
-export SOURCE_LEVEL=1.8
-export TARGET_LEVEL=1.8
-export TARGET_RT_JAR=/opt-share/jre1.8.0_212/lib/rt.jar
-
 #export JOGAMP_JAR_CODEBASE="Codebase: *.jogamp.org"
 export JOGAMP_JAR_CODEBASE="Codebase: *.goethel.localnet"
 
