@@ -31,7 +31,7 @@ See OpenAL-Soft [environment variables](https://github.com/kcat/openal-soft/blob
 and [configuration example](https://github.com/kcat/openal-soft/blob/master/alsoftrc.sample).
 
 All JOAL platform builds contain a self-build native library of [OpenAL-Soft](https://openal-soft.org/),
-version [**v1.23.1** *from our fork*](https://jogamp.org/cgit/openal-soft.git/).
+version [**v1.24.3** *from our fork*](https://jogamp.org/cgit/openal-soft.git/).
 
 Our builds expose the following audio backends:
 

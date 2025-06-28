@@ -490,13 +490,29 @@
         <exec dir="${build}/openal-soft" executable="cmake" logError="true" failonerror="false" failifexecutionfails="false">
             <env key="PATH" value="${env.PATH_VANILLA}"/>
             <arg value="../../openal-soft"/>
-            <arg value="-DCMAKE_TOOLCHAIN_FILE=../../openal-soft/cmake/toolchain.android.cmake"/>
+            <arg value="-DCMAKE_TOOLCHAIN_FILE=${env.ANDROID_NDK}/build/cmake/android.toolchain.cmake"/>
             <arg value="-DANDROID_NDK=${env.ANDROID_NDK}"/>
-            <arg value="-DANDROID_HOST_TAG=${env.ANDROID_HOST_TAG}"/>
-            <arg value="-DNDK_CPU_X86:BOOL=true"/>
-            <arg value="-DANDROID_API_LEVEL=${ANDROID_API_LEVEL_OPENAL_SOFT}"/>
-            <arg value="-DALSOFT_CPUEXT_SSE4_1=0"/>
-            <arg value="-DALSOFT_CPUEXT_NEON=0"/>
+            <!-- arg value="-DANDROID_LD=lld"/ -->
+            <arg value="-DANDROID_STL=c++_static"/>
+            <arg value="-DANDROID_PLATFORM=android-${env.ANDROID_API_LEVEL}"/>
+            <arg value="-DANDROID_ABI=${env.ANDROID_ABI}"/>
+        </exec>
+        <exec dir="${build}/openal-soft" executable="make" logError="true" failonerror="false" failifexecutionfails="false" />
+    </target>
+
+    <target name="c.build.openal.soft.android.x86_64" if="isAndroidX86_64" unless="c.build.openal.soft.done">
+        <property name="c.build.openal.soft.done" value="true" />
+        <mkdir dir="${build}/openal-soft" />
+        <copy file="lib/bsinc_inc.h" todir="${build}/openal-soft" overwrite="true"/>
+        <exec dir="${build}/openal-soft" executable="cmake" logError="true" failonerror="false" failifexecutionfails="false">
+            <env key="PATH" value="${env.PATH_VANILLA}"/>
+            <arg value="../../openal-soft"/>
+            <arg value="-DCMAKE_TOOLCHAIN_FILE=${env.ANDROID_NDK}/build/cmake/android.toolchain.cmake"/>
+            <arg value="-DANDROID_NDK=${env.ANDROID_NDK}"/>
+            <!-- arg value="-DANDROID_LD=lld"/ -->
+            <arg value="-DANDROID_STL=c++_static"/>
+            <arg value="-DANDROID_PLATFORM=android-${env.ANDROID_API_LEVEL}"/>
+            <arg value="-DANDROID_ABI=${env.ANDROID_ABI}"/>
         </exec>
         <exec dir="${build}/openal-soft" executable="make" logError="true" failonerror="false" failifexecutionfails="false" />
     </target>
@@ -508,12 +524,12 @@
         <exec dir="${build}/openal-soft" executable="cmake" logError="true" failonerror="false" failifexecutionfails="false">
             <env key="PATH" value="${env.PATH_VANILLA}"/>
             <arg value="../../openal-soft"/>
-            <arg value="-DCMAKE_TOOLCHAIN_FILE=../../openal-soft/cmake/toolchain.android.cmake"/>
+            <arg value="-DCMAKE_TOOLCHAIN_FILE=${env.ANDROID_NDK}/build/cmake/android.toolchain.cmake"/>
             <arg value="-DANDROID_NDK=${env.ANDROID_NDK}"/>
-            <arg value="-DANDROID_HOST_TAG=${env.ANDROID_HOST_TAG}"/>
-            <arg value="-DNDK_CPU_ARM_V7A:BOOL=true"/>
-            <arg value="-DANDROID_API_LEVEL=${ANDROID_API_LEVEL_OPENAL_SOFT}"/>
-            <arg value="-DARM32_LINKER_OPTS:STRING=-Wl,--fix-cortex-a8"/>
+            <!-- arg value="-DANDROID_LD=lld"/ -->
+            <arg value="-DANDROID_STL=c++_static"/>
+            <arg value="-DANDROID_PLATFORM=android-${env.ANDROID_API_LEVEL}"/>
+            <arg value="-DANDROID_ABI=${env.ANDROID_ABI}"/>
         </exec>
         <exec dir="${build}/openal-soft" executable="make" logError="true" failonerror="false" failifexecutionfails="false" />
     </target>
@@ -525,12 +541,12 @@
         <exec dir="${build}/openal-soft" executable="cmake" logError="true" failonerror="false" failifexecutionfails="false">
             <env key="PATH" value="${env.PATH_VANILLA}"/>
             <arg value="../../openal-soft"/>
-            <arg value="-DCMAKE_TOOLCHAIN_FILE=../../openal-soft/cmake/toolchain.android.cmake"/>
+            <arg value="-DCMAKE_TOOLCHAIN_FILE=${env.ANDROID_NDK}/build/cmake/android.toolchain.cmake"/>
             <arg value="-DANDROID_NDK=${env.ANDROID_NDK}"/>
-            <arg value="-DANDROID_HOST_TAG=${env.ANDROID_HOST_TAG}"/>
-            <arg value="-DNDK_CPU_ARM64:BOOL=true"/>
-            <arg value="-DANDROID_API_LEVEL=${ANDROID_API_LEVEL_OPENAL_SOFT}"/>
-            <arg value="-DARM64_LINKER_OPTS:STRING="/>
+            <!-- arg value="-DANDROID_LD=lld"/ -->
+            <arg value="-DANDROID_STL=c++_static"/>
+            <arg value="-DANDROID_PLATFORM=android-${env.ANDROID_API_LEVEL}"/>
+            <arg value="-DANDROID_ABI=${env.ANDROID_ABI}"/>
         </exec>
         <exec dir="${build}/openal-soft" executable="make" logError="true" failonerror="false" failifexecutionfails="false" />
     </target>
@@ -544,7 +560,7 @@
             <arg line="-G 'MinGW Makefiles'"/> <!-- Ensure to use vanilla cmake, not cygwin cmake! -->
             <arg value="-DCMAKE_MAKE_PROGRAM=mingw32-make.exe"/>
             <arg value="../../openal-soft"/>
-            <arg value="-DCMAKE_TOOLCHAIN_FILE=../../openal-soft/cmake/toolchain.windows.cmake"/>
+            <arg value="-DCMAKE_TOOLCHAIN_FILE=${project.root}/make/lib/openal-soft/toolchain.windows.cmake"/>
         </exec>
         <exec dir="${build}/openal-soft" executable="mingw32-make.exe" logError="true" failonerror="false" failifexecutionfails="false" />
     </target>
@@ -558,10 +574,10 @@
         <echo message='TARGET_PLATFORM_USRLIBS ${TARGET_PLATFORM_USRLIBS}'/>
         <exec dir="${build}/openal-soft" executable="cmake" logError="true" failonerror="false" failifexecutionfails="false">
             <arg value="../../openal-soft"/>
+            <arg value="-DCMAKE_TOOLCHAIN_FILE=${project.root}/make/lib/openal-soft/toolchain.linux-gcc-armv6hf.cmake"/>
             <arg value="-DTARGET_PLATFORM_SYSROOT:FILEPATH=${TARGET_PLATFORM_SYSROOT}"/>
             <arg value="-DTARGET_PLATFORM_USRROOT:FILEPATH=${TARGET_PLATFORM_USRROOT}"/>
             <arg value="-DTARGET_PLATFORM_USRLIBS:FILEPATH=${TARGET_PLATFORM_USRLIBS}"/>
-            <arg value="-DCMAKE_TOOLCHAIN_FILE=../../openal-soft/cmake/toolchain.linux-gcc-armv6hf.cmake"/>
         </exec>
         <exec dir="${build}/openal-soft" executable="make" logError="true" failonerror="false" failifexecutionfails="false" />
     </target>
@@ -572,10 +588,10 @@
         <copy file="lib/bsinc_inc.h" todir="${build}/openal-soft" overwrite="true"/>
         <exec dir="${build}/openal-soft" executable="cmake" logError="true" failonerror="false" failifexecutionfails="false">
             <arg value="../../openal-soft"/>
+            <arg value="-DCMAKE_TOOLCHAIN_FILE=${project.root}/make/lib/openal-soft/toolchain.linux-gcc-aarch64.cmake"/>
             <arg value="-DTARGET_PLATFORM_SYSROOT:FILEPATH=${TARGET_PLATFORM_SYSROOT}"/>
             <arg value="-DTARGET_PLATFORM_USRROOT:FILEPATH=${TARGET_PLATFORM_USRROOT}"/>
             <arg value="-DTARGET_PLATFORM_USRLIBS:FILEPATH=${TARGET_PLATFORM_USRLIBS}"/>
-            <arg value="-DCMAKE_TOOLCHAIN_FILE=../../openal-soft/cmake/toolchain.linux-gcc-aarch64.cmake"/>
         </exec>
         <exec dir="${build}/openal-soft" executable="make" logError="true" failonerror="false" failifexecutionfails="false" />
     </target>
@@ -585,7 +601,7 @@
         <mkdir dir="${build}/openal-soft" />
         <exec dir="${build}/openal-soft" executable="cmake" logError="true" failonerror="false" failifexecutionfails="false">
             <arg value="../../openal-soft"/>
-            <arg value="-DCMAKE_TOOLCHAIN_FILE=../../openal-soft/cmake/toolchain.clang-x86_32.cmake"/>
+            <arg value="-DCMAKE_TOOLCHAIN_FILE=${project.root}/make/lib/openal-soft/toolchain.clang-x86_32.cmake"/>
         </exec>
         <exec dir="${build}/openal-soft" executable="make" logError="true" failonerror="false" failifexecutionfails="false" />
     </target>
@@ -614,9 +630,9 @@
         <mkdir dir="${build}/openal-soft" />
         <exec dir="${build}/openal-soft" executable="cmake" logError="true" failonerror="false" failifexecutionfails="false">
             <arg value="../../openal-soft"/>
+            <arg value="-DCMAKE_TOOLCHAIN_FILE=${project.root}/make/lib/openal-soft/toolchain.clang-default.cmake"/>
             <arg value="-DALSOFT_EXAMPLES=OFF"/>
             <arg value="-DCMAKE_EXTRA_ARCHS=${cmake.arch.ppc} ${cmake.arch.x32} ${cmake.arch.x64} ${cmake.arch.arm64}"/>
-            <arg value="-DCMAKE_TOOLCHAIN_FILE=../../openal-soft/cmake/toolchain.clang-default.cmake"/>
         </exec>
         <exec dir="${build}/openal-soft" executable="make" logError="true" failonerror="false" failifexecutionfails="false" />
     </target>
@@ -626,7 +642,7 @@
         <mkdir dir="${build}/openal-soft" />
         <exec dir="${build}/openal-soft" executable="cmake" logError="true" failonerror="false" failifexecutionfails="false">
             <arg value="../../openal-soft"/>
-            <arg value="-DCMAKE_TOOLCHAIN_FILE=../../openal-soft/cmake/toolchain.gcc-x86_32.cmake"/>
+            <arg value="-DCMAKE_TOOLCHAIN_FILE=${project.root}/make/lib/openal-soft/toolchain.gcc-x86_32.cmake"/>
         </exec>
         <exec dir="${build}/openal-soft" executable="make" logError="true" failonerror="false" failifexecutionfails="false" />
     </target>
@@ -636,13 +652,13 @@
         <mkdir dir="${build}/openal-soft" />
         <exec dir="${build}/openal-soft" executable="cmake" logError="true" failonerror="false" failifexecutionfails="false">
             <arg value="../../openal-soft"/>
-            <arg value="-DCMAKE_TOOLCHAIN_FILE=../../openal-soft/cmake/toolchain.gcc-default.cmake"/>
+            <arg value="-DCMAKE_TOOLCHAIN_FILE=${project.root}/make/lib/openal-soft/toolchain.gcc-default.cmake"/>
         </exec>
         <exec dir="${build}/openal-soft" executable="make" logError="true" failonerror="false" failifexecutionfails="false" />
     </target>
 
     <target name="c.build.openal.soft" 
-            depends="init, gluegen.cpptasks.detect.os, gluegen.cpptasks.setup.compiler, c.build.openal.soft.windows, c.build.openal.soft.android.x86, c.build.openal.soft.android.arm, c.build.openal.soft.android.arm64, c.build.openal.soft.gcc.armv6.hard, c.build.openal.soft.gcc.aarch64, c.build.openal.soft.clang.x86_32, c.build.openal.soft.clang.default, c.build.openal.soft.gcc.x86_32, c.build.openal.soft.gcc.default">
+            depends="init, gluegen.cpptasks.detect.os, gluegen.cpptasks.setup.compiler, c.build.openal.soft.windows, c.build.openal.soft.android.x86, c.build.openal.soft.android.x86_64, c.build.openal.soft.android.arm, c.build.openal.soft.android.arm64, c.build.openal.soft.gcc.armv6.hard, c.build.openal.soft.gcc.aarch64, c.build.openal.soft.clang.x86_32, c.build.openal.soft.clang.default, c.build.openal.soft.gcc.x86_32, c.build.openal.soft.gcc.default">
         <copy todir="../${rootrel.build}/obj" failonerror="false">
             <fileset dir="${build}/openal-soft" erroronmissingdir="false">
                 <include name="*openal.${native.library.suffix}" />
