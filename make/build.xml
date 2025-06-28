@@ -487,7 +487,7 @@
         <property name="c.build.openal.soft.done" value="true" />
         <mkdir dir="${build}/openal-soft" />
         <copy file="lib/bsinc_inc.h" todir="${build}/openal-soft" overwrite="true"/>
-        <exec dir="${build}/openal-soft" executable="cmake" logError="true" failonerror="false" failifexecutionfails="false">
+        <exec dir="${build}/openal-soft" executable="cmake" logError="true" failonerror="true" failifexecutionfails="true">
             <env key="PATH" value="${env.PATH_VANILLA}"/>
             <arg value="../../openal-soft"/>
             <arg value="-DCMAKE_TOOLCHAIN_FILE=${env.ANDROID_NDK}/build/cmake/android.toolchain.cmake"/>
@@ -497,14 +497,14 @@
             <arg value="-DANDROID_PLATFORM=android-${env.ANDROID_API_LEVEL}"/>
             <arg value="-DANDROID_ABI=${env.ANDROID_ABI}"/>
         </exec>
-        <exec dir="${build}/openal-soft" executable="make" logError="true" failonerror="false" failifexecutionfails="false" />
+        <exec dir="${build}/openal-soft" executable="make" logError="true" failonerror="true" failifexecutionfails="true" />
     </target>
 
     <target name="c.build.openal.soft.android.x86_64" if="isAndroidX86_64" unless="c.build.openal.soft.done">
         <property name="c.build.openal.soft.done" value="true" />
         <mkdir dir="${build}/openal-soft" />
         <copy file="lib/bsinc_inc.h" todir="${build}/openal-soft" overwrite="true"/>
-        <exec dir="${build}/openal-soft" executable="cmake" logError="true" failonerror="false" failifexecutionfails="false">
+        <exec dir="${build}/openal-soft" executable="cmake" logError="true" failonerror="true" failifexecutionfails="true">
             <env key="PATH" value="${env.PATH_VANILLA}"/>
             <arg value="../../openal-soft"/>
             <arg value="-DCMAKE_TOOLCHAIN_FILE=${env.ANDROID_NDK}/build/cmake/android.toolchain.cmake"/>
@@ -514,14 +514,14 @@
             <arg value="-DANDROID_PLATFORM=android-${env.ANDROID_API_LEVEL}"/>
             <arg value="-DANDROID_ABI=${env.ANDROID_ABI}"/>
         </exec>
-        <exec dir="${build}/openal-soft" executable="make" logError="true" failonerror="false" failifexecutionfails="false" />
+        <exec dir="${build}/openal-soft" executable="make" logError="true" failonerror="true" failifexecutionfails="true" />
     </target>
 
     <target name="c.build.openal.soft.android.arm" if="isAndroidARMv6" unless="c.build.openal.soft.done">
         <property name="c.build.openal.soft.done" value="true" />
         <mkdir dir="${build}/openal-soft" />
         <copy file="lib/bsinc_inc.h" todir="${build}/openal-soft" overwrite="true"/>
-        <exec dir="${build}/openal-soft" executable="cmake" logError="true" failonerror="false" failifexecutionfails="false">
+        <exec dir="${build}/openal-soft" executable="cmake" logError="true" failonerror="true" failifexecutionfails="true">
             <env key="PATH" value="${env.PATH_VANILLA}"/>
             <arg value="../../openal-soft"/>
             <arg value="-DCMAKE_TOOLCHAIN_FILE=${env.ANDROID_NDK}/build/cmake/android.toolchain.cmake"/>
@@ -531,14 +531,14 @@
             <arg value="-DANDROID_PLATFORM=android-${env.ANDROID_API_LEVEL}"/>
             <arg value="-DANDROID_ABI=${env.ANDROID_ABI}"/>
         </exec>
-        <exec dir="${build}/openal-soft" executable="make" logError="true" failonerror="false" failifexecutionfails="false" />
+        <exec dir="${build}/openal-soft" executable="make" logError="true" failonerror="true" failifexecutionfails="true" />
     </target>
 
     <target name="c.build.openal.soft.android.arm64" if="isAndroidARM64" unless="c.build.openal.soft.done">
         <property name="c.build.openal.soft.done" value="true" />
         <mkdir dir="${build}/openal-soft" />
         <copy file="lib/bsinc_inc.h" todir="${build}/openal-soft" overwrite="true"/>
-        <exec dir="${build}/openal-soft" executable="cmake" logError="true" failonerror="false" failifexecutionfails="false">
+        <exec dir="${build}/openal-soft" executable="cmake" logError="true" failonerror="true" failifexecutionfails="true">
             <env key="PATH" value="${env.PATH_VANILLA}"/>
             <arg value="../../openal-soft"/>
             <arg value="-DCMAKE_TOOLCHAIN_FILE=${env.ANDROID_NDK}/build/cmake/android.toolchain.cmake"/>
@@ -548,21 +548,21 @@
             <arg value="-DANDROID_PLATFORM=android-${env.ANDROID_API_LEVEL}"/>
             <arg value="-DANDROID_ABI=${env.ANDROID_ABI}"/>
         </exec>
-        <exec dir="${build}/openal-soft" executable="make" logError="true" failonerror="false" failifexecutionfails="false" />
+        <exec dir="${build}/openal-soft" executable="make" logError="true" failonerror="true" failifexecutionfails="true" />
     </target>
 
     <target name="c.build.openal.soft.windows" if="isWindows" unless="c.build.openal.soft.done">
         <property name="c.build.openal.soft.done" value="true" />
         <mkdir dir="${build}/openal-soft" />
         <copy file="lib/bsinc_inc.h" todir="${build}/openal-soft" overwrite="true"/>
-        <exec dir="${build}/openal-soft" executable="cmake" logError="true" failonerror="false" failifexecutionfails="false">
+        <exec dir="${build}/openal-soft" executable="cmake" logError="true" failonerror="true" failifexecutionfails="true">
             <env key="PATH" value="${env.PATH}"/>
             <arg line="-G 'MinGW Makefiles'"/> <!-- Ensure to use vanilla cmake, not cygwin cmake! -->
             <arg value="-DCMAKE_MAKE_PROGRAM=mingw32-make.exe"/>
             <arg value="../../openal-soft"/>
             <arg value="-DCMAKE_TOOLCHAIN_FILE=${project.root}/make/lib/openal-soft/toolchain.windows.cmake"/>
         </exec>
-        <exec dir="${build}/openal-soft" executable="mingw32-make.exe" logError="true" failonerror="false" failifexecutionfails="false" />
+        <exec dir="${build}/openal-soft" executable="mingw32-make.exe" logError="true" failonerror="true" failifexecutionfails="true" />
     </target>
 
     <target name="c.build.openal.soft.gcc.armv6.hard" if="useLinuxARMv6HFOptions" unless="c.build.openal.soft.done">
@@ -572,38 +572,38 @@
         <echo message='TARGET_PLATFORM_SYSROOT ${TARGET_PLATFORM_SYSROOT}'/>
         <echo message='TARGET_PLATFORM_USRROOT ${TARGET_PLATFORM_USRROOT}'/>
         <echo message='TARGET_PLATFORM_USRLIBS ${TARGET_PLATFORM_USRLIBS}'/>
-        <exec dir="${build}/openal-soft" executable="cmake" logError="true" failonerror="false" failifexecutionfails="false">
+        <exec dir="${build}/openal-soft" executable="cmake" logError="true" failonerror="true" failifexecutionfails="true">
             <arg value="../../openal-soft"/>
             <arg value="-DCMAKE_TOOLCHAIN_FILE=${project.root}/make/lib/openal-soft/toolchain.linux-gcc-armv6hf.cmake"/>
             <arg value="-DTARGET_PLATFORM_SYSROOT:FILEPATH=${TARGET_PLATFORM_SYSROOT}"/>
             <arg value="-DTARGET_PLATFORM_USRROOT:FILEPATH=${TARGET_PLATFORM_USRROOT}"/>
             <arg value="-DTARGET_PLATFORM_USRLIBS:FILEPATH=${TARGET_PLATFORM_USRLIBS}"/>
         </exec>
-        <exec dir="${build}/openal-soft" executable="make" logError="true" failonerror="false" failifexecutionfails="false" />
+        <exec dir="${build}/openal-soft" executable="make" logError="true" failonerror="true" failifexecutionfails="true" />
     </target>
 
     <target name="c.build.openal.soft.gcc.aarch64" if="useLinuxAARCH64Options" unless="c.build.openal.soft.done">
         <property name="c.build.openal.soft.done" value="true" />
         <mkdir dir="${build}/openal-soft" />
         <copy file="lib/bsinc_inc.h" todir="${build}/openal-soft" overwrite="true"/>
-        <exec dir="${build}/openal-soft" executable="cmake" logError="true" failonerror="false" failifexecutionfails="false">
+        <exec dir="${build}/openal-soft" executable="cmake" logError="true" failonerror="true" failifexecutionfails="true">
             <arg value="../../openal-soft"/>
             <arg value="-DCMAKE_TOOLCHAIN_FILE=${project.root}/make/lib/openal-soft/toolchain.linux-gcc-aarch64.cmake"/>
             <arg value="-DTARGET_PLATFORM_SYSROOT:FILEPATH=${TARGET_PLATFORM_SYSROOT}"/>
             <arg value="-DTARGET_PLATFORM_USRROOT:FILEPATH=${TARGET_PLATFORM_USRROOT}"/>
             <arg value="-DTARGET_PLATFORM_USRLIBS:FILEPATH=${TARGET_PLATFORM_USRLIBS}"/>
         </exec>
-        <exec dir="${build}/openal-soft" executable="make" logError="true" failonerror="false" failifexecutionfails="false" />
+        <exec dir="${build}/openal-soft" executable="make" logError="true" failonerror="true" failifexecutionfails="true" />
     </target>
 
     <target name="c.build.openal.soft.clang.x86_32" if="isCLANG.i386" unless="c.build.openal.soft.done">
         <property name="c.build.openal.soft.done" value="true" />
         <mkdir dir="${build}/openal-soft" />
-        <exec dir="${build}/openal-soft" executable="cmake" logError="true" failonerror="false" failifexecutionfails="false">
+        <exec dir="${build}/openal-soft" executable="cmake" logError="true" failonerror="true" failifexecutionfails="true">
             <arg value="../../openal-soft"/>
             <arg value="-DCMAKE_TOOLCHAIN_FILE=${project.root}/make/lib/openal-soft/toolchain.clang-x86_32.cmake"/>
         </exec>
-        <exec dir="${build}/openal-soft" executable="make" logError="true" failonerror="false" failifexecutionfails="false" />
+        <exec dir="${build}/openal-soft" executable="make" logError="true" failonerror="true" failifexecutionfails="true" />
     </target>
 
     <target name="c.build.openal.soft.clang.default" if="isCLANG" unless="c.build.openal.soft.done">
@@ -628,33 +628,33 @@
         </condition>
 
         <mkdir dir="${build}/openal-soft" />
-        <exec dir="${build}/openal-soft" executable="cmake" logError="true" failonerror="false" failifexecutionfails="false">
+        <exec dir="${build}/openal-soft" executable="cmake" logError="true" failonerror="true" failifexecutionfails="true">
             <arg value="../../openal-soft"/>
             <arg value="-DCMAKE_TOOLCHAIN_FILE=${project.root}/make/lib/openal-soft/toolchain.clang-default.cmake"/>
             <arg value="-DALSOFT_EXAMPLES=OFF"/>
             <arg value="-DCMAKE_EXTRA_ARCHS=${cmake.arch.ppc} ${cmake.arch.x32} ${cmake.arch.x64} ${cmake.arch.arm64}"/>
         </exec>
-        <exec dir="${build}/openal-soft" executable="make" logError="true" failonerror="false" failifexecutionfails="false" />
+        <exec dir="${build}/openal-soft" executable="make" logError="true" failonerror="true" failifexecutionfails="true" />
     </target>
 
     <target name="c.build.openal.soft.gcc.x86_32" if="isI386" unless="c.build.openal.soft.done">
         <property name="c.build.openal.soft.done" value="true" />
         <mkdir dir="${build}/openal-soft" />
-        <exec dir="${build}/openal-soft" executable="cmake" logError="true" failonerror="false" failifexecutionfails="false">
+        <exec dir="${build}/openal-soft" executable="cmake" logError="true" failonerror="true" failifexecutionfails="true">
             <arg value="../../openal-soft"/>
             <arg value="-DCMAKE_TOOLCHAIN_FILE=${project.root}/make/lib/openal-soft/toolchain.gcc-x86_32.cmake"/>
         </exec>
-        <exec dir="${build}/openal-soft" executable="make" logError="true" failonerror="false" failifexecutionfails="false" />
+        <exec dir="${build}/openal-soft" executable="make" logError="true" failonerror="true" failifexecutionfails="true" />
     </target>
 
     <target name="c.build.openal.soft.gcc.default" unless="c.build.openal.soft.done">
         <property name="c.build.openal.soft.done" value="true" />
         <mkdir dir="${build}/openal-soft" />
-        <exec dir="${build}/openal-soft" executable="cmake" logError="true" failonerror="false" failifexecutionfails="false">
+        <exec dir="${build}/openal-soft" executable="cmake" logError="true" failonerror="true" failifexecutionfails="true">
             <arg value="../../openal-soft"/>
             <arg value="-DCMAKE_TOOLCHAIN_FILE=${project.root}/make/lib/openal-soft/toolchain.gcc-default.cmake"/>
         </exec>
-        <exec dir="${build}/openal-soft" executable="make" logError="true" failonerror="false" failifexecutionfails="false" />
+        <exec dir="${build}/openal-soft" executable="make" logError="true" failonerror="true" failifexecutionfails="true" />
     </target>
 
     <target name="c.build.openal.soft" 
