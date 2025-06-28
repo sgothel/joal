@@ -13,6 +13,8 @@ if(APPLE)
     # - kAudioObjectPropertyElementMaster gone in macOS 12
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -mmacosx-version-min=10.14 -DkAudioObjectPropertyElementMain=kAudioObjectPropertyElementMaster")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mmacosx-version-min=10.14 -DkAudioObjectPropertyElementMain=kAudioObjectPropertyElementMaster")
+
+    # Skip utils + examples due to libsndfile dependency (Homebrew)
     set(ALSOFT_UTILS OFF)
     set(ALSOFT_EXAMPLES OFF)
 endif()

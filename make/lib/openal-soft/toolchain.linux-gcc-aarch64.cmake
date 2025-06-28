@@ -3,6 +3,10 @@
 set(CMAKE_SYSTEM_NAME Linux)
 set(CMAKE_SYSTEM_VERSION 1)
 
+# Skip utils + examples due to libsndfile dependency
+set(ALSOFT_UTILS OFF)
+set(ALSOFT_EXAMPLES OFF)
+
 if(NOT APPLE)
     # -idirafter will be searched after implicit system-dir include '-I =/usr/include' from TARGET_PLATFORM_SYSROOT
     set(CMAKE_C_FLAGS "-march=armv8-a -include ${PROJECT_SOURCE_DIR}/../make/lib/openal-soft/glibc-compat-symbols.h")
