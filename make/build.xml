@@ -32,6 +32,7 @@
 <project name="JOAL" basedir="." default="all">
 
     <property name="project.root"  value=".." />
+    <property name="project.root.abs-path"      location="${project.root}" />
 
     <condition property="rootrel.build" value="build">
         <not>
@@ -39,6 +40,11 @@
         </not>
     </condition>
     <property name="build"                value="${project.root}/${rootrel.build}" />
+    <property name="build.abs-path"       location="${build}" />
+
+    <property name="doxygen.root.path"    location="${build}/javadoc" />
+    <property name="doxygen.joal.public.path" location="${doxygen.root.path}/joal/javadoc" />
+    <property name="doxygen.joal.dev.path" location="${doxygen.root.path}/joal/javadoc_dev" />
 
     <property name="gluegen.root"  value="${project.root}/../gluegen" />
     <property name="gluegen.build" value="${gluegen.root}/${rootrel.build}" />
@@ -743,6 +749,61 @@
     </target>
 
     <!-- ================================================================== -->
+
+    <target name="doxygen.all.zip" depends="doxygen.public, doxygen.all, doxygen.zip"/>
+    <target name="doxygen.public.zip" depends="doxygen.public, doxygen.zip"/>
+
+    <target name="doxygen.public" depends="init">
+        <!-- Build the general public Javadoc in the target folder hierarchy doxygen/joal/doxygen -->
+        <delete dir="${doxygen.joal.public.path}" includeEmptyDirs="true" quiet="true" failonerror="false" />
+        <mkdir dir="${doxygen.joal.public.path}" />
+        <copy file="${project.root}/doxygen/doxygen-awesome.css" todir="${build}" overwrite="true"/>
+        <copy file="${project.root}/doxygen/Doxyfile.javapublic.in"
+            tofile="${build}/Doxyfile.javapublic"
+            overwrite="true">
+            <filterset>
+                <filter token="BUILD_DIR" value="${build.abs-path}"/>
+                <filter token="CURRENT_SOURCE_DIR" value="${project.root.abs-path}"/>
+                <filter token="JOAL_VERSION_LONG" value="${jogamp.version}"/>
+                <filter token="JOAL_DOCS_DIR" value="${doxygen.joal.public.path}"/>
+            </filterset>
+        </copy>
+        <exec dir="${build}" executable="doxygen"
+             vmlauncher="false"
+             failonerror="false">
+            <arg line="Doxyfile.javapublic"/>
+        </exec>
+    </target>
+
+    <target name="doxygen.all" depends="init">
+        <!-- Build the general developer Javadoc in the target folder hierarchy doxygen/joal/doxygen_dev -->
+        <delete dir="${doxygen.joal.dev.path}" includeEmptyDirs="true" quiet="true" failonerror="false" />
+        <mkdir dir="${doxygen.joal.dev.path}" />
+        <copy file="${project.root}/doxygen/doxygen-awesome.css" todir="${build}" overwrite="true"/>
+        <copy file="${project.root}/doxygen/Doxyfile.javaall.in"
+            tofile="${build}/Doxyfile.javaall"
+            overwrite="true">
+            <filterset>
+                <filter token="BUILD_DIR" value="${build.abs-path}"/>
+                <filter token="CURRENT_SOURCE_DIR" value="${project.root.abs-path}"/>
+                <filter token="JOAL_VERSION_LONG" value="${jogamp.version}"/>
+                <filter token="JOAL_DOCS_DIR" value="${doxygen.joal.dev.path}"/>
+            </filterset>
+        </copy>
+        <exec dir="${build}" executable="doxygen"
+             vmlauncher="false"
+             failonerror="false">
+            <arg line="Doxyfile.javaall"/>
+        </exec>
+    </target>
+
+    <target name="doxygen.zip" depends="init">
+        <archive.7z destfile="${build}/javadoc.7z"
+             basedir="${doxygen.root.path}"
+             includes="joal/**" />
+    </target>
+
+
     <!--
        - Build the Javadocs for the sources.
        - NOTE:  these are not entirely correct as the javadocs targets depend

@@ -1,4 +1,4 @@
-# JOAL, OpenAL API Binding for Java™
+# JOAL, OpenAL® API Binding for Java™
 
 [Original document location](https://jogamp.org/cgit/joal.git/about/)
 
@@ -140,17 +140,17 @@ To clean:
 
 To build:
 ```
-   > ant -Dtarget.sourcelevel=1.8 -Dtarget.targetlevel=1.8 -Dtarget.rt.jar=/your/openjdk8/lib/rt.jar
+   > ant
 ```
 
 To build docs:
 ```
-   > ant -Dtarget.sourcelevel=1.8 -Dtarget.targetlevel=1.8 -Dtarget.rt.jar=/your/openjdk8/lib/rt.jar javadoc
+   > ant doxygen.all doxygen.public
 ```
 
 To test:
 ```
-   > ant -Dtarget.sourcelevel=1.8 -Dtarget.targetlevel=1.8 -Dtarget.rt.jar=/your/openjdk8/lib/rt.jar runtests
+   > ant runtests
 ```
 
 Instead of properties, you may also use environment variables, 
