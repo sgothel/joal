@@ -53,7 +53,7 @@ public class ALCImpl extends ALCAbstractImpl {
         final byte[] res = new byte[buf.capacity()];
         buf.get(res);
         try {
-            return new String(res, "US-ASCII");
+            return new String(res, "UTF-8");
         } catch (final UnsupportedEncodingException e) {
             throw new ALException(e);
         }
@@ -111,7 +111,7 @@ public class ALCImpl extends ALCAbstractImpl {
                 while ((i < bytes.length) && (bytes[i] != 0)) {
                     i++;
                 }
-                res.add(new String(bytes, startIndex, i - startIndex, "US-ASCII"));
+                res.add(new String(bytes, startIndex, i - startIndex, "UTF-8"));
                 i++;
             }
             return (String[]) res.toArray(new String[res.size()]);
