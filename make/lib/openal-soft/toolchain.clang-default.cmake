@@ -1,8 +1,8 @@
 # For normal clang compilation
 
 if(NOT APPLE)
-    set(CMAKE_C_FLAGS "-include ${PROJECT_SOURCE_DIR}/cmake/glibc-compat-symbols.h")
-    set(CMAKE_CXX_FLAGS "-include ${PROJECT_SOURCE_DIR}/cmake/glibc-compat-symbols.h")
+    set(CMAKE_C_FLAGS "-include ${PROJECT_SOURCE_DIR}/../../gluegen/make/stub_includes/platform/glibc-compat-symbols.h")
+    set(CMAKE_CXX_FLAGS "-include ${PROJECT_SOURCE_DIR}/../../gluegen/make/stub_includes/platform/glibc-compat-symbols.h")
 endif()
 
 if(APPLE)

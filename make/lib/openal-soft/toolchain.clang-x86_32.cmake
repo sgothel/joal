@@ -5,8 +5,8 @@ set(CMAKE_SYSTEM_PROCESSOR "x86")
 link_directories("/usr/lib32")
 
 if(NOT APPLE)
-    set(CMAKE_C_FLAGS "-m32 -include ${PROJECT_SOURCE_DIR}/cmake/glibc-compat-symbols.h")
-    set(CMAKE_CXX_FLAGS "-m32 -include ${PROJECT_SOURCE_DIR}/cmake/glibc-compat-symbols.h")
+    set(CMAKE_C_FLAGS "-m32 -include ${PROJECT_SOURCE_DIR}/../../gluegen/make/stub_includes/platform/glibc-compat-symbols.h")
+    set(CMAKE_CXX_FLAGS "-m32 -include ${PROJECT_SOURCE_DIR}/../../gluegen/make/stub_includes/platform/glibc-compat-symbols.h")
 endif()
 
 if(APPLE)

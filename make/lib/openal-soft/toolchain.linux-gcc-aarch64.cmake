@@ -9,8 +9,8 @@ set(ALSOFT_EXAMPLES OFF)
 
 if(NOT APPLE)
     # -idirafter will be searched after implicit system-dir include '-I =/usr/include' from TARGET_PLATFORM_SYSROOT
-    set(CMAKE_C_FLAGS "-march=armv8-a -include ${PROJECT_SOURCE_DIR}/../make/lib/openal-soft/glibc-compat-symbols.h")
-    set(CMAKE_CXX_FLAGS "-march=armv8-a -include ${PROJECT_SOURCE_DIR}/../make/lib/openal-soft/glibc-compat-symbols.h")
+    set(CMAKE_C_FLAGS "-march=armv8-a -include ${PROJECT_SOURCE_DIR}/../../gluegen/make/stub_includes/platform/glibc-compat-symbols.h")
+    set(CMAKE_CXX_FLAGS "-march=armv8-a -include ${PROJECT_SOURCE_DIR}/../../gluegen/make/stub_includes/platform/glibc-compat-symbols.h")
 endif()
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}" CACHE STRING "c flags")
