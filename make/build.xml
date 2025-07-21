@@ -219,12 +219,6 @@
         </condition>
         <echo message="useLinuxARMv6HFOptions ${useLinuxARMv6HFOptions}" />
         <echo message="useLinuxAARCH64Options ${useLinuxAARCH64Options}" />
-
-        <!-- NDK >= r19 using API > 22: 'U __register_atfork'
-             __register_atfork; # introduced=23
-             See https://github.com/android/ndk/issues/964 -->
-        <property name="ANDROID_API_LEVEL_OPENAL_SOFT" value="22" />
-        <!-- property name="ANDROID_API_LEVEL_OPENAL_SOFT" value="${env.ANDROID_API_LEVEL}"/ -->
     </target>
 
     <!-- ================================================================== -->
