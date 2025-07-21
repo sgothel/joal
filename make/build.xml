@@ -481,7 +481,7 @@
                         module="openal"
                         includelibs="*joal.${native.library.suffix} *openal.${native.library.suffix} OpenAL32.${native.library.suffix} *openal*.1*.${native.library.suffix}" />
         <!-- Produce duplicates for different configurations, since non-native-jar aliasing (Bug 1023/Bug 1024) -->
-        <copy file="${build}/jar/joal-natives-${os.and.arch}.jar" tofile="${build}/jar/joal-android-natives-${os.and.arch}.jar"/>
+        <!-- copy file="${build}/jar/joal-natives-${os.and.arch}.jar" tofile="${build}/jar/joal-android-natives-${os.and.arch}.jar"/ -->
     </target>
 
     <target name="c.build.openal.soft.android.x86" if="isAndroidX86" unless="c.build.openal.soft.done">
