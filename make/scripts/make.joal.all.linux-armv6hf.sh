@@ -19,9 +19,6 @@ if [ -z "$ANT_PATH" ] ; then
 fi
 
 #    -Drootrel.build=build-linux-armv6hf \
-#    -Dtarget.sourcelevel=1.6 \
-#    -Dtarget.targetlevel=1.6 \
-#    -Dtarget.rt.jar=/opt-share/jre1.6.0_30/lib/rt.jar \
 
 #export JOGAMP_JAR_CODEBASE="Codebase: *.jogamp.org"
 export JOGAMP_JAR_CODEBASE="Codebase: *.goethel.localnet"

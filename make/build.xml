@@ -362,18 +362,15 @@
        - Compile the original and generated source.
       -->
     <target name="java.compile" depends="java.generate">
-        <javac destdir="${classes}" 
+        <javac destdir="${classes}"
                includeantruntime="false"
-               classpath="${gluegen-rt.jar}" 
+               classpath="${gluegen-rt.jar}"
                memoryMaximumSize="${javac.memorymax}"
                encoding="UTF-8"
-               source="${target.sourcelevel}" 
-               target="${target.targetlevel}" 
-               bootclasspath="${target.rt.jar}"
+               release="${target.releaselevel}"
                debug="${javacdebug}" debuglevel="${javacdebuglevel}">
             <src path="${src.java}" />
             <src path="${src.generated.java}" />
-            <!-- compilerarg line="release ${target.releaselevel}"/ -->
         </javac>
     </target>
 
@@ -409,15 +406,15 @@
 
             <echo message="Compiling @{output.lib.name}" />
 
-            <cc outtype="${output.lib.type}" 
+            <cc outtype="${output.lib.type}"
                 usehighleveltool="true"
                 writesoname="true"
-                objdir="${obj}" 
+                objdir="${obj}"
                 outfile="${obj}/@{output.lib.name}"
-                optimize="${c.compiler.optimise}" 
+                optimize="${c.compiler.optimise}"
                 debug="${c.compiler.debug}"
-                multithreaded="true" 
-                exceptions="false" 
+                multithreaded="true"
+                exceptions="false"
                 rtti="false">
 
                 <fileset dir="${project.root}">
@@ -477,7 +474,7 @@
 
         <native.tag.jar objdir="${build}/obj"
                         nativejarfile="${build}/jar/joal-natives-${os.and.arch}.jar"
-                        manifestfile="${build}/tempversion-natives" 
+                        manifestfile="${build}/tempversion-natives"
                         module="openal"
                         includelibs="*joal.${native.library.suffix} *openal.${native.library.suffix} OpenAL32.${native.library.suffix} *openal*.1*.${native.library.suffix}" />
         <!-- Produce duplicates for different configurations, since non-native-jar aliasing (Bug 1023/Bug 1024) -->
@@ -669,7 +666,7 @@
         <exec dir="${build}/openal-soft" executable="make" logError="true" failonerror="true" failifexecutionfails="true" />
     </target>
 
-    <target name="c.build.openal.soft" 
+    <target name="c.build.openal.soft"
             depends="init, gluegen.cpptasks.detect.os, gluegen.cpptasks.setup.compiler, c.build.openal.soft.windows, c.build.openal.soft.android.x86, c.build.openal.soft.android.x86_64, c.build.openal.soft.android.arm, c.build.openal.soft.android.arm64, c.build.openal.soft.gcc.armv6.hard, c.build.openal.soft.gcc.aarch64, c.build.openal.soft.clang.x86_32, c.build.openal.soft.clang.default, c.build.openal.soft.gcc.x86_32, c.build.openal.soft.gcc.default">
         <copy todir="../${rootrel.build}/obj" failonerror="false">
             <fileset dir="${build}/openal-soft" erroronmissingdir="false">
@@ -736,7 +733,7 @@
     </target>
 
     <target name="android.package" depends="init" if="isAndroid">
-        <aapt.signed 
+        <aapt.signed
             jarsrcdir="${src.java}"
             jarbuilddir="${build}/jar"
             jarbasename="joal-android"
@@ -749,7 +746,7 @@
             version.code="${jogamp.version.int}"
             version.name="${jogamp.version}">
           <d8-classpaths>
-              <arg line="--classpath ${gluegen-rt.jar}"/> 
+              <arg line="--classpath ${gluegen-rt.jar}"/>
           </d8-classpaths>
         </aapt.signed>
     </target>
@@ -818,9 +815,9 @@
       -->
     <target name="javadoc" depends="init, javadoc.init, javadoc.public, javadoc.dev, javadoc.zip"/>
 
-    <!-- copies ${gluegen-javadoc.path}/** to ${javadoc.root.path}/gluegen/ 
+    <!-- copies ${gluegen-javadoc.path}/** to ${javadoc.root.path}/gluegen/
          gluegen-javadoc.path is the parent folder of element-list:
-            gluegen-javadoc.path := build/javadoc/gluegen 
+            gluegen-javadoc.path := build/javadoc/gluegen
             with build/javadoc/gluegen/javadoc/element-list
       -->
     <target name="javadoc.gluegen" depends="init" if="gluegen-javadoc.path">
@@ -838,7 +835,7 @@
         <property name="javadoc.link" value="http://docs.oracle.com/javase/6/docs/api/" />
 
         <!-- Link offline with relative URLs does not work.
-             Link online with relative URLs works, 
+             Link online with relative URLs works,
              so we have to assume the same relative online folder structure:
 
                  http://jogamp.org/deployment/jogamp-next/javadoc/gluegen/javadoc/
@@ -866,9 +863,9 @@
         <property name="javadoc.packagenames" value="com.jogamp.openal,com.jogamp.openal.util,com.jogamp.openal.sound3d" />
         <property name="javadoc.dev.packagenames" value="${javadoc.packagenames},jogamp.openal" />
 
-        <!-- if gluegen-javadoc.path is not set, check in default location, 
+        <!-- if gluegen-javadoc.path is not set, check in default location,
              ${gluegen.root}/${rootrel.build}/javadoc/gluegen -->
-        <available file="${gluegen.build}/javadoc/gluegen/javadoc/element-list" 
+        <available file="${gluegen.build}/javadoc/gluegen/javadoc/element-list"
                    type="file"
                    property="gluegen-javadoc.path"
                    value="${gluegen.build}/javadoc/gluegen" />
@@ -969,7 +966,7 @@
       <delete includeEmptyDirs="true" failonerror="false">
         <fileset dir="${tempdir}" />
       </delete>
-    </target>    
+    </target>
 
     <target name="clean" depends="init">
         <delete includeEmptyDirs="true" quiet="true">

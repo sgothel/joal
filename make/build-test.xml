@@ -6,17 +6,17 @@
 * Redistribution and use in source and binary forms, with or without
 * modification, are permitted provided that the following conditions are met:
 *
-* -Redistribution of source code must retain the above copyright notice, 
+* -Redistribution of source code must retain the above copyright notice,
 * this list of conditions and the following disclaimer.
 *
-* -Redistribution in binary form must reproduce the above copyright notice, 
+* -Redistribution in binary form must reproduce the above copyright notice,
 * this list of conditions and the following disclaimer in the documentation
 * and/or other materials provided with the distribution.
 *
-* Neither the name of Sun Microsystems, Inc. or the names of contributors may 
-* be used to endorse or promote products derived from this software without 
+* Neither the name of Sun Microsystems, Inc. or the names of contributors may
+* be used to endorse or promote products derived from this software without
 * specific prior written permission.
-* 
+*
 * This software is provided "AS IS," without a warranty of any kind.
 * ALL EXPRESS OR IMPLIED CONDITIONS, REPRESENTATIONS AND WARRANTIES, INCLUDING
 * ANY IMPLIED WARRANTY OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE OR
@@ -87,17 +87,15 @@
     </target>
 
     <target name="test.compile.javase" depends="declare.common" >
-        <javac destdir="${classes.test}" 
+        <javac destdir="${classes.test}"
                excludes="${java.part.test.android}"
                fork="yes"
                includeantruntime="false"
-               srcdir="${src.test}" 
+               srcdir="${src.test}"
                classpath="${gluegen-rt.jar};${build}/jar/joal.jar;${junit.jar}"
                memoryMaximumSize="${javac.memorymax}"
                encoding="UTF-8"
-               source="${target.sourcelevel}" 
-               target="${target.targetlevel}" 
-               bootclasspath="${target.rt.jar}"
+               release="${target.releaselevel}"
                debug="${javacdebug}" debuglevel="${javacdebuglevel}"/>
         <copy file="joalversion-test"
             tofile="${build.test}/manifest-test.mf"
@@ -119,18 +117,16 @@
                      excludes="${java.part.test.android}"/>
         </jar>
     </target>
-    
+
     <target name="test.compile.android" depends="declare.common" if="android-jars.available">
         <!-- Perform the junit pass Java Android compile -->
-        <javac destdir="${classes.test}" 
+        <javac destdir="${classes.test}"
                fork="yes"
                includeAntRuntime="false"
                classpath="${android.jar};${gluegen-rt-android.jar};${build}/jar/joal.jar;${junit.jar}"
                memoryMaximumSize="${javac.memorymax}"
                encoding="UTF-8"
-               source="${target.sourcelevel}" 
-               target="${target.targetlevel}" 
-               bootclasspath="${target.rt.jar}"
+               release="${target.releaselevel}"
                debug="${javacdebug}" debuglevel="${javacdebuglevel}">
             <src path="${src.test}" />
         </javac>
@@ -149,13 +145,13 @@
             <!-- get all class files, but skip any resource files that external tools
                  might have copied into the class directory (otherwise, it's possible
                  to get the same resource file twice in the jar) -->
-            <fileset dir="${classes.test}" 
+            <fileset dir="${classes.test}"
                      includes="${java.part.test.all}"/>
         </jar>
     </target>
 
     <target name="test.package.android" depends="test.compile.android" if="isAndroid">
-        <aapt.signed 
+        <aapt.signed
             assetsdir="resources/assets-test"
             jarsrcdir="${src.test}"
             jarbuilddir="${build}/jar"
@@ -168,9 +164,9 @@
             version.code="${jogamp.version.int}"
             version.name="${jogamp.version}">
           <d8-classpaths>
-              <arg line="--classpath ${gluegen-rt-android.jar}"/> 
-              <arg line="--classpath ${junit.jar}"/> 
-              <arg line="--classpath ${build}/jar/joal.jar"/> 
+              <arg line="--classpath ${gluegen-rt-android.jar}"/>
+              <arg line="--classpath ${junit.jar}"/>
+              <arg line="--classpath ${build}/jar/joal.jar"/>
           </d8-classpaths>
         </aapt.signed>
     </target>
@@ -192,7 +188,7 @@
     <target name="clean">
         <delete dir="${build.test}"/>
     </target>
-    
+
     <target name="clean.results">
         <!-- Clean the results -->
         <delete quiet="true">
@@ -228,7 +224,7 @@
             <fileset dir="." includes="hs_err_pid*.log" />
         </move>
     </target>
-    
+
     <target name="test.manual.run" depends="clean.results, test.compile">
         <for param="test.class.path.m" keepgoing="true">
             <!-- results in absolute path -->
@@ -249,8 +245,8 @@
             </pathconvert>
             <var name="test.class.result.file" value="${results.test}/TEST-${test.class.fqn}.log"/>
             <echo message="Testing ${test.class.fqn} -- ${test.class.result.file}"/>
-            <apply dir="." executable="${java.home}/bin/java" 
-                 parallel="false" 
+            <apply dir="." executable="${java.home}/bin/java"
+                 parallel="false"
                  timeout="${batchtest.timeout}"
                  vmlauncher="false"
                  relative="true"
@@ -416,7 +412,7 @@ ${line.separator}
     <!-- updates / create the test results zip file -->
     <target name="test-zip-archive" depends="declare.common">
         <archive.7z destfile="${build}/${test.archive.name}.7z"
-                    basedir="${results.test}" 
+                    basedir="${results.test}"
                     includes="**" />
     </target>
 
