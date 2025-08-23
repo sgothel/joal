@@ -40,8 +40,8 @@ import java.util.jar.Manifest;
 public class JoalVersion extends JogampVersion {
     protected static volatile JoalVersion jogampCommonVersionInfo;
 
-    protected JoalVersion(final String packageName, final Manifest mf) {
-        super(packageName, mf);
+    protected JoalVersion(final Manifest mf) {
+        super(mf);
     }
 
     public static JoalVersion getInstance() {
@@ -50,7 +50,7 @@ public class JoalVersion extends JogampVersion {
                 if( null == jogampCommonVersionInfo ) {
                     final String packageName = "com.jogamp.openal";
                     final Manifest mf = VersionUtil.getManifest(JoalVersion.class.getClassLoader(), packageName);
-                    jogampCommonVersionInfo = new JoalVersion(packageName, mf);
+                    jogampCommonVersionInfo = new JoalVersion(mf);
                 }
             }
         }
