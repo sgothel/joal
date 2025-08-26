@@ -35,6 +35,15 @@ version [**v1.24.3** *from our fork*](https://jogamp.org/cgit/openal-soft.git/).
 
 Our builds expose the following audio backends:
 
+### FreeBSD
+- PipeWire
+- PulseAudio
+- ALSA
+- OSS
+- JACK
+- WaveFile
+- Null
+
 ### GNU/Linux
 - PipeWire
 - PulseAudio
@@ -77,6 +86,14 @@ Additionally the following packages and tools have been used:
 * Windows:
   - [CMake 3.15.2](https://cmake.org/download/)
   - OpenAL Soft: Audio-Backends: WinMM, DirectSound, WASAPI, WaveFile, Null
+
+* FreeBSD:
+  - cmake
+  - OpenAL Soft: OpenAL: PipeWire, PulseAudio, ALSA, OSS, JACK, WaveFile, Null
+```
+pkg install git doxygen bash openjdk21 junit 7-zip
+pkg install git cmake autoconf <audio systems>
+```
 
 * GNU/Linux:
   - cmake
