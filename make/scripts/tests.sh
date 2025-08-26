@@ -49,6 +49,20 @@ fi
 JUNIT_JAR=$GLUEGEN_DIR/make/lib/junit.jar
 
 if [ -z "$ANT_PATH" ] ; then
+    if [ -e /opt-share/apache-ant ] ; then
+        ANT_PATH=/opt-share/apache-ant
+        PATH=$ANT_PATH/bin:$PATH
+        export ANT_PATH
+    fi
+fi
+if [ -z "$ANT_PATH" ] ; then
+    if [ -e /usr/share/ant/bin/ant -a -e /usr/share/ant/lib/ant.jar ] ; then
+        ANT_PATH=/usr/share/ant
+        export ANT_PATH
+        echo autosetting ANT_PATH to $ANT_PATH
+    fi
+fi
+if [ -z "$ANT_PATH" ] ; then
     ANT_PATH=$(dirname $(dirname $(which ant)))
     if [ -e $ANT_PATH/lib/ant.jar ] ; then
         export ANT_PATH
