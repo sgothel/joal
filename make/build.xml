@@ -639,6 +639,8 @@
             <arg value="-DGLUEGEN_ROOT=${gluegen.root.abs-path}"/>
             <arg value="-DCMAKE_TOOLCHAIN_FILE=${project.root}/make/lib/openal-soft/toolchain.clang-default.cmake"/>
             <arg value="-DALSOFT_EXAMPLES=OFF"/>
+            <arg value="-DCMAKE_DISABLE_FIND_PACKAGE_Qt5Widgets=ON"/> <!-- FreeBSD -->
+            <arg value="-DALSOFT_EMBED_HRTF_DATA=OFF"/>               <!-- FreeBSD -->
             <arg value="-DCMAKE_EXTRA_ARCHS=${cmake.arch.ppc} ${cmake.arch.x32} ${cmake.arch.x64} ${cmake.arch.arm64}"/>
         </exec>
         <exec dir="${build}/openal-soft" executable="make" logError="true" failonerror="true" failifexecutionfails="true" />
