@@ -91,7 +91,8 @@ Additionally the following packages and tools have been used:
   - cmake
   - OpenAL Soft: OpenAL: PipeWire, PulseAudio, ALSA, OSS, JACK, WaveFile, Null
 ```
-pkg install git doxygen bash openjdk21 junit 7-zip
+pkg install git doxygen bash openjdk21 junit 7-zip apache-ant
+ln -s /usr/local/bin/bash /bin/bash
 pkg install git cmake autoconf <audio systems>
 ```
 
