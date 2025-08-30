@@ -77,6 +77,7 @@ fi
 ANT_JARS=$ANT_PATH/lib/ant.jar:$ANT_PATH/lib/ant-junit.jar
 
 function jrun() {
+    MODULE_ARGS="--enable-native-access=ALL-UNNAMED --add-opens java.desktop/sun.awt=ALL-UNNAMED --add-opens java.desktop/sun.awt.windows=ALL-UNNAMED --add-opens java.desktop/sun.java2d=ALL-UNNAMED"
     #D_ARGS="-Djogamp.debug=all"
     #D_ARGS="-Djogamp.debug.Bitstream"
     #D_ARGS="-Djogamp.debug.NativeLibrary=true -Djoal.debug=true"
@@ -104,9 +105,9 @@ function jrun() {
     echo
     echo "Test Start: $*"
     echo
-    echo "$javaexe" $javaxargs $X_ARGS $D_ARGS $C_ARG $*
+    echo "$javaexe" $javaxargs $MODULE_ARGS $X_ARGS $D_ARGS $C_ARG $*
     #gdb --args "$javaexe" $javaxargs $X_ARGS $D_ARGS $C_ARG $*
-    "$javaexe" $javaxargs $X_ARGS $D_ARGS $C_ARG $*
+    "$javaexe" $javaxargs $MODULE_ARGS $X_ARGS $D_ARGS $C_ARG $*
     echo
     echo "Test End: $*"
     echo

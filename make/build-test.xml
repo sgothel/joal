@@ -202,6 +202,7 @@
         <junit forkmode="perTest" showoutput="true" fork="true" haltonerror="off" includeAntRuntime="true">
             <env key="${system.env.library.path}" path="${obj.all.paths}"/>
             <jvmarg value="${jvmDataModel.arg}"/>
+            <jvmarg value="${jvmarg.generic}"/>
             <jvmarg value="-Djava.library.path=${obj.all.paths}"/>
             <!--
             <jvmarg value="-Djogamp.debug=all"/>
