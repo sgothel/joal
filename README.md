@@ -3,7 +3,7 @@
 [Original document location](https://jogamp.org/cgit/joal.git/about/)
 
 ## Git Repository
-This project's canonical repositories is hosted on [JogAmp](https://jogamp.org/cgit/joal.git/).
+This project's canonical repository is hosted on [JogAmp](https://jogamp.org/cgit/joal.git/).
 
 ## Overview
 The [*JOAL Project*](https://jogamp.org/joal/www/) hosts a reference implementation of the
