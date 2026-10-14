@@ -96,18 +96,16 @@ ln -s /usr/local/bin/bash /bin/bash
 pkg install git cmake autoconf <audio systems>
 ```
 
-* GNU/Linux:
+* GNU/Linux (Debian 13):
   - cmake
   - OpenAL Soft: OpenAL: PipeWire, PulseAudio, ALSA, OSS, SndIO (linked), WaveFile, Null
 ```
      apt-get install cmake autoconf \
-             libpipewire-0.3-dev \
-             libpulse-dev libpulse0:amd64 libpulse0:i386 pulseaudio \
+             libpipewire-0.3-dev pipewire \
+             libpulse-dev libpulse0 \
              libsndio-dev \
-             libasound2-dev libasound2:amd64 libasound2:i386
+             libasound2-dev libasound2 libjack-dev libjack0
 ```
- On Debian 11 Bullseye, use bullseye-backports `apt -t bullseye-backports install libpipewire-0.3-dev`
- to have libpipewire-0.3>=0.3.23, i.e. version 0.3.65.
 
 * Android/Linux:
   - cmake
