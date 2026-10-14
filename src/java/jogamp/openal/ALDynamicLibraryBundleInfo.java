@@ -34,28 +34,19 @@ import com.jogamp.common.os.DynamicLibraryBundleInfo;
 import com.jogamp.common.os.Platform;
 import com.jogamp.common.util.RunnableExecutor;
 import com.jogamp.common.util.cache.TempJarCache;
-import com.jogamp.common.util.SecurityUtil;
 import com.jogamp.openal.ALFactory;
 
-import java.security.PrivilegedAction;
 import java.util.*;
 
 public final class ALDynamicLibraryBundleInfo implements DynamicLibraryBundleInfo  {
     private static final List<String> glueLibNames;
     static {
-        SecurityUtil.doPrivileged(new PrivilegedAction<Object>() {
-            @Override
-            public Object run() {
-                Platform.initSingleton();
+        Platform.initSingleton();
 
-                if( TempJarCache.isInitialized(true) ) {
-                   // only: joal.jar -> joal-natives-<os.and.arch>.jar
-                   JNILibLoaderBase.addNativeJarLibs(new Class<?>[] { jogamp.openal.Debug.class }, null );
-                }
-                return null;
-            }
-        });
-
+        if( TempJarCache.isInitialized(true) ) {
+           // only: joal.jar -> joal-natives-<os.and.arch>.jar
+           JNILibLoaderBase.addNativeJarLibs(new Class<?>[] { jogamp.openal.Debug.class }, null );
+        }
         glueLibNames = new ArrayList<String>();
         glueLibNames.add("joal");
     }

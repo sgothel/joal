@@ -28,10 +28,8 @@
 
 package jogamp.openal;
 
-import java.security.PrivilegedAction;
 
 import com.jogamp.common.util.PropertyAccess;
-import com.jogamp.common.util.SecurityUtil;
 
 /** Helper routines for logging and debugging. */
 
@@ -41,11 +39,7 @@ public class Debug extends PropertyAccess {
   private static boolean debugAll;
 
   static {
-    SecurityUtil.doPrivileged(new PrivilegedAction<Object>() {
-        public Object run() {
-            PropertyAccess.addTrustedPrefix("joal.");
-            return null;
-    } } );
+    PropertyAccess.addTrustedPrefix("joal.");
 
     verbose = isPropertyDefined("joal.verbose", true);
     debugAll = isPropertyDefined("joal.debug", true);

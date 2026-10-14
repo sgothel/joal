@@ -7,22 +7,18 @@ static {
       throw new RuntimeException("Couldn't instantiate ALProcAddressTable");
     }
 
-    alDynamicLookupHelper = SecurityUtil.doPrivileged(new PrivilegedAction<DynamicLibraryBundle>() {
-                                public DynamicLibraryBundle run() {
-                                    final DynamicLibraryBundle bundle =  new DynamicLibraryBundle(new ALDynamicLibraryBundleInfo());
-                                    if(!bundle.isToolLibLoaded()) {
-                                      throw new RuntimeException("Couln't load native AL library");
-                                    }
-                                    if(!bundle.isLibComplete()) {
-                                      throw new RuntimeException("Couln't load native AL/JNI glue library");
-                                    }
-                                    alProcAddressTable.reset(bundle);
-                                    /** Not required nor forced
-                                    if( !initializeImpl() ) {
-                                        throw new RuntimeException("Initialization failure");
-                                    } */
-                                    return bundle;
-                                } } );
+    alDynamicLookupHelper = new DynamicLibraryBundle(new ALDynamicLibraryBundleInfo());
+    if(!alDynamicLookupHelper.isToolLibLoaded()) {
+      throw new RuntimeException("Couln't load native AL library");
+    }
+    if(!alDynamicLookupHelper.isLibComplete()) {
+      throw new RuntimeException("Couln't load native AL/JNI glue library");
+    }
+    alProcAddressTable.reset(alDynamicLookupHelper);
+    /** Not required nor forced
+    if( !initializeImpl() ) {
+        throw new RuntimeException("Initialization failure");
+    } */
 }
 
 public static ALProcAddressTable getALProcAddressTable() { return alProcAddressTable; }
