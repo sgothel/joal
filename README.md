@@ -115,7 +115,10 @@ pkg install git cmake autoconf <audio systems>
   - OSX 10.2 or later
   - OSX Developer Tools Xcode
   - CMake 3.15.2 <https://cmake.org/download/> 
-    and install the commandline tools <https://stackoverflow.com/questions/30668601/installing-cmake-command-line-tools-on-a-mac>
+```
+# Create symlinks to /usr/local/bin
+sudo "/Applications/CMake.app/Contents/bin/cmake-gui" --install
+```
   - OpenAL Soft: Audio-Backends: CoreAudio, WaveFile, Null
 
 JOAL requires the GlueGen workspace to be checked out as a sibling
